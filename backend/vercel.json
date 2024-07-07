@@ -1,0 +1,15 @@
+{
+    "version": 2,
+    "nuilds": [
+        {
+            "src": "./server.js",
+            "use": "@verce;/node"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "/"
+        }
+    ]
+}

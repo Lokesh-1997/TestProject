@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/', (req, res) => {
-    res.sendStatus("server is running..");
+    res.status(200).send("server is running..");
 })
 
 // Connect to DB

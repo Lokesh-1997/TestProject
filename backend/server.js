@@ -1,12 +1,11 @@
 const express = require('express');
 const cors = require('cors');
-const connectDB = require('./db.js');
 const mongoose = require('mongoose');
+const connectDB = require('./db.js'); // Ensure this file exists and properly connects to MongoDB
+
 const app = express();
 app.use(cors());
 app.use(express.json());
-
-// app.use(express.static(path.join(__dirname + "")))
 
 // Connect to DB
 connectDB();
@@ -108,6 +107,7 @@ app.get('/api/assessments/:id', async (req, res) => {
         }
         res.json(assessment);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -126,6 +126,7 @@ app.put('/api/assessments/:id', async (req, res) => {
         }
         res.json(assessment);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -273,7 +274,6 @@ app.post('/api/results', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
-
 
 app.listen(5000, () => {
     console.log("App is running on port 5000");

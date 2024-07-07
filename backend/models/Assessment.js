@@ -1,4 +1,3 @@
-// models/Assessment.js
 const mongoose = require('mongoose');
 
 const assessmentSchema = new mongoose.Schema({
@@ -9,9 +8,18 @@ const assessmentSchema = new mongoose.Schema({
     examCategory: {
         type: String,
         required: true
+    },
+    questions: {
+        type: [{
+            questionID: String,
+            question: String,
+            questionType: String,
+            questionCategory: String,
+            nextQuestions: String,
+            options: [String]
+        }],
+        default: []
     }
 });
 
-const Assessment = mongoose.model('Assessment', assessmentSchema);
-
-module.exports = Assessment;
+module.exports = mongoose.model('Assessment', assessmentSchema);

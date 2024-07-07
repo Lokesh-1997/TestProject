@@ -1,25 +1,18 @@
 const mongoose = require('mongoose');
 
-const assessmentSchema = new mongoose.Schema({
+const AssessmentSchema = new mongoose.Schema({
     examName: {
         type: String,
-        required: true
+        required: true,
     },
     examCategory: {
         type: String,
-        required: true
+        required: true,
     },
-    questions: {
-        type: [{
-            questionID: String,
-            question: String,
-            questionType: String,
-            questionCategory: String,
-            nextQuestions: String,
-            options: [String]
-        }],
-        default: []
-    }
+}, {
+    timestamps: true
 });
 
-module.exports = mongoose.model('Assessment', assessmentSchema);
+const Assessment = mongoose.model('Assessment', AssessmentSchema);
+
+module.exports = Assessment;

@@ -7,6 +7,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use('/', (req, res) => {
+    res.sendStatus("server is running..");
+})
+
 // Connect to DB
 connectDB();
 

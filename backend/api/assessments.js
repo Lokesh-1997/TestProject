@@ -1,9 +1,17 @@
 const express = require('express');
+const cors = require('cors');
+// const connectDB = require('./db.js');
+const mongoose = require('mongoose');
+const app = express();
+app.use(cors());
+app.use(express.json());
 const router = express.Router();
 const Assessment = require('../models/Assessment'); // Ensure you have a models directory with Assessment.js
 
-// POST route to create an assessment
-router.post('/', async (req, res) => {
+
+/// POST route to create an assessment
+
+app.post('/api/assessments', async (req, res) => {
     const { examName, examCategory } = req.body;
     if (!examName || !examCategory) {
         return res.status(400).send('Exam Name and Exam Category are required');
@@ -19,7 +27,7 @@ router.post('/', async (req, res) => {
 });
 
 // GET route to fetch all assessments
-router.get('/', async (req, res) => {
+app.get('/api/assessments', async (req, res) => {
     try {
         const assessments = await Assessment.find();
         res.status(200).json(assessments);
@@ -30,7 +38,7 @@ router.get('/', async (req, res) => {
 });
 
 // DELETE route to delete an assessment
-router.delete('/:id', async (req, res) => {
+app.delete('/api/assessments/:id', async (req, res) => {
     const { id } = req.params;
     try {
         await Assessment.findByIdAndDelete(id);
@@ -42,7 +50,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 // GET route to fetch an assessment by ID
-router.get('/:id', async (req, res) => {
+app.get('/api/assessments/:id', async (req, res) => {
     console.log(`Fetching assessment with ID: ${req.params.id}`);
     try {
         const assessment = await Assessment.findById(req.params.id);
@@ -51,13 +59,12 @@ router.get('/:id', async (req, res) => {
         }
         res.json(assessment);
     } catch (error) {
-        console.error(error);
         res.status(500).json({ message: 'Server error' });
     }
 });
 
 // PUT route to update an assessment
-router.put('/:id', async (req, res) => {
+app.put('/api/assessments/:id', async (req, res) => {
     const { examName, examCategory } = req.body;
     try {
         const assessment = await Assessment.findByIdAndUpdate(
@@ -70,13 +77,12 @@ router.put('/:id', async (req, res) => {
         }
         res.json(assessment);
     } catch (error) {
-        console.error(error);
         res.status(500).json({ message: 'Server error' });
     }
 });
 
 // POST route to add a question to an assessment
-router.post('/:id/questions', async (req, res) => {
+app.post('/api/assessments/:id/questions', async (req, res) => {
     const { id } = req.params;
     const { questionID, question, questionType, questionCategory, nextQuestions, options } = req.body;
 
@@ -107,7 +113,7 @@ router.post('/:id/questions', async (req, res) => {
 });
 
 // PUT route to update a question in an assessment
-router.put('/:assessmentId/questions/:questionId', async (req, res) => {
+app.put('/api/assessments/:assessmentId/questions/:questionId', async (req, res) => {
     const { assessmentId, questionId } = req.params;
     const { questionID, question, questionType, questionCategory, nextQuestions, options } = req.body;
 
@@ -142,7 +148,7 @@ router.put('/:assessmentId/questions/:questionId', async (req, res) => {
 });
 
 // DELETE route to delete a question from an assessment
-router.delete('/:assessmentId/questions/:questionId', async (req, res) => {
+app.delete('/api/assessments/:assessmentId/questions/:questionId', async (req, res) => {
     const { assessmentId, questionId } = req.params;
 
     try {
@@ -162,7 +168,7 @@ router.delete('/:assessmentId/questions/:questionId', async (req, res) => {
 });
 
 // GET route to fetch questions for a specific assessment by exam name
-router.get('/:examName/questions', async (req, res) => {
+app.get('/api/assessments/:examName/questions', async (req, res) => {
     const { examName } = req.params;
     try {
         const assessment = await Assessment.findOne({ examName });

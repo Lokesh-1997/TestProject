@@ -200,8 +200,11 @@ function AssessmentPage() {
                 <div key={question.questionID} className='question text-start'>
                     <p className='mt-5' dangerouslySetInnerHTML={{ __html: question.question }}></p>
                     {renderQuestionInput(question)}
+                    <p className='mt-3'><i>{question.disclaimer}</i></p>
                 </div>
             ))}
+
+
             <div className='navigation-buttons d-flex justify-content-between mt-5'>
                 <button
                     className='btn-cancel'

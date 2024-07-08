@@ -4,9 +4,8 @@ import './AssessmentPage.css';
 
 function AssessmentPage() {
     const { state } = useLocation();
-    const { examName, userId } = state || {}; // Assume userId is passed as state
+    const { examName, examCategory } = state || {};
     const [questions, setQuestions] = useState([]);
-    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [answers, setAnswers] = useState({});
     const navigate = useNavigate();
     const [currentQuestionID, setCurrentQuestionID] = useState(null);
@@ -76,24 +75,34 @@ function AssessmentPage() {
     };
 
     const saveResults = async () => {
+        const userEmail = localStorage.getItem('email'); // Retrieve email from local storage
         try {
+            const formattedAnswers = Object.keys(answers).map(questionID => ({
+                questionID,
+                answer: answers[questionID]
+            }));
+
             const response = await fetch('http://localhost:5000/api/results', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ examName, userId, answers })
+                body: JSON.stringify({ examName, examCategory, userEmail, answers: formattedAnswers })
             });
 
             if (response.ok) {
-                navigate('/dashboard'); // Redirect to dashboard after saving results
+                alert("Your answers are submitted")
+                navigate('/landing'); // Redirect to dashboard after saving results
             } else {
-                console.error('Failed to save results');
+                const errorData = await response.json();
+                console.error('Failed to save results', errorData);
+                alert(`Failed to save results: ${errorData.message}`);
             }
         } catch (error) {
             console.error('Error saving results:', error);
         }
     };
+
 
     if (!questions.length) {
         return <div>Loading...</div>;
@@ -175,7 +184,7 @@ function AssessmentPage() {
                     className='btn-cancel'
                     onClick={() => {
                         if (questions.findIndex(q => q.questionID === currentQuestionID) === 0) {
-                            navigate('/instructions', { state: { examName, userId } });
+                            navigate('/instructions', { state: { examName, examCategory } });
                         } else {
                             handlePreviousQuestion();
                         }
@@ -183,15 +192,22 @@ function AssessmentPage() {
                 >
                     {questions.findIndex(q => q.questionID === currentQuestionID) === 0 ? 'Cancel' : 'Previous'}
                 </button>
-                <button
-                    className='btn-cancel'
-                    onClick={handleNextQuestion}
-                    disabled={questions.findIndex(q => q.questionID === currentQuestionID) === questions.length - 1}
-                >
-                    Next
-                </button>
+                {questions.findIndex(q => q.questionID === currentQuestionID) === questions.length - 1 ? (
+                    <button
+                        className='btn-cancel'
+                        onClick={saveResults}
+                    >
+                        Submit
+                    </button>
+                ) : (
+                    <button
+                        className='btn-cancel'
+                        onClick={handleNextQuestion}
+                    >
+                        Next
+                    </button>
+                )}
             </div>
-            {/* <button onClick={saveResults} className='btn-finish'>Finish Assessment</button> */}
         </div>
     );
 }

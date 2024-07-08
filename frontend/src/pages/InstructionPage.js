@@ -6,15 +6,17 @@ function InstructionPage() {
     const navigate = useNavigate();
     const { state } = useLocation();
     const { examName } = state || {};
+    const { examCategory } = state || {};
 
     const startAssessment = () => {
-        navigate('/take-assessment', { state: { examName } }); // Update the route here
+        navigate('/take-assessment', { state: { examName, examCategory } }); // Update the route here
     };
 
     return (
         <div className='instruction-main container'>
             <h1>Welcome to the Exam</h1>
             <h2>{examName}</h2>
+            <h2>{examCategory}</h2>
             <h3 className='instruction'>Instructions for the assessment</h3>
             <ul>
                 <li>Do not refresh the page.</li>

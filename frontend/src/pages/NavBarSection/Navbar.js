@@ -30,7 +30,7 @@ function NavSection() {
                                         <a class="nav-link" href="/assessment">Assessments</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" href="/">Reports</a>
+                                        <a class="nav-link" href="/results">Reports</a>
                                     </li>
                                 </ul>
                             </div>

@@ -10,6 +10,11 @@ import CreateAssessment from './pages/CrudOpertations/CreateAssessment';
 import UpdateAssessment from './pages/CrudOpertations/UpdateAssessment';
 import Reports from './pages/Reports/Reports';
 import AssessmentPage from './pages/CrudOpertations/AssessmentPage';
+import SignupPage from './pages/LoginAndSignup/SignupPage';
+import LoginPage from './pages/LoginAndSignup/LoginPage';
+import ResultMain from './pages/Results/ResultMain';
+import ViewExams from './pages/Results/ViewExams';
+import Answers from './pages/Results/Answers';
 
 
 function App() {
@@ -25,6 +30,11 @@ function App() {
           <Route path='/create' element={<><NavSection /> <CreateAssessment /> </>} />
           <Route path='/update/:id' element={<><NavSection /> <UpdateAssessment /></>} />
           <Route path='/reports' element={<><NavSection /> <Reports /> </>} />
+          <Route path='/signup' element={<SignupPage />} />
+          <Route path='/login' element={<LoginPage />} />
+          <Route path='/results' element={<><NavSection /><ResultMain /> </>} />
+          <Route path='/view-exams/:email' element={<><NavSection /><ViewExams /> </>} />
+          <Route path='/answers/:examName/:examCategory' element={<><NavSection /><Answers /> </>} />
         </Routes>
       </div>
     </Router>

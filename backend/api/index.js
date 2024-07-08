@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('../db.js');
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -17,8 +19,25 @@ app.use(cors(
     }
 ))
 
+// User Schema
+const userSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: {
+        type: String,
+        required: true
+    }
+});
 
-// Assessment Schema
+const User = mongoose.model('User', userSchema);
+
 const assessmentSchema = new mongoose.Schema({
     examName: {
         type: String,
@@ -42,9 +61,13 @@ const assessmentSchema = new mongoose.Schema({
 });
 const Assessment = mongoose.model('Assessment', assessmentSchema);
 
-// Result Schema
+
 const resultSchema = new mongoose.Schema({
     examName: {
+        type: String,
+        required: true
+    },
+    examCategory: {
         type: String,
         required: true
     },
@@ -55,7 +78,7 @@ const resultSchema = new mongoose.Schema({
     },
     answers: [{
         questionID: String,
-        answer: String,
+        answer: [String],
         isCorrect: Boolean
     }],
     score: Number,
@@ -64,7 +87,59 @@ const resultSchema = new mongoose.Schema({
         default: Date.now
     }
 });
+
 const Result = mongoose.model('Result', resultSchema);
+
+// POST route to register a user
+app.post('/api/users/register', async (req, res) => {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) {
+        return res.status(400).send('Name, Email, and Password are required');
+    }
+    try {
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).send('User already exists');
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new User({ name, email, password: hashedPassword });
+        await newUser.save();
+        res.status(201).send('User registered successfully');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server error');
+    }
+});
+
+// POST route to login a user
+app.post('/api/users/login', async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(400).send('Email and Password are required');
+    }
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).send('Email is not registered');
+        }
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).send('Invalid password');
+        }
+        const token = jwt.sign({ id: user._id }, 'your_jwt_secret', { expiresIn: '1h' });
+        res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
+    } catch (error) {
+        console.error("Error during login:", error);  // Detailed error logging
+        res.status(500).send('Server error');
+    }
+});
+
+
+
+// Assessment Schema
+
+
+
 
 // POST route to create an assessment
 app.post('/api/assessments', async (req, res) => {
@@ -238,48 +313,138 @@ app.get('/api/assessments/:examName/questions', async (req, res) => {
     }
 });
 
-// POST route to save assessment results
+
 app.post('/api/results', async (req, res) => {
-    const { examName, userId, answers } = req.body;
-    if (!examName || !userId || !answers) {
-        return res.status(400).send('Exam Name, User ID, and Answers are required');
+    const { examName, examCategory, userEmail, answers } = req.body;
+    console.log('Received request:', req.body); // Log incoming request data
+
+    if (!examName || !examCategory || !userEmail || !Array.isArray(answers)) {
+        console.error('Invalid request data');
+        return res.status(400).json({ message: 'Exam Name, Exam Category, User Email, and Answers array are required' });
     }
 
     try {
-        const result = new Result({ examName, userId, answers });
+        // Retrieve user by email
+        const user = await User.findOne({ email: userEmail });
+        if (!user) {
+            console.error('User not found');
+            return res.status(404).json({ message: 'User not found' });
+        }
 
-        // Calculate the score
+        // Find the assessment by examName
         const assessment = await Assessment.findOne({ examName });
         if (!assessment) {
-            return res.status(404).send('Assessment not found');
+            console.error('Assessment not found');
+            return res.status(404).json({ message: 'Assessment not found' });
         }
 
-        let score = 0;
-        for (const answer of answers) {
+        // Format answers to store
+        const results = answers.map(answer => {
             const question = assessment.questions.find(q => q.questionID === answer.questionID);
-            if (question && question.correctAnswer === answer.answer) {
-                score++;
-                answer.isCorrect = true;
-            } else {
-                answer.isCorrect = false;
+            if (question) {
+                return {
+                    questionID: answer.questionID,
+                    answer: answer.answer,
+                };
             }
-        }
+        });
 
-        result.score = score;
+        // Save result to database
+        const result = new Result({
+            examName,
+            examCategory,
+            userId: user._id,
+            answers: results.filter(Boolean), // Filter out undefined results
+        });
+
         await result.save();
 
         res.status(201).json({
             message: 'Result saved successfully',
             examName: result.examName,
+            examCategory: result.examCategory,
             userId: result.userId,
-            score: result.score,
             answers: result.answers
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error saving results:', error);
+        res.status(500).json({ message: 'Error saving results' });
+    }
+});
+
+
+
+
+app.get('/api/results/users', async (req, res) => {
+    try {
+        const results = await Result.find().populate('userId', 'name email');
+
+        // Extract unique users
+        const users = results.reduce((acc, result) => {
+            const { name, email } = result.userId;
+            if (!acc.find(user => user.email === email)) {
+                acc.push({ name, email });
+            }
+            return acc;
+        }, []);
+
+        res.json(users);
+    } catch (error) {
+        console.error('Error fetching users:', error);
         res.status(500).send('Server error');
     }
 });
+
+// Add route to fetch exams for a specific user by email
+app.get('/api/results/:email/exams', async (req, res) => {
+    const { email } = req.params;
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        const results = await Result.find({ userId: user._id });
+
+        res.json(results);
+    } catch (error) {
+        console.error('Error fetching exams:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+
+// GET route to fetch answers for a specific exam
+app.get('/api/results/:examName/:examCategory/answers', async (req, res) => {
+    const { examName, examCategory } = req.params;
+    try {
+        const assessment = await Assessment.findOne({ examName, examCategory });
+        if (!assessment) {
+            return res.status(404).send('Assessment not found');
+        }
+
+        const results = await Result.find({ examName, examCategory });
+
+        const questionAnswers = results.map(result => {
+            const answers = result.answers.map(answer => ({
+                question: assessment.questions.find(q => q.questionID === answer.questionID)?.question || 'Question not found',
+                answer: answer.answer.join(', ') || 'Answer not found'
+            }));
+            return answers;
+        }).flat(); // Flattens the array of arrays into a single array
+
+        res.json(questionAnswers);
+    } catch (error) {
+        console.error('Error fetching answers:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+
+
+
+
+
 
 app.get('/', (req, res) => {
     res.status(200).send('Server is running...');

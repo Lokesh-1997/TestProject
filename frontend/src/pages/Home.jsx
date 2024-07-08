@@ -26,7 +26,7 @@ function Home() {
                         <div className="card-body d-flex flex-column justify-content-between align-items-center">
                             <h5 className="card-title fs-5 text-start ">Self-Assessment</h5>
                             <p className="card-text mt-4 text-start ">Use the self-assessment to familiarize yourself with the requirements of the EU taxonomy for your economic activities and to get an initial overview of the potential taxonomy alignment of your activities.</p>
-                            <a href="/landing" className="btn-1">Choose Option</a>
+                            <a href="/login" className="btn-1">Choose Option</a>
                         </div>
                     </div>
                     <div className="card">

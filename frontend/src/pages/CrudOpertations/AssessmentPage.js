@@ -13,7 +13,7 @@ function AssessmentPage() {
     useEffect(() => {
         const fetchQuestions = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/assessments/${examName}/questions`);
+                const response = await fetch(`https://confess-data-tool-backend.vercel.app/api/assessments/${examName}/questions`);
                 if (response.ok) {
                     const data = await response.json();
                     setQuestions(data);
@@ -82,7 +82,7 @@ function AssessmentPage() {
                 answer: answers[questionID]
             }));
 
-            const response = await fetch('http://localhost:5000/api/results', {
+            const response = await fetch('https://confess-data-tool-backend.vercel.app/api/results', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

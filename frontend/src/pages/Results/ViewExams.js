@@ -11,7 +11,7 @@ function ViewExams() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetch(`http://localhost:5000/api/results/${email}/exams`)
+        fetch(`https://confess-data-tool-backend.vercel.app/api/results/${email}/exams`)
             .then(response => response.json())
             .then(data => setExams(data))
             .catch(error => console.error('Error fetching exams:', error));

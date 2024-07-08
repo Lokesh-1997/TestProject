@@ -9,6 +9,15 @@ app.use(express.json());
 // Connect to DB
 connectDB();
 
+app.use(cors(
+    {
+        origin: ["https://confessdatatool-p72hgo1ay-lokeshs-projects-5d517840.vercel.app"],
+        methods: ["POST", "GET", "PUT", "DELETE"],
+        credentials: true
+    }
+))
+
+
 // Assessment Schema
 const assessmentSchema = new mongoose.Schema({
     examName: {
@@ -272,8 +281,8 @@ app.post('/api/results', async (req, res) => {
     }
 });
 
-app.get('/status', (req, res) => {
-    res.status(200).send('Server is running');
+app.get('/', (req, res) => {
+    res.status(200).send('Server is running...');
 });
 
 const PORT = process.env.PORT || 5000;

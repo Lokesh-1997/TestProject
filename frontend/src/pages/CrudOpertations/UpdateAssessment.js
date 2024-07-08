@@ -233,6 +233,7 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
     const [name1, setName1] = useState(editingQuestion ? editingQuestion.questionID : '');
     const [name2, setName2] = useState(editingQuestion ? editingQuestion.question : '');
     const [name5, setName5] = useState(editingQuestion ? editingQuestion.nextQuestions : '');
+    const [name6, setName6] = useState(editingQuestion ? editingQuestion.disclaimer : '');
     const [options, setOptions] = useState(editingQuestion ? editingQuestion.options || [] : []);
     const [questionType, setQuestionType] = useState(editingQuestion ? editingQuestion.questionType : '');
     const [questionCategory, setQuestionCategory] = useState(editingQuestion ? editingQuestion.questionCategory : '');
@@ -271,10 +272,13 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
             questionType,
             questionCategory,
             nextQuestions: name5,
+            disclaimer: name6, // Ensure disclaimer is included
             options: questionType === "MCQ" || questionType === "Multiple Select" ? options : [],
             examName: examDetails.examName,
             examCategory: examDetails.examCategory
+
         };
+
 
         try {
             const response = editingQuestion
@@ -304,6 +308,7 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
         }
     };
 
+
     const canAddOption = (questionType === "MCQ" && options.length < 4) || (questionType === "Multiple Select" && options.length < 5);
 
     return (
@@ -312,23 +317,23 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
                 <section className='form-input'>
                     <form>
                         <h4>{editingQuestion ? 'Edit Question' : 'Add Question'}</h4>
-                        <div className={`input-wrap ${name1 ? 'has-value' : ''}`}>
+                        <div className={`input-wraps ${name1 ? 'has-values' : ''}`}>
                             <input type='text' className='input-1' value={name1} onChange={(e) => setName1(e.target.value)} />
                             <label>Question ID <span className='text-danger'>*</span></label>
-                            {name1 && <button type="button" className="clear-button" onClick={clearInput(setName1)}>
+                            {name1 && <button type="button" className="clear-buttons" onClick={clearInput(setName1)}>
                                 <FontAwesomeIcon className='input-close-icons' icon={faCircleXmark} />
                             </button>}
                         </div>
 
-                        <div className={`input-wrap ${name2 ? 'has-value' : ''}`}>
+                        <div className={`input-wraps ${name2 ? 'has-values' : ''}`}>
                             <textarea className='input-2' value={name2} onChange={(e) => setName2(e.target.value)}></textarea>
                             <label>Question <span className='text-danger'>*</span></label>
-                            {name2 && <button type="button" className="clear-button" onClick={clearInput(setName2)}>
+                            {name2 && <button type="button" className="clear-buttons" onClick={clearInput(setName2)}>
                                 <FontAwesomeIcon className='input-close-icons' icon={faCircleXmark} />
                             </button>}
                         </div>
 
-                        <div className={`input-wrap ${questionType ? 'has-value' : ''}`}>
+                        <div className={`input-wraps ${questionType ? 'has-values' : ''}`}>
                             <select className='input-3' aria-label="Default select example" value={questionType} onChange={(e) => setQuestionType(e.target.value)}>
                                 <option className='d-none' value="" selected></option>
                                 <option value="MCQ">MCQ</option>
@@ -341,7 +346,7 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
                             <label>Question Type <span className='text-danger'>*</span></label>
                         </div>
 
-                        <div className={`input-wrap ${questionCategory ? 'has-value' : ''}`}>
+                        <div className={`input-wraps ${questionCategory ? 'has-values' : ''}`}>
                             <select className='input-3' aria-label="Default select example" value={questionCategory} onChange={(e) => setQuestionCategory(e.target.value)}>
                                 <option className='d-none' value="" selected></option>
                                 <option value="Substential Contribution">Substential Contribution</option>
@@ -357,10 +362,18 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
                             <label>Question Category <span className='text-danger'>*</span></label>
                         </div>
 
-                        <div className={`input-wrap ${name5 ? 'has-value' : ''}`}>
+                        <div className={`input-wraps ${name5 ? 'has-values' : ''}`}>
                             <input type='text' className='input-5' value={name5} onChange={(e) => setName5(e.target.value)} />
                             <label>Next Question</label>
-                            {name5 && <button type="button" className="clear-button" onClick={clearInput(setName5)}>
+                            {name5 && <button type="button" className="clear-buttons" onClick={clearInput(setName5)}>
+                                <FontAwesomeIcon className='input-close-icons' icon={faCircleXmark} />
+                            </button>}
+                        </div>
+
+                        <div className={`input-wraps ${name6 ? 'has-values' : ''}`}>
+                            <input type='text' className='input-5' value={name6} onChange={(e) => setName6(e.target.value)} />
+                            <label>Add Disclaimers</label>
+                            {name6 && <button type="button" className="clear-buttons" onClick={clearInput(setName6)}>
                                 <FontAwesomeIcon className='input-close-icons' icon={faCircleXmark} />
                             </button>}
                         </div>
@@ -369,10 +382,10 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
                             <div className='msq-options'>
                                 {options.map((option, index) => (
                                     <div className='d-flex m-1' key={index}>
-                                        <div className={`input-wrap ${option ? 'has-values' : ''}`}>
+                                        <div className={`input-wraps ${option ? 'has-values' : ''}`}>
                                             <input type='text' className={`option-input-${index + 1}`} value={option} onChange={(e) => handleOptionChange(index, e.target.value)} />
                                             <label>{String.fromCharCode(65 + index)}</label>
-                                            {option && <button type="button" className="clear-button" onClick={() => handleOptionChange(index, '')}>
+                                            {option && <button type="button" className="clear-buttons" onClick={() => handleOptionChange(index, '')}>
                                                 <FontAwesomeIcon className='input-close-icons' icon={faCircleXmark} />
                                             </button>}
                                         </div>
@@ -392,6 +405,7 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
         </>
     );
 };
+
 
 
 

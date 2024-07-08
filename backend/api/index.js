@@ -54,11 +54,14 @@ const assessmentSchema = new mongoose.Schema({
             questionType: String,
             questionCategory: String,
             nextQuestions: String,
+            disclaimer: String, // Added disclaimer field
             options: [String]
         }],
         default: []
     }
 });
+
+
 const Assessment = mongoose.model('Assessment', assessmentSchema);
 
 
@@ -136,11 +139,6 @@ app.post('/api/users/login', async (req, res) => {
 
 
 
-// Assessment Schema
-
-
-
-
 // POST route to create an assessment
 app.post('/api/assessments', async (req, res) => {
     const { examName, examCategory } = req.body;
@@ -213,29 +211,45 @@ app.put('/api/assessments/:id', async (req, res) => {
 });
 
 // POST route to add a question to an assessment
-app.post('/api/assessments/:id/questions', async (req, res) => {
-    const { id } = req.params;
-    const { questionID, question, questionType, questionCategory, nextQuestions, options } = req.body;
+app.post('/api/assessments/:assessmentId/questions/:questionId', async (req, res) => {
+    const { assessmentId, questionId } = req.params;
+    const { questionID, question, questionType, questionCategory, nextQuestions, disclaimer, options } = req.body;
 
-    if (!questionID || !question || !questionType || !questionCategory) {
+    console.log("Received disclaimer:", disclaimer);
+
+    if (!questionID || !question || !questionType || !questionCategory || !disclaimer) {
         return res.status(400).send('Question ID, Question, Question Type, and Question Category are required');
     }
 
     try {
-        const assessment = await Assessment.findById(id);
+        const assessment = await Assessment.findById(assessmentId);
         if (!assessment) {
             return res.status(404).send('Assessment not found');
         }
 
-        const newQuestion = { questionID, question, questionType, questionCategory, nextQuestions, options };
-        assessment.questions.push(newQuestion);
+        const questionIndex = assessment.questions.findIndex(q => q._id.toString() === questionId);
+        if (questionIndex === -1) {
+            return res.status(404).send('Question not found');
+        }
+
+        assessment.questions[questionIndex] = {
+            _id: questionId,
+            questionID,
+            question,
+            questionType,
+            questionCategory,
+            nextQuestions,
+            disclaimer,
+            options
+        };
+
         await assessment.save();
 
-        res.status(201).json({
-            message: 'Question added successfully',
+        res.status(200).json({
+            message: 'Question updated successfully',
             examName: assessment.examName,
             examCategory: assessment.examCategory,
-            question: newQuestion
+            question: assessment.questions[questionIndex]
         });
     } catch (error) {
         console.error(error);
@@ -243,10 +257,13 @@ app.post('/api/assessments/:id/questions', async (req, res) => {
     }
 });
 
+
 // PUT route to update a question in an assessment
 app.put('/api/assessments/:assessmentId/questions/:questionId', async (req, res) => {
     const { assessmentId, questionId } = req.params;
-    const { questionID, question, questionType, questionCategory, nextQuestions, options } = req.body;
+    const { questionID, question, questionType, questionCategory, nextQuestions, disclaimer, options } = req.body;
+
+    console.log(disclaimer);
 
     if (!questionID || !question || !questionType || !questionCategory) {
         return res.status(400).send('Question ID, Question, Question Type, and Question Category are required');
@@ -263,7 +280,7 @@ app.put('/api/assessments/:assessmentId/questions/:questionId', async (req, res)
             return res.status(404).send('Question not found');
         }
 
-        assessment.questions[questionIndex] = { _id: questionId, questionID, question, questionType, questionCategory, nextQuestions, options };
+        assessment.questions[questionIndex] = { _id: questionId, questionID, question, questionType, questionCategory, nextQuestions, disclaimer, options };
         await assessment.save();
 
         res.status(200).json({

@@ -9,7 +9,7 @@ function AssessmentPage() {
     const [answers, setAnswers] = useState({});
     const navigate = useNavigate();
     const [currentQuestionIDs, setCurrentQuestionIDs] = useState([]);
-    const [questionHistory, setQuestionHistory] = useState([]); // Added state to track history
+    const [questionHistory, setQuestionHistory] = useState([]); // Stores arrays of question IDs
 
     useEffect(() => {
         const fetchQuestions = async () => {
@@ -20,7 +20,7 @@ function AssessmentPage() {
                     setQuestions(data);
                     if (data.length > 0) {
                         setCurrentQuestionIDs([data[0].questionID]);
-                        setQuestionHistory([data[0].questionID]); // Initialize history with the first question
+                        setQuestionHistory([[data[0].questionID]]); // Initialize history with the first question
                     }
                 } else {
                     console.error('Failed to fetch questions');
@@ -44,27 +44,29 @@ function AssessmentPage() {
                     if (!selectedAnswer) {
                         selectedAnswer = 'Yes'; // Default to Yes if no answer is selected
                     }
-                    console.log(currentQuestion.nextQuestions);
-                    if (selectedAnswer === 'Yes' && currentQuestion.nextQuestions.length >= 1) {
-                        newQuestionIDs.push(currentQuestion.nextQuestions[0]);
-                    } else if (selectedAnswer === 'No' && currentQuestion.nextQuestions.length >= 2) {
-                        newQuestionIDs.push(currentQuestion.nextQuestions[2]);
+
+                    const nextQuestionsArray = currentQuestion.nextQuestions.split(',').map(q => q.trim());
+                    console.log(nextQuestionsArray);
+                    if (selectedAnswer === 'Yes' && nextQuestionsArray.length >= 1) {
+                        newQuestionIDs.push(nextQuestionsArray[0]);
+                    } else if (selectedAnswer === 'No' && nextQuestionsArray.length >= 2) {
+                        newQuestionIDs.push(nextQuestionsArray[1]);
                     }
                 } else {
-                    newQuestionIDs.push(...currentQuestion.nextQuestions);
+                    newQuestionIDs.push(...currentQuestion.nextQuestions.split(',').map(q => q.trim()));
                 }
             }
         });
         setCurrentQuestionIDs(newQuestionIDs);
-        setQuestionHistory(prevHistory => [...prevHistory, ...newQuestionIDs]); // Update history with new question IDs
+        setQuestionHistory(prevHistory => [...prevHistory, newQuestionIDs]); // Update history with new question IDs
     };
-
 
     const handlePreviousQuestion = () => {
         if (questionHistory.length > 1) {
             const newHistory = [...questionHistory];
-            newHistory.pop(); // Remove the current question ID
-            setCurrentQuestionIDs([newHistory[newHistory.length - 1]]); // Set the last question ID from the history
+            newHistory.pop(); // Remove the current question IDs
+            const previousQuestionIDs = newHistory[newHistory.length - 1];
+            setCurrentQuestionIDs(previousQuestionIDs); // Set the previous question IDs from the history
             setQuestionHistory(newHistory); // Update history
         }
     };

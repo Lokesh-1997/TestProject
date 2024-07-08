@@ -8,7 +8,8 @@ function AssessmentPage() {
     const [questions, setQuestions] = useState([]);
     const [answers, setAnswers] = useState({});
     const navigate = useNavigate();
-    const [currentQuestionID, setCurrentQuestionID] = useState(null);
+    const [currentQuestionIDs, setCurrentQuestionIDs] = useState([]);
+    const [questionHistory, setQuestionHistory] = useState([]); // Added state to track history
 
     useEffect(() => {
         const fetchQuestions = async () => {
@@ -18,7 +19,8 @@ function AssessmentPage() {
                     const data = await response.json();
                     setQuestions(data);
                     if (data.length > 0) {
-                        setCurrentQuestionID(data[0].questionID); // Set the first question ID as the current
+                        setCurrentQuestionIDs([data[0].questionID]);
+                        setQuestionHistory([data[0].questionID]); // Initialize history with the first question
                     }
                 } else {
                     console.error('Failed to fetch questions');
@@ -32,22 +34,44 @@ function AssessmentPage() {
     }, [examName]);
 
     const handleNextQuestion = () => {
-        const currentQuestion = questions.find(q => q.questionID === currentQuestionID);
-        if (currentQuestion && currentQuestion.nextQuestions) {
-            setCurrentQuestionID(currentQuestion.nextQuestions);
-        }
+        const newQuestionIDs = [];
+        currentQuestionIDs.forEach(id => {
+            const currentQuestion = questions.find(q => q.questionID === id);
+            if (currentQuestion && currentQuestion.nextQuestions) {
+                // Handle Yes or No question separately
+                if (currentQuestion.questionType === 'MCQ' && currentQuestion.options.includes('Yes') && currentQuestion.options.includes('No')) {
+                    let selectedAnswer = answers[currentQuestion.questionID];
+                    if (!selectedAnswer) {
+                        selectedAnswer = 'Yes'; // Default to Yes if no answer is selected
+                    }
+                    console.log(currentQuestion.nextQuestions);
+                    if (selectedAnswer === 'Yes' && currentQuestion.nextQuestions.length >= 1) {
+                        newQuestionIDs.push(currentQuestion.nextQuestions[0]);
+                    } else if (selectedAnswer === 'No' && currentQuestion.nextQuestions.length >= 2) {
+                        newQuestionIDs.push(currentQuestion.nextQuestions[2]);
+                    }
+                } else {
+                    newQuestionIDs.push(...currentQuestion.nextQuestions);
+                }
+            }
+        });
+        setCurrentQuestionIDs(newQuestionIDs);
+        setQuestionHistory(prevHistory => [...prevHistory, ...newQuestionIDs]); // Update history with new question IDs
     };
+
 
     const handlePreviousQuestion = () => {
-        const currentIndex = questions.findIndex(q => q.questionID === currentQuestionID);
-        if (currentIndex > 0) {
-            setCurrentQuestionID(questions[currentIndex - 1].questionID);
+        if (questionHistory.length > 1) {
+            const newHistory = [...questionHistory];
+            newHistory.pop(); // Remove the current question ID
+            setCurrentQuestionIDs([newHistory[newHistory.length - 1]]); // Set the last question ID from the history
+            setQuestionHistory(newHistory); // Update history
         }
     };
 
-    const currentQuestion = questions.find(q => q.questionID === currentQuestionID);
+    const currentQuestions = questions.filter(q => currentQuestionIDs.includes(q.questionID));
 
-    if (!currentQuestion) {
+    if (!currentQuestions.length) {
         return <div>Loading...</div>;
     }
 
@@ -91,7 +115,7 @@ function AssessmentPage() {
             });
 
             if (response.ok) {
-                alert("Your answers are submitted")
+                alert("Your answers are submitted");
                 navigate('/landing'); // Redirect to dashboard after saving results
             } else {
                 const errorData = await response.json();
@@ -102,11 +126,6 @@ function AssessmentPage() {
             console.error('Error saving results:', error);
         }
     };
-
-
-    if (!questions.length) {
-        return <div>Loading...</div>;
-    }
 
     const renderQuestionInput = (question) => {
         const savedAnswer = answers[question.questionID];
@@ -175,24 +194,26 @@ function AssessmentPage() {
     return (
         <div className='assessment-page container mt-5 py-5'>
             <h4>{examName}</h4>
-            <div className='question text-start'>
-                <p dangerouslySetInnerHTML={{ __html: currentQuestion.question }}></p>
-                {renderQuestionInput(currentQuestion)}
-            </div>
+            {currentQuestions.map(question => (
+                <div key={question.questionID} className='question text-start'>
+                    <p className='mt-5' dangerouslySetInnerHTML={{ __html: question.question }}></p>
+                    {renderQuestionInput(question)}
+                </div>
+            ))}
             <div className='navigation-buttons d-flex justify-content-between mt-5'>
                 <button
                     className='btn-cancel'
                     onClick={() => {
-                        if (questions.findIndex(q => q.questionID === currentQuestionID) === 0) {
+                        if (questionHistory.length <= 1) {
                             navigate('/instructions', { state: { examName, examCategory } });
                         } else {
                             handlePreviousQuestion();
                         }
                     }}
                 >
-                    {questions.findIndex(q => q.questionID === currentQuestionID) === 0 ? 'Cancel' : 'Previous'}
+                    {questionHistory.length <= 1 ? 'Cancel' : 'Previous'}
                 </button>
-                {questions.findIndex(q => q.questionID === currentQuestionID) === questions.length - 1 ? (
+                {currentQuestionIDs.includes(questions[questions.length - 1].questionID) ? (
                     <button
                         className='btn-cancel'
                         onClick={saveResults}

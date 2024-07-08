@@ -41,7 +41,6 @@ function Reports() {
                                     <p><span className='dark-dot'></span>Not aligned but eligible</p>
                                     <p><span className='grey-dot'></span>Not eligible</p>
                                 </div>
-
                                 <div className='col'>
                                     <p>600 $ (60%)</p>
                                     <p>600 $ (60%)</p>

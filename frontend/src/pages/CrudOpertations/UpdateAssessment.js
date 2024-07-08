@@ -17,7 +17,7 @@ function UpdateAssessment() {
         const fetchAssessment = async () => {
             console.log(`Fetching assessment with ID: ${id}`);
             try {
-                const response = await fetch(`https://confess-data-tool-backend.vercel.app/api/assessments/${id}`);
+                const response = await fetch(`http://localhost:5000/api/assessments/${id}`);
                 if (response.ok) {
                     const data = await response.json();
                     setAssessment(data);
@@ -75,7 +75,7 @@ function UpdateAssessment() {
 
     const deleteQuestion = async (questionId) => {
         try {
-            const response = await fetch(`https://confess-data-tool-backend.vercel.app/api/assessments/${assessment._id}/questions/${questionId}`, {
+            const response = await fetch(`http://localhost:5000/api/assessments/${assessment._id}/questions/${questionId}`, {
                 method: 'DELETE',
             });
 
@@ -162,7 +162,7 @@ const EditDetails = ({ examName, examCategory, assessmentId }) => {
     const handleSave = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`https://confess-data-tool-backend.vercel.app/${assessmentId}`, {
+            const response = await fetch(`http://localhost:5000/${assessmentId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -242,7 +242,7 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
     useEffect(() => {
         const fetchExamDetails = async () => {
             try {
-                const response = await fetch(`https://confess-data-tool-backend.vercel.app/api/assessments/${id}`);
+                const response = await fetch(`http://localhost:5000/api/assessments/${id}`);
                 if (response.ok) {
                     const data = await response.json();
                     setExamDetails({ examName: data.examName, examCategory: data.examCategory });
@@ -272,24 +272,23 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
             questionType,
             questionCategory,
             nextQuestions: name5,
-            disclaimer: name6, // Ensure disclaimer is included
+            disclaimer: name6,
             options: questionType === "MCQ" || questionType === "Multiple Select" ? options : [],
             examName: examDetails.examName,
             examCategory: examDetails.examCategory
-
         };
 
-
         try {
-            const response = editingQuestion
-                ? await fetch(`https://confess-data-tool-backend.vercel.app/api/assessments/${id}/questions/${editingQuestion._id}`, {
+            const response = editingQuestion ?
+                await fetch(`http://localhost:5000/api/assessments/${id}/questions/${editingQuestion._id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(newQuestion),
                 })
-                : await fetch(`https://confess-data-tool-backend.vercel.app/api/assessments/${id}/questions`, {
+                :
+                await fetch(`http://localhost:5000/api/assessments/${id}/questions`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -308,101 +307,98 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
         }
     };
 
-
     const canAddOption = (questionType === "MCQ" && options.length < 4) || (questionType === "Multiple Select" && options.length < 5);
 
     return (
-        <>
-            <section className='add-question-main'>
-                <section className='form-input'>
-                    <form>
-                        <h4>{editingQuestion ? 'Edit Question' : 'Add Question'}</h4>
-                        <div className={`input-wraps ${name1 ? 'has-values' : ''}`}>
-                            <input type='text' className='input-1' value={name1} onChange={(e) => setName1(e.target.value)} />
-                            <label>Question ID <span className='text-danger'>*</span></label>
-                            {name1 && <button type="button" className="clear-buttons" onClick={clearInput(setName1)}>
-                                <FontAwesomeIcon className='input-close-icons' icon={faCircleXmark} />
-                            </button>}
-                        </div>
+        <section className='add-question-main'>
+            <section className='form-input'>
+                <form>
+                    <h4>{editingQuestion ? 'Edit Question' : 'Add Question'}</h4>
+                    <div className={`input-wraps ${name1 ? 'has-values' : ''}`}>
+                        <input type='text' className='input-1' value={name1} onChange={(e) => setName1(e.target.value)} />
+                        <label>Question ID <span className='text-danger'>*</span></label>
+                        {name1 && <button type="button" className="clear-buttons" onClick={clearInput(setName1)}>
+                            <FontAwesomeIcon className='input-close-icons' icon={faCircleXmark} />
+                        </button>}
+                    </div>
 
-                        <div className={`input-wraps ${name2 ? 'has-values' : ''}`}>
-                            <textarea className='input-2' value={name2} onChange={(e) => setName2(e.target.value)}></textarea>
-                            <label>Question <span className='text-danger'>*</span></label>
-                            {name2 && <button type="button" className="clear-buttons" onClick={clearInput(setName2)}>
-                                <FontAwesomeIcon className='input-close-icons' icon={faCircleXmark} />
-                            </button>}
-                        </div>
+                    <div className={`input-wraps ${name2 ? 'has-values' : ''}`}>
+                        <textarea className='input-2' value={name2} onChange={(e) => setName2(e.target.value)}></textarea>
+                        <label>Question <span className='text-danger'>*</span></label>
+                        {name2 && <button type="button" className="clear-buttons" onClick={clearInput(setName2)}>
+                            <FontAwesomeIcon className='input-close-icons' icon={faCircleXmark} />
+                        </button>}
+                    </div>
 
-                        <div className={`input-wraps ${questionType ? 'has-values' : ''}`}>
-                            <select className='input-3' aria-label="Default select example" value={questionType} onChange={(e) => setQuestionType(e.target.value)}>
-                                <option className='d-none' value="" selected></option>
-                                <option value="MCQ">MCQ</option>
-                                <option value="Short">Short</option>
-                                <option value="Long Text">Long Text</option>
-                                <option value="Numerical Value">Numerical Value</option>
-                                <option value="Multiple Select">Multiple Select</option>
-                                <option value="Blank">Blank</option>
-                            </select>
-                            <label>Question Type <span className='text-danger'>*</span></label>
-                        </div>
+                    <div className={`input-wraps ${questionType ? 'has-values' : ''}`}>
+                        <select className='input-3' value={questionType} onChange={(e) => setQuestionType(e.target.value)}>
+                            <option className='d-none' value=""></option>
+                            <option value="MCQ">MCQ</option>
+                            <option value="Short">Short</option>
+                            <option value="Long Text">Long Text</option>
+                            <option value="Numerical Value">Numerical Value</option>
+                            <option value="Multiple Select">Multiple Select</option>
+                            <option value="Blank">Blank</option>
+                        </select>
+                        <label>Question Type <span className='text-danger'>*</span></label>
+                    </div>
 
-                        <div className={`input-wraps ${questionCategory ? 'has-values' : ''}`}>
-                            <select className='input-3' aria-label="Default select example" value={questionCategory} onChange={(e) => setQuestionCategory(e.target.value)}>
-                                <option className='d-none' value="" selected></option>
-                                <option value="Substential Contribution">Substential Contribution</option>
-                                <option value="DNSH - Adaption">DNSH - Adaption</option>
-                                <option value="DNSH - Water">DNSH - Water</option>
-                                <option value="DNCH - CE">DNCH - CE</option>
-                                <option value="DNSH - Pollution">DNSH - Pollution</option>
-                                <option value="Turnover">Turnover</option>
-                                <option value="CapEx">CapEx</option>
-                                <option value="OpEx">OpEx</option>
-                                <option value="Blank">Blank</option>
-                            </select>
-                            <label>Question Category <span className='text-danger'>*</span></label>
-                        </div>
+                    <div className={`input-wraps ${questionCategory ? 'has-values' : ''}`}>
+                        <select className='input-3' value={questionCategory} onChange={(e) => setQuestionCategory(e.target.value)}>
+                            <option className='d-none' value=""></option>
+                            <option value="Substential Contribution">Substential Contribution</option>
+                            <option value="DNSH - Adaption">DNSH - Adaption</option>
+                            <option value="DNSH - Water">DNSH - Water</option>
+                            <option value="DNCH - CE">DNCH - CE</option>
+                            <option value="DNSH - Pollution">DNSH - Pollution</option>
+                            <option value="Turnover">Turnover</option>
+                            <option value="CapEx">CapEx</option>
+                            <option value="OpEx">OpEx</option>
+                            <option value="Blank">Blank</option>
+                        </select>
+                        <label>Question Category <span className='text-danger'>*</span></label>
+                    </div>
 
-                        <div className={`input-wraps ${name5 ? 'has-values' : ''}`}>
-                            <input type='text' className='input-5' value={name5} onChange={(e) => setName5(e.target.value)} />
-                            <label>Next Question</label>
-                            {name5 && <button type="button" className="clear-buttons" onClick={clearInput(setName5)}>
-                                <FontAwesomeIcon className='input-close-icons' icon={faCircleXmark} />
-                            </button>}
-                        </div>
+                    <div className={`input-wraps ${name5 ? 'has-values' : ''}`}>
+                        <input type='text' className='input-5' value={name5} onChange={(e) => setName5(e.target.value)} />
+                        <label>Next Question</label>
+                        {name5 && <button type="button" className="clear-buttons" onClick={clearInput(setName5)}>
+                            <FontAwesomeIcon className='input-close-icons' icon={faCircleXmark} />
+                        </button>}
+                    </div>
 
-                        <div className={`input-wraps ${name6 ? 'has-values' : ''}`}>
-                            <input type='text' className='input-5' value={name6} onChange={(e) => setName6(e.target.value)} />
-                            <label>Add Disclaimers</label>
-                            {name6 && <button type="button" className="clear-buttons" onClick={clearInput(setName6)}>
-                                <FontAwesomeIcon className='input-close-icons' icon={faCircleXmark} />
-                            </button>}
-                        </div>
+                    <div className={`input-wraps ${name6 ? 'has-values' : ''}`}>
+                        <input type='text' className='input-5' value={name6} onChange={(e) => setName6(e.target.value)} />
+                        <label>Add Disclaimers</label>
+                        {name6 && <button type="button" className="clear-buttons" onClick={clearInput(setName6)}>
+                            <FontAwesomeIcon className='input-close-icons' icon={faCircleXmark} />
+                        </button>}
+                    </div>
 
-                        {(questionType === "MCQ" || questionType === "Multiple Select") && (
-                            <div className='msq-options'>
-                                {options.map((option, index) => (
-                                    <div className='d-flex m-1' key={index}>
-                                        <div className={`input-wraps ${option ? 'has-values' : ''}`}>
-                                            <input type='text' className={`option-input-${index + 1}`} value={option} onChange={(e) => handleOptionChange(index, e.target.value)} />
-                                            <label>{String.fromCharCode(65 + index)}</label>
-                                            {option && <button type="button" className="clear-buttons" onClick={() => handleOptionChange(index, '')}>
-                                                <FontAwesomeIcon className='input-close-icons' icon={faCircleXmark} />
-                                            </button>}
-                                        </div>
+                    {(questionType === "MCQ" || questionType === "Multiple Select") && (
+                        <div className='msq-options'>
+                            {options.map((option, index) => (
+                                <div className='d-flex m-1' key={index}>
+                                    <div className={`input-wraps ${option ? 'has-values' : ''}`}>
+                                        <input type='text' className={`option-input-${index + 1}`} value={option} onChange={(e) => handleOptionChange(index, e.target.value)} />
+                                        <label>{String.fromCharCode(65 + index)}</label>
+                                        {option && <button type="button" className="clear-buttons" onClick={() => handleOptionChange(index, '')}>
+                                            <FontAwesomeIcon className='input-close-icons' icon={faCircleXmark} />
+                                        </button>}
                                     </div>
-                                ))}
-                                <button type="button" onClick={() => canAddOption && setOptions([...options, ''])} className='btn-add-option' disabled={!canAddOption}>Add Option</button>
-                            </div>
-                        )}
-
-                        <div className='d-flex justify-content-end gap-3 mt-3'>
-                            <button type="button" onClick={() => setQuestionPop(false)} className='btn-closes'>Close</button>
-                            <button type="button" className='btn-saves' onClick={handleSubmit}>Save</button>
+                                </div>
+                            ))}
+                            <button type="button" onClick={() => canAddOption && setOptions([...options, ''])} className='btn-add-option' disabled={!canAddOption}>Add Option</button>
                         </div>
-                    </form>
-                </section>
+                    )}
+
+                    <div className='d-flex justify-content-end gap-3 mt-3'>
+                        <button type="button" onClick={() => setQuestionPop(false)} className='btn-closes'>Close</button>
+                        <button type="button" className='btn-saves' onClick={handleSubmit}>Save</button>
+                    </div>
+                </form>
             </section>
-        </>
+        </section>
     );
 };
 

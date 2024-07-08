@@ -38,32 +38,21 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
-const assessmentSchema = new mongoose.Schema({
-    examName: {
-        type: String,
-        required: true
-    },
-    examCategory: {
-        type: String,
-        required: true
-    },
-    questions: {
-        type: [{
+const Assessment = mongoose.model('Assessment', new mongoose.Schema({
+    examName: String,
+    examCategory: String,
+    questions: [
+        {
             questionID: String,
             question: String,
             questionType: String,
             questionCategory: String,
             nextQuestions: String,
-            disclaimer: String, // Added disclaimer field
+            disclaimer: String,
             options: [String]
-        }],
-        default: []
-    }
-});
-
-
-const Assessment = mongoose.model('Assessment', assessmentSchema);
-
+        }
+    ]
+}));
 
 const resultSchema = new mongoose.Schema({
     examName: {
@@ -210,12 +199,10 @@ app.put('/api/assessments/:id', async (req, res) => {
     }
 });
 
-// POST route to add a question to an assessment
-app.post('/api/assessments/:assessmentId/questions/', async (req, res) => {
-    const { assessmentId, questionId } = req.params;
+// POST route to add a new question to an assessment
+app.post('/api/assessments/:assessmentId/questions', async (req, res) => {
+    const { assessmentId } = req.params;
     const { questionID, question, questionType, questionCategory, nextQuestions, disclaimer, options } = req.body;
-
-    console.log("Received disclaimer:", disclaimer);
 
     if (!questionID || !question || !questionType || !questionCategory) {
         return res.status(400).send('Question ID, Question, Question Type, and Question Category are required');
@@ -227,29 +214,16 @@ app.post('/api/assessments/:assessmentId/questions/', async (req, res) => {
             return res.status(404).send('Assessment not found');
         }
 
-        const questionIndex = assessment.questions.findIndex(q => q._id.toString() === questionId);
-        if (questionIndex === -1) {
-            return res.status(404).send('Question not found');
-        }
-
-        assessment.questions[questionIndex] = {
-            _id: questionId,
-            questionID,
-            question,
-            questionType,
-            questionCategory,
-            nextQuestions,
-            disclaimer,
-            options
-        };
+        const newQuestion = { questionID, question, questionType, questionCategory, nextQuestions, disclaimer, options };
+        assessment.questions.push(newQuestion);
 
         await assessment.save();
 
-        res.status(200).json({
-            message: 'Question updated successfully',
+        res.status(201).json({
+            message: 'Question added successfully',
             examName: assessment.examName,
             examCategory: assessment.examCategory,
-            question: assessment.questions[questionIndex]
+            question: newQuestion
         });
     } catch (error) {
         console.error(error);
@@ -257,13 +231,10 @@ app.post('/api/assessments/:assessmentId/questions/', async (req, res) => {
     }
 });
 
-
 // PUT route to update a question in an assessment
 app.put('/api/assessments/:assessmentId/questions/:questionId', async (req, res) => {
     const { assessmentId, questionId } = req.params;
     const { questionID, question, questionType, questionCategory, nextQuestions, disclaimer, options } = req.body;
-
-    console.log(disclaimer);
 
     if (!questionID || !question || !questionType || !questionCategory) {
         return res.status(400).send('Question ID, Question, Question Type, and Question Category are required');

@@ -211,13 +211,13 @@ app.put('/api/assessments/:id', async (req, res) => {
 });
 
 // POST route to add a question to an assessment
-app.post('/api/assessments/:assessmentId/questions/:questionId', async (req, res) => {
+app.post('/api/assessments/:assessmentId/questions/', async (req, res) => {
     const { assessmentId, questionId } = req.params;
     const { questionID, question, questionType, questionCategory, nextQuestions, disclaimer, options } = req.body;
 
     console.log("Received disclaimer:", disclaimer);
 
-    if (!questionID || !question || !questionType || !questionCategory || !disclaimer) {
+    if (!questionID || !question || !questionType || !questionCategory) {
         return res.status(400).send('Question ID, Question, Question Type, and Question Category are required');
     }
 

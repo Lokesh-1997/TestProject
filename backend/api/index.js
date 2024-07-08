@@ -10,14 +10,23 @@ app.use(express.json());
 
 // Connect to DB
 connectDB();
+const allowedOrigins = [
+    "https://confessdatatool-lokeshs-projects-5d517840.vercel.app",
+    "https://confessdatatool-git-main-lokeshs-projects-5d517840.vercel.app",
 
-app.use(cors(
-    {
-        origin: ["https://confessdatatool-lokeshs-projects-5d517840.vercel.app"],
-        methods: ["POST", "GET", "PUT", "DELETE"],
-        credentials: true
-    }
-))
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ["POST", "GET", "PUT", "DELETE"],
+    credentials: true
+}));
 
 // User Schema
 const userSchema = new mongoose.Schema({

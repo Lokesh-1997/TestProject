@@ -25,6 +25,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    role: {
+        type: String,
+        required: true
+    },
     email: {
         type: String,
         required: true,
@@ -40,6 +44,10 @@ const User = mongoose.model('User', userSchema);
 
 const adminSchema = new mongoose.Schema({
     name: {
+        type: String,
+        required: true
+    },
+    role: {
         type: String,
         required: true
     },
@@ -103,6 +111,7 @@ const Result = mongoose.model('Result', resultSchema);
 // POST route to register a user
 app.post('/api/users/register', async (req, res) => {
     const { name, email, password } = req.body;
+    const role = "users"
     if (!name || !email || !password) {
         return res.status(400).send('Name, Email, and Password are required');
     }
@@ -112,7 +121,7 @@ app.post('/api/users/register', async (req, res) => {
             return res.status(400).send('User already exists');
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ name, email, password: hashedPassword });
+        const newUser = new User({ name, role, email, password: hashedPassword });
         await newUser.save();
         res.status(201).send('User registered successfully');
     } catch (error) {
@@ -147,6 +156,7 @@ app.post('/api/users/login', async (req, res) => {
 // POST route to register a Admin
 app.post('/api/admin/register', async (req, res) => {
     const { name, email, password } = req.body;
+    const role = "admin"
     if (!name || !email || !password) {
         return res.status(400).send('Name, Email, and Password are required');
     }
@@ -156,7 +166,7 @@ app.post('/api/admin/register', async (req, res) => {
             return res.status(400).send('User already exists');
         }
         // Create a new user with the plain password
-        const newUser = new Admin({ name, email, password });
+        const newUser = new Admin({ name, role, email, password });
         await newUser.save();
         res.status(201).send('User registered successfully');
     } catch (error) {

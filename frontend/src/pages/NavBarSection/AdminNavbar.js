@@ -4,19 +4,19 @@ import LogoLight from "../../asset/logo_light.png";
 import '../LandingPage.css';
 import './Navbar.css';
 
-function NavSection() {
+function AdminNavbar() {
     const navigate = useNavigate();
 
     useEffect(() => {
         const email = localStorage.getItem('email');
         if (!email) {
-            navigate('/login');
+            navigate('/admin');
         }
     }, [navigate]);
 
     const handleLogout = () => {
         localStorage.removeItem('email');
-        navigate('/login');
+        navigate('/admin');
     };
 
     return (
@@ -39,12 +39,12 @@ function NavSection() {
                                     <li className="nav-item">
                                         <a className="nav-link" href="/reports">Dashboard</a>
                                     </li>
-                                    {/* <li className="nav-item">
+                                    <li className="nav-item">
                                         <a className="nav-link" href="/assessment">Assessments</a>
                                     </li>
                                     <li className="nav-item">
                                         <a className="nav-link" href="/results">Reports</a>
-                                    </li> */}
+                                    </li>
                                 </ul>
                             </div>
                             <div>
@@ -62,4 +62,4 @@ function NavSection() {
     );
 }
 
-export default NavSection;
+export default AdminNavbar

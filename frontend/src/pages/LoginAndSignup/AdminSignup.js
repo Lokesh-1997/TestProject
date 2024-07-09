@@ -33,14 +33,14 @@ function AdminSignup() {
             setName('');
             setEmail('');
             setPassword('');
-            navigate('/login'); // Redirect to login page after successful registration
+            navigate('/admin'); // Redirect to login page after successful registration
         } catch (error) {
             setError(error.response ? error.response.data : 'Registration failed');
         }
     };
 
     const GotoLoginPage = () => {
-        navigate('/login');
+        navigate('/admin');
     };
 
     return (

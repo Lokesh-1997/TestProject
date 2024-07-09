@@ -163,8 +163,15 @@ app.get('/api/users', async (req, res) => {
     }
 });
 
-
-
+app.get('/api/admin', async (req, res) => {
+    try {
+        const admins = await Admin.find();
+        res.status(200).json(admins);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server error');
+    }
+});
 
 
 

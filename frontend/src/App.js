@@ -22,6 +22,7 @@ import AdminSignup from './pages/LoginAndSignup/AdminSignup';
 function App() {
 
   const [users, setUsers] = useState([]);
+  const [admins, setAdmins] = useState([]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -41,9 +42,28 @@ function App() {
     fetchUsers();
   }, []);
 
-  console.log(users);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch(`https://confess-data-tool-backend.vercel.app/api/admin`);
+        if (response.ok) {
+          const data = await response.json();
+          setAdmins(data);
+          console.log(data);
+        } else {
+          console.error('Failed to fetch users');
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   console.log(users);
+  console.log(admins);
+
+
   return (
     <Router>
       <div className="App">

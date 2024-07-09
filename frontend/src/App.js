@@ -30,6 +30,7 @@ function App() {
         if (response.ok) {
           const data = await response.json();
           setUsers(data);
+          console.log(data);
         } else {
           console.error('Failed to fetch users');
         }
@@ -42,7 +43,7 @@ function App() {
 
   console.log(users);
 
-
+  console.log(users);
   return (
     <Router>
       <div className="App">

@@ -153,6 +153,21 @@ app.post('/api/users/login', async (req, res) => {
     }
 });
 
+app.get('/api/users', async (req, res) => {
+    try {
+        const User = await User.find();
+        res.status(200).json(User);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server error');
+    }
+});
+
+
+
+
+
+
 // POST route to register a Admin
 app.post('/api/admin/register', async (req, res) => {
     const { name, email, password } = req.body;

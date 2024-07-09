@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import Home from './pages/Home';
@@ -20,6 +20,25 @@ import AdminSignup from './pages/LoginAndSignup/AdminSignup';
 
 
 function App() {
+
+
+  useEffect(() => {
+    const fetchExamDetails = async () => {
+      try {
+        const response = await fetch(`https://confess-data-tool-backend.vercel.app/api/users`);
+        if (response.ok) {
+          const data = await response.json();
+          console.log(data);
+        } else {
+          console.error('Failed to fetch exam details');
+        }
+      } catch (error) {
+        console.error('Error fetching exam details:', error);
+      }
+    };
+
+    fetchExamDetails();
+  }, []);
   return (
     <Router>
       <div className="App">

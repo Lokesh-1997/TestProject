@@ -12,7 +12,7 @@ function AssessmentPage() {
     const navigate = useNavigate();
     const [currentQuestionIDs, setCurrentQuestionIDs] = useState([]);
     const [questionHistory, setQuestionHistory] = useState([]);
-    const [savedOptions, setSavedOptions] = useState({});
+    const [savedOptions, setSavedOptions] = useState([]);
 
     useEffect(() => {
         const fetchQuestions = async () => {
@@ -36,10 +36,16 @@ function AssessmentPage() {
         fetchQuestions();
     }, [examName]);
 
-    console.log(savedOptions);
+    // console.log(savedOptions);
+
 
     const handleNextQuestion = () => {
         const newQuestionIDs = [];
+        let addHello = false;
+        let savedque = [];
+        let finalSavedque = [];
+        // console.log(savedque);
+
         currentQuestionIDs.forEach(id => {
             const currentQuestion = questions.find(q => q.questionID === id);
             if (currentQuestion && currentQuestion.nextQuestions) {
@@ -58,9 +64,36 @@ function AssessmentPage() {
                     newQuestionIDs.push(...currentQuestion.nextQuestions.split(',').map(q => q.trim()));
                 }
             }
+
+            const prevQuestion = questions.find(q => q.questionID === id);
+            if (prevQuestion && prevQuestion.questionType === 'Multiple Select') {
+                addHello = true; // Set flag to true to add Hello to the next question
+                const savedOptionsForCurrentQuestion = savedOptions[prevQuestion.questionID];
+                console.log(savedOptionsForCurrentQuestion);
+                if (savedOptionsForCurrentQuestion && savedOptionsForCurrentQuestion.length > 0) {
+                    savedque = savedOptionsForCurrentQuestion.map(opt => opt.value1 || opt.value0);
+
+                }
+            }
         });
+
         setCurrentQuestionIDs(newQuestionIDs);
         setQuestionHistory(prevHistory => [...prevHistory, newQuestionIDs]);
+
+        if (addHello && newQuestionIDs.length > 0) {
+            const nextQuestionID = newQuestionIDs[0];
+            const nextQuestionIndex = questions.findIndex(q => q.questionID === nextQuestionID);
+
+            if (nextQuestionIndex !== -1) {
+                const nextQuestion = questions[nextQuestionIndex];
+                finalSavedque = savedque;
+                const combinedSavedque = finalSavedque.map(item => `<li>${item}</li>`).join('');
+                console.log(finalSavedque);
+                nextQuestion.question = `${combinedSavedque} ${nextQuestion.question}`;
+
+                setQuestions([...questions]); // Update state to reflect the modified question
+            }
+        }
     };
 
     const handlePreviousQuestion = () => {
@@ -101,13 +134,23 @@ function AssessmentPage() {
             };
         });
 
-        setSavedOptions(prevSavedOptions => ({
-            ...prevSavedOptions,
-            [questionID]: isChecked
-                ? [...(prevSavedOptions[questionID] || []), { value0: optionValue0, value1: optionValue1 }]
-                : (prevSavedOptions[questionID] || []).filter(ans => ans.value0 !== optionValue0),
-        }));
+        setSavedOptions(prevSavedOptions => {
+            const prevOptions = prevSavedOptions[questionID] || [];
+            let updatedOptions;
+            if (isChecked) {
+                updatedOptions = [...prevOptions, { value0: optionValue0, value1: optionValue1 }];
+            } else {
+                updatedOptions = prevOptions.filter(opt => opt.value0 !== optionValue0);
+            }
+            return {
+                ...prevSavedOptions,
+                [questionID]: updatedOptions,
+            };
+        });
     };
+
+
+
 
     const saveResults = async () => {
         const userEmail = localStorage.getItem('email');
@@ -195,7 +238,7 @@ function AssessmentPage() {
 
                         {prevSavedOptions && prevSavedOptions.length > 0 && (
                             <p className='saved-options'>
-                                Saved Options: {prevSavedOptions.map(opt => opt.value0).join(', ')}
+                                Saved Options: {prevSavedOptions.map(opt => opt.value1).join(', ')}
                             </p>
                         )}
                     </>

@@ -51,7 +51,7 @@ function NavSection() {
             const user = users.find(user => user.email === email);
             const admin = admins.find(admin => admin.email === email);
 
-            console.log(user);
+
             if (user) {
                 setCurrentUser({ ...user, role: 'user' });
             } else if (admin) {

@@ -68,10 +68,11 @@ function AssessmentPage() {
             if (prevQuestion && prevQuestion.questionType === 'Multiple Select') {
                 addHello = true; // Set flag to true to add Hello to the next question
                 const savedOptionsForCurrentQuestion = savedOptions[prevQuestion.questionID];
-                console.log(savedOptionsForCurrentQuestion);
+
                 if (savedOptionsForCurrentQuestion && savedOptionsForCurrentQuestion.length > 0) {
                     savedque = savedOptionsForCurrentQuestion.map(opt => opt.value1 || opt.value0);
-                    console.log(savedque);
+
+
                 }
             }
         });
@@ -84,17 +85,13 @@ function AssessmentPage() {
 
             if (nextQuestionIndex !== -1) {
                 const nextQuestion = questions[nextQuestionIndex];
-
                 // Split the savedque values by comma, trim whitespace, and remove duplicates
                 const allValues = savedque.flatMap(item => item.split(',').map(s => s.trim()));
                 const uniqueValues = Array.from(new Set(allValues));
-
                 // Combine the unique values into a string with <li> tags
                 const combinedSavedque = uniqueValues.map(item => `<li>${item}</li>`).join(' ');
-
                 // Append the combinedSavedque to the next question's question
                 nextQuestion.question = `${nextQuestion.question} ${combinedSavedque}`;
-
                 // Update the questions state
                 setQuestions([...questions]);
                 // Clear saved options
@@ -143,20 +140,24 @@ function AssessmentPage() {
             };
         });
 
-        setSavedOptions(prevSavedOptions => {
-            const prevOptions = prevSavedOptions[questionID] || [];
-            let updatedOptions;
-            if (isChecked) {
-                updatedOptions = [...prevOptions, { value0: optionValue0, value1: optionValue1 }];
-            } else {
-                updatedOptions = prevOptions.filter(opt => opt.value0 !== optionValue0);
-            }
-            return {
-                ...prevSavedOptions,
-                [questionID]: updatedOptions,
-            };
-        });
+        // Only add to savedOptions if value1 is present
+        if (optionValue1) {
+            setSavedOptions(prevSavedOptions => {
+                const prevOptions = prevSavedOptions[questionID] || [];
+                let updatedOptions;
+                if (isChecked) {
+                    updatedOptions = [...prevOptions, { value0: optionValue0, value1: optionValue1 }];
+                } else {
+                    updatedOptions = prevOptions.filter(opt => opt.value0 !== optionValue0);
+                }
+                return {
+                    ...prevSavedOptions,
+                    [questionID]: updatedOptions,
+                };
+            });
+        }
     };
+
 
 
 
@@ -225,7 +226,8 @@ function AssessmentPage() {
                 return (
                     <>
                         {question.options.filter(option => option).map((option, index) => {
-                            const optionValue = option.split(';');
+                            const optionValue = option.split('#');
+
                             return (
                                 <div key={index} className='fs-5'>
                                     <input
@@ -244,11 +246,11 @@ function AssessmentPage() {
                             );
                         })}
 
-                        {/* {prevSavedOptions && prevSavedOptions.length > 0 && (
+                        {prevSavedOptions && prevSavedOptions.length > 0 && (
                             <p className='saved-options'>
                                 Saved Options: {prevSavedOptions.map(opt => opt.value1).join(', ')}
                             </p>
-                        )} */}
+                        )}
                     </>
                 );
 

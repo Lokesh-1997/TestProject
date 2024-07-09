@@ -346,7 +346,7 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
                     <div className={`input-wraps ${questionCategory ? 'has-values' : ''}`}>
                         <select className='input-3' value={questionCategory} onChange={(e) => setQuestionCategory(e.target.value)}>
                             <option className='d-none' value=""></option>
-                            <option value="Substential Contribution">Substential Contribution</option>
+                            <option value="Substential Contribution">Substantial Contribution</option>
                             <option value="DNSH - Adaption">DNSH - Adaption</option>
                             <option value="DNSH - Water">DNSH - Water</option>
                             <option value="DNCH - CE">DNCH - CE</option>

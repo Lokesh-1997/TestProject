@@ -6,7 +6,7 @@ import { faCircleXmark } from '@fortawesome/free-solid-svg-icons/faCircleXmark';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-function SignupPage() {
+function AdminSignup() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -98,4 +98,4 @@ function SignupPage() {
     );
 }
 
-export default SignupPage;
+export default AdminSignup

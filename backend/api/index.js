@@ -38,6 +38,24 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
+const adminSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: {
+        type: String,
+        required: true
+    }
+});
+
+const Admin = mongoose.model('Admin', adminSchema);
+
 const Assessment = mongoose.model('Assessment', new mongoose.Schema({
     examName: String,
     examCategory: String,
@@ -125,6 +143,52 @@ app.post('/api/users/login', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
+// POST route to register a Admin
+app.post('/api/admin/register', async (req, res) => {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) {
+        return res.status(400).send('Name, Email, and Password are required');
+    }
+    try {
+        const existingUser = await Admin.findOne({ email });
+        if (existingUser) {
+            return res.status(400).send('User already exists');
+        }
+        // Create a new user with the plain password
+        const newUser = new Admin({ name, email, password });
+        await newUser.save();
+        res.status(201).send('User registered successfully');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server error');
+    }
+});
+
+
+// POST route to login a Admin
+
+app.post('/api/admin/login', async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(400).send('Email and Password are required');
+    }
+    try {
+        const user = await Admin.findOne({ email });
+        if (!user) {
+            return res.status(400).send('Email is not registered');
+        }
+        if (password !== user.password) {  // Directly comparing plain text passwords
+            return res.status(400).send('Invalid password');
+        }
+        const token = jwt.sign({ id: user._id }, 'your_jwt_secret', { expiresIn: '1h' });
+        res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
+    } catch (error) {
+        console.error("Error during login:", error);  // Detailed error logging
+        res.status(500).send('Server error');
+    }
+});
+
 
 
 

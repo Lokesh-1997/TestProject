@@ -1,69 +1,65 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import LogoLight from "../../asset/logo_light.png";
 import '../LandingPage.css';
 import './Navbar.css';
 
-
-
 function NavSection() {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const email = localStorage.getItem('email');
+        if (!email) {
+            navigate('/login');
+        }
+    }, [navigate]);
+
+    const handleLogout = () => {
+        localStorage.removeItem('email');
+        navigate('/login');
+    };
+
     return (
         <>
-            <nav class="navbar navbar-expand-lg darkmode ">
-                <div class="container">
-                    <a class="navbar-brand Landing-main" href="#">
+            <nav className="navbar navbar-expand-lg darkmode">
+                <div className="container">
+                    <a className="navbar-brand Landing-main" href="#">
                         <img src={LogoLight} alt='logo' />
                     </a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
+                    <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span className="navbar-toggler-icon"></span>
                     </button>
-                    <div class="collapse navbar-collapse" id="navbarNav">
+                    <div className="collapse navbar-collapse" id="navbarNav">
                         <div className='d-flex justify-content-around align-items-center w-100'>
                             <div>
-                                <ul class="navbar-nav">
-                                    <li class="nav-item">
-                                        <a class="nav-link active" aria-current="page" href="/landing">Home</a>
+                                <ul className="navbar-nav">
+                                    <li className="nav-item">
+                                        <a className="nav-link active" aria-current="page" href="/landing">Home</a>
                                     </li>
-                                    <li class="nav-item ">
-                                        <a class="nav-link" href="/reports">Dashboard</a>
+                                    <li className="nav-item">
+                                        <a className="nav-link" href="/reports">Dashboard</a>
                                     </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="/assessment">Assessments</a>
+                                    <li className="nav-item">
+                                        <a className="nav-link" href="/assessment">Assessments</a>
                                     </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="/results">Reports</a>
+                                    <li className="nav-item">
+                                        <a className="nav-link" href="/results">Reports</a>
                                     </li>
                                 </ul>
                             </div>
                             <div>
                                 <ul className='navbar-nav'>
-                                    {/* <li className='navbar-nav'>
-                                        <FontAwesomeIcon icon={faUser} />
-                                    </li> */}
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="#" >Logout</a>
+                                    <li className="nav-item">
+                                        <button className="nav-link btn btn-link" onClick={handleLogout}>Logout</button>
                                     </li>
-
                                 </ul>
-
                             </div>
-
                         </div>
                     </div>
-
                 </div>
-
-                {/* <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                    <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked />
-                    <label class="btn btn-outline-secondary" for="btnradio1">Dark Theme</label>
-
-                    <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" />
-                    <label class="btn btn-outline-light" for="btnradio2">Light Theme</label>
-
-                </div> */}
-
             </nav>
         </>
-    )
+    );
 }
 
-export default NavSection
+export default NavSection;

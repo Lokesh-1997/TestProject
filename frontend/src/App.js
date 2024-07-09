@@ -15,6 +15,8 @@ import LoginPage from './pages/LoginAndSignup/LoginPage';
 import ResultMain from './pages/Results/ResultMain';
 import ViewExams from './pages/Results/ViewExams';
 import Answers from './pages/Results/Answers';
+import Admin from './pages/LoginAndSignup/Admin';
+import AdminSignup from './pages/LoginAndSignup/AdminSignup';
 
 
 function App() {
@@ -32,6 +34,8 @@ function App() {
           <Route path='/reports' element={<><NavSection /> <Reports /> </>} />
           <Route path='/signup' element={<SignupPage />} />
           <Route path='/login' element={<LoginPage />} />
+          <Route path='/admin' element={<Admin />} />
+          <Route path='/adminsignup' element={<AdminSignup />} />
           <Route path='/results' element={<><NavSection /><ResultMain /> </>} />
           <Route path='/view-exams/:email' element={<><NavSection /><ViewExams /> </>} />
           <Route path='/answers/:examName/:examCategory' element={<><NavSection /><Answers /> </>} />

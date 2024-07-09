@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './AssessmentPage.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEuroSign } from '@fortawesome/free-solid-svg-icons';
 
 function AssessmentPage() {
     const { state } = useLocation();
@@ -9,7 +11,8 @@ function AssessmentPage() {
     const [answers, setAnswers] = useState({});
     const navigate = useNavigate();
     const [currentQuestionIDs, setCurrentQuestionIDs] = useState([]);
-    const [questionHistory, setQuestionHistory] = useState([]); // Stores arrays of question IDs
+    const [questionHistory, setQuestionHistory] = useState([]);
+    const [savedOptions, setSavedOptions] = useState({});
 
     useEffect(() => {
         const fetchQuestions = async () => {
@@ -20,7 +23,7 @@ function AssessmentPage() {
                     setQuestions(data);
                     if (data.length > 0) {
                         setCurrentQuestionIDs([data[0].questionID]);
-                        setQuestionHistory([[data[0].questionID]]); // Initialize history with the first question
+                        setQuestionHistory([[data[0].questionID]]);
                     }
                 } else {
                     console.error('Failed to fetch questions');
@@ -33,20 +36,19 @@ function AssessmentPage() {
         fetchQuestions();
     }, [examName]);
 
+    console.log(savedOptions);
+
     const handleNextQuestion = () => {
         const newQuestionIDs = [];
         currentQuestionIDs.forEach(id => {
             const currentQuestion = questions.find(q => q.questionID === id);
             if (currentQuestion && currentQuestion.nextQuestions) {
-                // Handle Yes or No question separately
                 if (currentQuestion.questionType === 'MCQ' && currentQuestion.options.includes('Yes') && currentQuestion.options.includes('No')) {
                     let selectedAnswer = answers[currentQuestion.questionID];
                     if (!selectedAnswer) {
-                        selectedAnswer = 'Yes'; // Default to Yes if no answer is selected
+                        selectedAnswer = 'Yes';
                     }
-
                     const nextQuestionsArray = currentQuestion.nextQuestions.split(',').map(q => q.trim());
-                    console.log(nextQuestionsArray);
                     if (selectedAnswer === 'Yes' && nextQuestionsArray.length >= 1) {
                         newQuestionIDs.push(nextQuestionsArray[0]);
                     } else if (selectedAnswer === 'No' && nextQuestionsArray.length >= 2) {
@@ -58,16 +60,17 @@ function AssessmentPage() {
             }
         });
         setCurrentQuestionIDs(newQuestionIDs);
-        setQuestionHistory(prevHistory => [...prevHistory, newQuestionIDs]); // Update history with new question IDs
+        setQuestionHistory(prevHistory => [...prevHistory, newQuestionIDs]);
     };
+
 
     const handlePreviousQuestion = () => {
         if (questionHistory.length > 1) {
             const newHistory = [...questionHistory];
-            newHistory.pop(); // Remove the current question IDs
+            newHistory.pop();
             const previousQuestionIDs = newHistory[newHistory.length - 1];
-            setCurrentQuestionIDs(previousQuestionIDs); // Set the previous question IDs from the history
-            setQuestionHistory(newHistory); // Update history
+            setCurrentQuestionIDs(previousQuestionIDs);
+            setQuestionHistory(newHistory);
         }
     };
 
@@ -78,20 +81,27 @@ function AssessmentPage() {
     }
 
     const handleAnswerChange = (questionID, answer) => {
+        console.log(answer)
         setAnswers(prevAnswers => ({
             ...prevAnswers,
             [questionID]: answer,
+
         }));
     };
 
-    const handleMultipleSelectChange = (questionID, option, isChecked) => {
+
+
+    const handleMultipleSelectChange = (questionID, optionValue0, optionValue1, isChecked) => {
+
         setAnswers(prevAnswers => {
             const prevAnswer = prevAnswers[questionID] || [];
             let updatedAnswer;
             if (isChecked) {
-                updatedAnswer = [...prevAnswer, option];
+                updatedAnswer = [...prevAnswer, { value0: optionValue0, value1: optionValue1 }];
+                setSavedOptions([...prevAnswer, { value0: optionValue0, value1: optionValue1 }])
             } else {
-                updatedAnswer = prevAnswer.filter(ans => ans !== option);
+                updatedAnswer = prevAnswer.filter(ans => ans.value0 !== optionValue0);
+                setSavedOptions(prevAnswer.filter(ans => ans.value0 !== optionValue0))
             }
             return {
                 ...prevAnswers,
@@ -101,7 +111,8 @@ function AssessmentPage() {
     };
 
     const saveResults = async () => {
-        const userEmail = localStorage.getItem('email'); // Retrieve email from local storage
+        const userEmail = localStorage.getItem('email');
+
         try {
             const formattedAnswers = Object.keys(answers).map(questionID => ({
                 questionID,
@@ -118,7 +129,7 @@ function AssessmentPage() {
 
             if (response.ok) {
                 alert("Your answers are submitted");
-                navigate('/landing'); // Redirect to dashboard after saving results
+                navigate('/landing');
             } else {
                 const errorData = await response.json();
                 console.error('Failed to save results', errorData);
@@ -131,6 +142,7 @@ function AssessmentPage() {
 
     const renderQuestionInput = (question) => {
         const savedAnswer = answers[question.questionID];
+        const prevSavedOptions = savedOptions[question.questionID];
         switch (question.questionType) {
             case 'MCQ':
                 return (
@@ -153,21 +165,35 @@ function AssessmentPage() {
             case 'Multiple Select':
                 return (
                     <>
-                        {question.options.filter(option => option).map((option, index) => (
-                            <div key={index} className='fs-5'>
-                                <input
-                                    type="checkbox"
-                                    className='m-1 form-check-input'
-                                    name={`question-${question.questionID}`}
-                                    value={option}
-                                    checked={savedAnswer && savedAnswer.includes(option)}
-                                    onChange={(e) => handleMultipleSelectChange(question.questionID, option, e.target.checked)}
-                                />
-                                {option}
-                            </div>
-                        ))}
+                        {question.options.filter(option => option).map((option, index) => {
+                            const optionValue = option.split(',');
+
+                            return (
+                                <div key={index} className='fs-5'>
+                                    <input
+                                        type="checkbox"
+                                        className='m-1 form-check-input'
+                                        name={`question-${question.questionID}`}
+                                        value={optionValue[0]}
+                                        checked={savedAnswer && savedAnswer.some(ans => ans.value0 === optionValue[0])}
+                                        onChange={(e) => {
+                                            const isChecked = e.target.checked;
+                                            handleMultipleSelectChange(question.questionID, optionValue[0], optionValue[1], isChecked);
+                                        }}
+                                    />
+                                    {optionValue[0]}
+                                </div>
+                            );
+                        })}
+
+                        {prevSavedOptions && prevSavedOptions.length > 0 && (
+                            <p className='saved-options'>
+                                Saved Options: {prevSavedOptions.map(opt => opt.value0).join(', ')}
+                            </p>
+                        )}
                     </>
                 );
+
             case 'Short':
             case 'Long Text':
                 return (
@@ -180,18 +206,30 @@ function AssessmentPage() {
                 );
             case 'Numerical Value':
                 return (
-                    <input
-                        type="text"
-                        className='input-4 border-secondary text-secondary w-100'
-                        name={`question-${question.questionID}`}
-                        value={savedAnswer || ''}
-                        onChange={(e) => handleAnswerChange(question.questionID, e.target.value)}
-                    />
+                    <div className='numerical'>
+                        <input
+                            type="number"
+                            className='input-4 border-secondary text-secondary w-100'
+                            name={`question-${question.questionID}`}
+                            value={savedAnswer || ''}
+                            onChange={(e) => handleAnswerChange(question.questionID, e.target.value)}
+                        />
+                        <FontAwesomeIcon
+                            icon={faEuroSign}
+                            className='euro-sign'
+                        />
+                    </div>
                 );
             default:
                 return null;
         }
+
+
     };
+
+
+    const isLastQuestion = currentQuestions.some(question => question.nextQuestions === 'end');
+
 
     return (
         <div className='assessment-page container mt-5 py-5'>
@@ -203,7 +241,6 @@ function AssessmentPage() {
                     <p className='mt-3'><i>{question.disclaimer}</i></p>
                 </div>
             ))}
-
 
             <div className='navigation-buttons d-flex justify-content-between mt-5'>
                 <button
@@ -218,7 +255,7 @@ function AssessmentPage() {
                 >
                     {questionHistory.length <= 1 ? 'Cancel' : 'Previous'}
                 </button>
-                {currentQuestionIDs.includes(questions[questions.length - 1].questionID) ? (
+                {isLastQuestion ? (
                     <button
                         className='btn-cancel'
                         onClick={saveResults}

@@ -48,6 +48,7 @@ function AssessmentPage() {
 
         currentQuestionIDs.forEach(id => {
             const currentQuestion = questions.find(q => q.questionID === id);
+
             if (currentQuestion && currentQuestion.nextQuestions) {
                 if (currentQuestion.questionType === 'MCQ' && currentQuestion.options.includes('Yes') && currentQuestion.options.includes('No')) {
                     let selectedAnswer = answers[currentQuestion.questionID];
@@ -86,12 +87,13 @@ function AssessmentPage() {
 
             if (nextQuestionIndex !== -1) {
                 const nextQuestion = questions[nextQuestionIndex];
-                finalSavedque = savedque;
-                const combinedSavedque = finalSavedque.map(item => `<li>${item}</li>`).join('');
+                const combinedSavedque = savedque.map(item => `<li>${item}</li>`).join(' ');
                 console.log(finalSavedque);
-                nextQuestion.question = `${combinedSavedque} ${nextQuestion.question}`;
+                nextQuestion.question = `${nextQuestion.question} ${combinedSavedque}`;
 
-                setQuestions([...questions]); // Update state to reflect the modified question
+                setQuestions([...questions]);
+                setSavedOptions('')
+
             }
         }
     };
@@ -103,6 +105,7 @@ function AssessmentPage() {
             const previousQuestionIDs = newHistory[newHistory.length - 1];
             setCurrentQuestionIDs(previousQuestionIDs);
             setQuestionHistory(newHistory);
+            setSavedOptions('')
         }
     };
 

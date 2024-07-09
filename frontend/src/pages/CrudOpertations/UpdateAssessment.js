@@ -307,6 +307,7 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
         }
     };
 
+
     const canAddOption = (questionType === "MCQ" && options.length < 4) || (questionType === "Multiple Select" && options.length < 5);
 
     return (

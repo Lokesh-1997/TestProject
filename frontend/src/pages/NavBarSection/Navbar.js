@@ -50,6 +50,8 @@ function NavSection() {
         if (email) {
             const user = users.find(user => user.email === email);
             const admin = admins.find(admin => admin.email === email);
+
+            console.log(user);
             if (user) {
                 setCurrentUser({ ...user, role: 'user' });
             } else if (admin) {
@@ -64,6 +66,8 @@ function NavSection() {
         localStorage.removeItem('email');
         navigate('/login');
     };
+
+
 
     return (
         <nav className="navbar navbar-expand-lg darkmode">

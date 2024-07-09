@@ -428,7 +428,7 @@ app.post('/api/results', async (req, res) => {
             if (question) {
                 return {
                     questionID: answer.questionID,
-                    answer: answer.answer,
+                    answer: answer.answer.includes(';') ? answer.answer.split(';') : [answer.answer], // Split multiple select answers
                 };
             }
         });
@@ -455,6 +455,7 @@ app.post('/api/results', async (req, res) => {
         res.status(500).json({ message: 'Error saving results' });
     }
 });
+
 
 
 

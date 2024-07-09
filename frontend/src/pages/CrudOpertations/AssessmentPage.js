@@ -63,7 +63,6 @@ function AssessmentPage() {
         setQuestionHistory(prevHistory => [...prevHistory, newQuestionIDs]);
     };
 
-
     const handlePreviousQuestion = () => {
         if (questionHistory.length > 1) {
             const newHistory = [...questionHistory];
@@ -81,43 +80,51 @@ function AssessmentPage() {
     }
 
     const handleAnswerChange = (questionID, answer) => {
-        console.log(answer)
         setAnswers(prevAnswers => ({
             ...prevAnswers,
             [questionID]: answer,
-
         }));
     };
 
-
-
     const handleMultipleSelectChange = (questionID, optionValue0, optionValue1, isChecked) => {
-
         setAnswers(prevAnswers => {
             const prevAnswer = prevAnswers[questionID] || [];
             let updatedAnswer;
             if (isChecked) {
                 updatedAnswer = [...prevAnswer, { value0: optionValue0, value1: optionValue1 }];
-                setSavedOptions([...prevAnswer, { value0: optionValue0, value1: optionValue1 }])
             } else {
                 updatedAnswer = prevAnswer.filter(ans => ans.value0 !== optionValue0);
-                setSavedOptions(prevAnswer.filter(ans => ans.value0 !== optionValue0))
             }
             return {
                 ...prevAnswers,
                 [questionID]: updatedAnswer,
             };
         });
+
+        setSavedOptions(prevSavedOptions => ({
+            ...prevSavedOptions,
+            [questionID]: isChecked
+                ? [...(prevSavedOptions[questionID] || []), { value0: optionValue0, value1: optionValue1 }]
+                : (prevSavedOptions[questionID] || []).filter(ans => ans.value0 !== optionValue0),
+        }));
     };
 
     const saveResults = async () => {
         const userEmail = localStorage.getItem('email');
 
         try {
-            const formattedAnswers = Object.keys(answers).map(questionID => ({
-                questionID,
-                answer: answers[questionID]
-            }));
+            const formattedAnswers = Object.keys(answers).map(questionID => {
+                const answer = answers[questionID];
+                // Handle multiple select answers separately to format them correctly
+                if (Array.isArray(answer)) {
+                    return {
+                        questionID,
+                        answer: answer.map(a => `${a.value0},${a.value1}`).join(';') // Format as a string separated by semicolons
+                    };
+                } else {
+                    return { questionID, answer };
+                }
+            });
 
             const response = await fetch('https://confess-data-tool-backend.vercel.app/api/results', {
                 method: 'POST',
@@ -223,13 +230,9 @@ function AssessmentPage() {
             default:
                 return null;
         }
-
-
     };
 
-
     const isLastQuestion = currentQuestions.some(question => question.nextQuestions === 'end');
-
 
     return (
         <div className='assessment-page container mt-5 py-5'>

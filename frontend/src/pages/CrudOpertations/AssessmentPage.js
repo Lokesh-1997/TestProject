@@ -244,11 +244,11 @@ function AssessmentPage() {
                             );
                         })}
 
-                        {prevSavedOptions && prevSavedOptions.length > 0 && (
+                        {/* {prevSavedOptions && prevSavedOptions.length > 0 && (
                             <p className='saved-options'>
                                 Saved Options: {prevSavedOptions.map(opt => opt.value1).join(', ')}
                             </p>
-                        )}
+                        )} */}
                     </>
                 );
 

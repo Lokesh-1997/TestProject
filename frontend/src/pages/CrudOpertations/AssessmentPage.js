@@ -43,7 +43,6 @@ function AssessmentPage() {
         const newQuestionIDs = [];
         let addHello = false;
         let savedque = [];
-        let finalSavedque = [];
         // console.log(savedque);
 
         currentQuestionIDs.forEach(id => {
@@ -65,7 +64,6 @@ function AssessmentPage() {
                     newQuestionIDs.push(...currentQuestion.nextQuestions.split(',').map(q => q.trim()));
                 }
             }
-
             const prevQuestion = questions.find(q => q.questionID === id);
             if (prevQuestion && prevQuestion.questionType === 'Multiple Select') {
                 addHello = true; // Set flag to true to add Hello to the next question
@@ -73,11 +71,10 @@ function AssessmentPage() {
                 console.log(savedOptionsForCurrentQuestion);
                 if (savedOptionsForCurrentQuestion && savedOptionsForCurrentQuestion.length > 0) {
                     savedque = savedOptionsForCurrentQuestion.map(opt => opt.value1 || opt.value0);
-
+                    console.log(savedque);
                 }
             }
         });
-
         setCurrentQuestionIDs(newQuestionIDs);
         setQuestionHistory(prevHistory => [...prevHistory, newQuestionIDs]);
 
@@ -87,15 +84,24 @@ function AssessmentPage() {
 
             if (nextQuestionIndex !== -1) {
                 const nextQuestion = questions[nextQuestionIndex];
-                const combinedSavedque = savedque.map(item => `<li>${item}</li>`).join(' ');
-                console.log(finalSavedque);
+
+                // Split the savedque values by comma, trim whitespace, and remove duplicates
+                const allValues = savedque.flatMap(item => item.split(',').map(s => s.trim()));
+                const uniqueValues = Array.from(new Set(allValues));
+
+                // Combine the unique values into a string with <li> tags
+                const combinedSavedque = uniqueValues.map(item => `<li>${item}</li>`).join(' ');
+
+                // Append the combinedSavedque to the next question's question
                 nextQuestion.question = `${nextQuestion.question} ${combinedSavedque}`;
 
+                // Update the questions state
                 setQuestions([...questions]);
-                setSavedOptions('')
-
+                // Clear saved options
+                setSavedOptions('');
             }
         }
+
     };
 
     const handlePreviousQuestion = () => {
@@ -105,7 +111,7 @@ function AssessmentPage() {
             const previousQuestionIDs = newHistory[newHistory.length - 1];
             setCurrentQuestionIDs(previousQuestionIDs);
             setQuestionHistory(newHistory);
-            setSavedOptions('')
+            // setSavedOptions('')
         }
     };
 
@@ -219,8 +225,7 @@ function AssessmentPage() {
                 return (
                     <>
                         {question.options.filter(option => option).map((option, index) => {
-                            const optionValue = option.split(',');
-
+                            const optionValue = option.split(';');
                             return (
                                 <div key={index} className='fs-5'>
                                     <input

@@ -179,7 +179,7 @@ function AssessmentPage() {
                 }
             });
 
-            const response = await fetch('https://confess-data-tool-backend.vercel.app/api/submitresults', {
+            const response = await fetch('https://confess-data-tool-backend.vercel.app/api/results/submitresults', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

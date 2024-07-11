@@ -348,7 +348,8 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
                         <select className='input-3' value={questionCategory} onChange={(e) => setQuestionCategory(e.target.value)}>
                             <option className='d-none' value=""></option>
                             <option value="Substential Contribution">Substantial Contribution</option>
-                            <option value="DNSH - Adaption">DNSH - Adaption</option>
+                            <option value="DNSH - Adaptation">DNSH - Adaptation</option>
+                            <option value="DNSH - Biodiversity">DNSH - Biodiversity</option>
                             <option value="DNSH - Water">DNSH - Water</option>
                             <option value="DNCH - CE">DNCH - CE</option>
                             <option value="DNSH - Pollution">DNSH - Pollution</option>

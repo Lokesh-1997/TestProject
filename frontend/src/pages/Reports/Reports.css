@@ -1,5 +1,20 @@
 .reports-main {
-    max-width: 700px;
+    max-width: 800px;
+}
+
+.section-card {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.card-main {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .card-reports {
@@ -8,8 +23,7 @@
 
 .card-stats {
     border-radius: 20px;
-
-
+    width: 380px;
 }
 
 .card-stats p {

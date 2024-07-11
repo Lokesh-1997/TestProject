@@ -1,7 +1,93 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import './Reports.css'
+import { useNavigate } from 'react-router-dom';
 
 function Reports() {
+
+    const [assessments, setAssessments] = useState([]);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchAssessments = async () => {
+            try {
+                const response = await fetch('https://confess-data-tool-backend.vercel.app/api/assessments');
+                if (response.ok) {
+                    const data = await response.json();
+                    setAssessments(data);
+                } else {
+                    console.error('Failed to fetch assessments');
+                }
+            } catch (error) {
+                console.error('Error fetching assessments:', error);
+            }
+        };
+
+        fetchAssessments();
+    }, []);
+
+
+    const ChartDetails = [
+        {
+            title: "Turnover",
+            topic: "EU Taxonomy alignment for Clean Energy Activities",
+            text1: "Aligned",
+            text2: "Not aligned but eligible",
+            text3: "Not eligible"
+        },
+        {
+            title: "CapEx",
+            topic: "EU Taxonomy alignment for Clean Energy Activities",
+            text1: "Aligned",
+            text2: "Not aligned but eligible",
+            text3: "Not eligible"
+        },
+        {
+            title: "OpEx",
+            topic: "EU Taxonomy alignment for Clean Energy Activities",
+            text1: "Aligned",
+            text2: "Not aligned but eligible",
+            text3: "Not eligible"
+        },
+        {
+            title: "# of Activities",
+            topic: "EU Taxonomy alignment for Clean Energy Activities",
+            text1: "Aligned",
+            text2: "Not aligned but eligible",
+            text3: "Not eligible"
+        }
+    ]
+
+    const ActivitiesDetails = [
+        {
+            title: "Energy Activity 1 - Electricity generation using solar photovoltaic technology",
+            text1: ["Substential Contribution (Climate Change Mitigation)", "darkgreen-dot"],
+            text2: ["Climate Change Adaptation", "darkgreen-dot"],
+            text3: ["Water and Marine Protection", "orage-dot"],
+            text4: ["Circular Economy", "darkgreen-dot"],
+            text5: ["Pollution Prevention", "darkgreen-dot"],
+            text6: ["Biodiversity", "darkgreen-dot"]
+        },
+        {
+            title: "Energy Activity 2 - Electricity generation using solar photovoltaic technology",
+            text1: ["Substential Contribution (Climate Change Mitigation)", "darkgreen-dot"],
+            text2: ["Climate Change Adaptation", "orage-dot"],
+            text3: ["Water and Marine Protection", "darkgreen-dot"],
+            text4: ["Circular Economy", "darkgreen-dot"],
+            text5: ["Pollution Prevention", "darkgreen-dot"],
+            text6: ["Biodiversity", "orage-dot"]
+        },
+        {
+            title: "Energy Activity 3 - Electricity generation using solar photovoltaic technology",
+            text1: ["Substential Contribution (Climate Change Mitigation)", "darkgrey-dot"],
+            text2: ["Climate Change Adaptation", "darkgreen-dot"],
+            text3: ["Water and Marine Protection", "darkgreen-dot"],
+            text4: ["Circular Economy", "darkgreen-dot"],
+            text5: ["Pollution Prevention", "darkgrey-dot"],
+            text6: ["Biodiversity", "darkgreen-dot"]
+        }
+    ]
+
+
     return (
         <div className='d-flex justify-content-center mt-5'>
             <section className='reports-main'>
@@ -22,123 +108,40 @@ function Reports() {
                     </div>
                 </div>
 
-                <section className='d-flex gap-3'>
+                <section className='section-card'>
+                    {
+                        ChartDetails.map((value) => {
+                            return <div className='card-main'>
+                                <div className="card card-stats mt-5">
+                                    <div className="card-body text-start">
+                                        <h3>{value.title}</h3>
+                                        <p className="card-title">
+                                            {value.topic}
+                                        </p>
 
-                    <div className="card card-stats mt-5">
+                                        <div class="circle m-4">
+                                            <div class="circle-progress"></div>
+                                        </div>
+                                        <div className='row d-flex flex-column justify-content-bet align-items-center'>
 
-                        <div className="card-body text-start">
-                            <h3>Turnover</h3>
-                            <p className="card-title">
-                                EU Taxonomy alignment for Clean Energy Activities
-                            </p>
-
-                            <div class="circle m-4">
-                                <div class="circle-progress"></div>
-                            </div>
-                            <div className='row d-flex justify-content-bet align-items-center'>
-                                <div className='col'>
-                                    <p className="mt-3"><span className='green-dot'></span>Aligned</p>
-                                    <p><span className='dark-dot'></span>Not aligned but eligible</p>
-                                    <p><span className='grey-dot'></span>Not eligible</p>
-                                </div>
-                                <div className='col'>
-                                    <p>600 $ (60%)</p>
-                                    <p>600 $ (60%)</p>
-                                    <p>600 $ (60%)</p>
-                                </div>
-                            </div>
-
-
-                        </div>
-                    </div>
-
-                    <div className="card card-stats mt-5">
-                        <div className="card-body text-start">
-                            <h3>Turnover</h3>
-                            <p className="card-title">
-                                EU Taxonomy alignment for Clean Energy Activities
-                            </p>
-
-                            <div class="circle m-4">
-                                <div class="circle-progress"></div>
-                            </div>
-                            <div className='row d-flex justify-content-bet align-items-center'>
-                                <div className='col'>
-                                    <p className="mt-3"><span className='green-dot'></span>Aligned</p>
-                                    <p><span className='dark-dot'></span>Not aligned but eligible</p>
-                                    <p><span className='grey-dot'></span>Not eligible</p>
-                                </div>
-
-                                <div className='col'>
-                                    <p>600 $ (60%)</p>
-                                    <p>600 $ (60%)</p>
-                                    <p>600 $ (60%)</p>
+                                            <div className='col d-flex justify-content-between'>
+                                                <p>Aligned</p>
+                                                <p>600 $ (60%)</p>
+                                            </div>
+                                            <div className='col d-flex justify-content-between'>
+                                                <p>Not aligned but eligible</p>
+                                                <p>600 $ (60%)</p>
+                                            </div>
+                                            <div className='col d-flex justify-content-between'>
+                                                <p>Not eligible</p>
+                                                <p>600 $ (60%)</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-
-
-
-
-                </section>
-
-                <section className='d-flex gap-3'>
-
-                    <div className="card card-stats mt-5">
-                        <div className="card-body text-start">
-                            <h3>OpEx</h3>
-                            <p className="card-title">
-                                EU Taxonomy alignment for Clean Energy Activities
-                            </p>
-
-                            <div class="circle m-4">
-                                <div class="circle-progress"></div>
-                            </div>
-                            <div className='row d-flex justify-content-bet align-items-center'>
-                                <div className='col'>
-                                    <p className="mt-3"><span className='green-dot'></span>Aligned</p>
-                                    <p><span className='dark-dot'></span>Not aligned but eligible</p>
-                                    <p><span className='grey-dot'></span>Not eligible</p>
-                                </div>
-
-                                <div className='col'>
-                                    <p>600 $ (60%)</p>
-                                    <p>600 $ (60%)</p>
-                                    <p>600 $ (60%)</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="card card-stats mt-5">
-                        <div className="card-body text-start">
-                            <h3># of Activities</h3>
-                            <p className="card-title">
-                                EU Taxonomy alignment for Clean Energy Activities
-                            </p>
-
-                            <div class="circle m-4">
-                                <div class="circle-progress"></div>
-                            </div>
-                            <div className='row d-flex justify-content-bet align-items-center'>
-                                <div className='col'>
-                                    <p className="mt-3"><span className='green-dot'></span>Aligned</p>
-                                    <p><span className='dark-dot'></span>Not aligned but eligible</p>
-                                    <p><span className='grey-dot'></span>Not eligible</p>
-                                </div>
-
-                                <div className='col'>
-                                    <p>600 $ (60%)</p>
-                                    <p>600 $ (60%)</p>
-                                    <p>600 $ (60%)</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
+                        })
+                    }
                 </section>
 
                 <div className="card card-reports mt-5">
@@ -152,18 +155,57 @@ function Reports() {
 
                         <p>Legend</p>
                         <div className='col'>
-                            <p className="mt-3"><span className='darkgreen-dot'></span>Aligned</p>
-                            <p><span className='orage-dot'></span>Not aligned but eligible</p>
-                            <p><span className='darkgrey-dot'></span>Not eligible</p>
+                            <p className="mt-3 d-flex align-items-center"><span className='darkgreen-dot'></span>Criteria met</p>
+                            <p className="mt-3 d-flex align-items-center"><span className='orage-dot'></span>Criteria not met</p>
+                            <p className="mt-3 d-flex align-items-center"><span className='darkgrey-dot'></span>Criteria not assessable</p>
                         </div>
 
                     </div>
                 </div>
 
+                <section>
+                    {
+                        ActivitiesDetails.map((value) => {
+                            return <div className="card card-reports mt-5 text-start">
+                                <div className="card-header">
+                                    <h3 className='fw-light'>{value.title}</h3>
+                                </div>
+                                <div className='d-flex mx-3 mt-3 justify-content-between'>
+                                    <p>{value.text1[0]}</p>
+                                    <span className={`${value.text1[1]} mx-4`}></span>
+                                </div>
+
+                                <p className="mx-3 mt-4">Do Not Significant Harm</p>
+
+
+                                <div className='d-flex mx-3 mt-2 justify-content-between'>
+                                    <p>{value.text2[0]}</p>
+                                    <span className={`${value.text2[1]} mx-4`}></span>
+                                </div>
+
+                                <div className='d-flex mx-3 justify-content-between'>
+                                    <p>{value.text3[0]}</p>
+                                    <span className={`${value.text3[1]} mx-4`}></span>
+                                </div>
+                                <div className='d-flex mx-3 justify-content-between'>
+                                    <p>{value.text4[0]}</p>
+                                    <span className={`${value.text4[1]} mx-4`}></span>
+                                </div>
+                                <div className='d-flex mx-3 justify-content-between'>
+                                    <p>{value.text5[0]}</p>
+                                    <span className={`${value.text5[1]} mx-4`}></span>
+                                </div>
+                                <div className='d-flex mx-3 justify-content-between'>
+                                    <p>{value.text6[0]}</p>
+                                    <span className={`${value.text6[1]} mx-4`}></span>
+                                </div>
+                            </div>
+                        })
+                    }
+                </section>
 
             </section>
-
-        </div>
+        </div >
     )
 }
 

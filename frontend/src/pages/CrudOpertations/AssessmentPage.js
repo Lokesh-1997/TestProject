@@ -85,9 +85,11 @@ function AssessmentPage() {
 
             if (nextQuestionIndex !== -1) {
                 const nextQuestion = questions[nextQuestionIndex];
+                console.log(savedque);
                 // Split the savedque values by comma, trim whitespace, and remove duplicates
                 const allValues = savedque.flatMap(item => item.split(',').map(s => s.trim()));
                 const uniqueValues = Array.from(new Set(allValues));
+                console.log(allValues);
                 // Combine the unique values into a string with <li> tags
                 const combinedSavedque = uniqueValues.map(item => `<li>${item}</li>`).join(' ');
                 // Append the combinedSavedque to the next question's question

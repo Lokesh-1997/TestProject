@@ -9,7 +9,7 @@ function ResultMain() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetch('https://confess-data-tool-backend.vercel.app/api/results')
+        fetch('https://confess-data-tool-backend.vercel.app/api/results/users')
             .then(response => response.json())
             .then(data => setUsers(data))
             .catch(error => console.error('Error fetching data:', error));

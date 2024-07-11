@@ -16,7 +16,7 @@ function ResultMain() {
     }, []);
 
     const handleViewExams = (email) => {
-        navigate(`/view-exams/${email}`);
+        navigate(`/${email}`);
     };
 
     return (

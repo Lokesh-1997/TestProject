@@ -398,7 +398,7 @@ app.get('/api/assessments/:examName/questions', async (req, res) => {
 });
 
 
-app.post('/api/results/users', async (req, res) => {
+app.post('/api/results', async (req, res) => {
     const { examName, examCategory, userEmail, answers } = req.body;
     console.log('Received request:', req.body); // Log incoming request data
 

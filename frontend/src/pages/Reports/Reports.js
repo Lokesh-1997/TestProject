@@ -13,12 +13,15 @@ function Reports() {
         if (email) {
             fetch(`https://confess-data-tool-backend.vercel.app/api/dashboard?email=${email}`)
                 .then(response => response.json())
-                .then(data => setUsers(data))
+                .then(data => {
+                    setUsers(data.users);
+                    // Assuming you have a state to store results
+                    setResults(data.results);
+                })
                 .catch(error => console.error('Error fetching data:', error));
         }
     }, []);
-
-
+    console.log(users);
 
     const ChartDetails = [
         {

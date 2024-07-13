@@ -534,21 +534,25 @@ app.get('/api/dashboard', async (req, res) => {
         if (!email) {
             return res.status(400).send('Email query parameter is required');
         }
+
         // Find the user with the given email
         const user = await User.findOne({ email: email });
         if (!user) {
             return res.status(404).send('User not found');
         }
+
         // Find results that reference this user
         const results = await Result.find({ userId: user._id }).populate('userId');
-        // Extract unique users
+
+        // Extract unique users and full results
         const users = results.reduce((acc, result) => {
             const { name, email } = result.userId;
-            if (!acc.find(user => user.email === email)) {
-                acc.push({ name, email });
+            if (!acc.users.find(user => user.email === email)) {
+                acc.users.push({ name, email });
             }
+            acc.results.push(result);
             return acc;
-        }, []);
+        }, { users: [], results: [] });
 
         res.json(users);
     } catch (error) {

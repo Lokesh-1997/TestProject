@@ -38,17 +38,37 @@ function AssessmentPage() {
 
     // console.log(savedOptions);
 
-
     const handleNextQuestion = () => {
         const newQuestionIDs = [];
         let addHello = false;
         let savedque = [];
+
         // console.log(savedque);
 
         currentQuestionIDs.forEach(id => {
             const currentQuestion = questions.find(q => q.questionID === id);
+            const answer = '';
+
+
+            // Alert
+            if (
+                currentQuestion &&
+                ['MCQ', 'Multiple Select', 'Short', 'Long Text', 'Numerical Value'].includes(currentQuestion.questionType) &&
+                currentQuestion.alertText && // Check if alertText key exists
+                (
+                    (currentQuestion.questionType === 'MCQ' && !answer) ||
+                    (currentQuestion.questionType === 'Multiple Select' && (!answer || answer.length === 0)) ||
+                    ((currentQuestion.questionType === 'Short' || currentQuestion.questionType === 'Long Text') && !answer) ||
+                    (currentQuestion.questionType === 'Numerical Value' && (answer === undefined || answer === ''))
+                )
+            ) {
+                alert(currentQuestion.alertText); // Show alert with the value of alertText
+            }
+            // alert end
+
 
             if (currentQuestion && currentQuestion.nextQuestions) {
+                console.log(currentQuestion.alertText);
                 if (currentQuestion.questionType === 'MCQ' && currentQuestion.options.includes('Yes') && currentQuestion.options.includes('No')) {
                     let selectedAnswer = answers[currentQuestion.questionID];
                     if (!selectedAnswer) {
@@ -248,11 +268,11 @@ function AssessmentPage() {
                             );
                         })}
 
-                        {prevSavedOptions && prevSavedOptions.length > 0 && (
+                        {/* {prevSavedOptions && prevSavedOptions.length > 0 && (
                             <p className='saved-options'>
                                 Saved Options: {prevSavedOptions.map(opt => opt.value1).join(', ')}
                             </p>
-                        )}
+                        )} */}
                     </>
                 );
 

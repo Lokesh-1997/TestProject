@@ -331,7 +331,7 @@ app.post('/api/assessments/:assessmentId/questions', async (req, res) => {
 // PUT route to update a question in an assessment
 app.put('/api/assessments/:assessmentId/questions/:questionId', async (req, res) => {
     const { assessmentId, questionId } = req.params;
-    const { questionID, question, questionType, questionCategory, nextQuestions, disclaimer, options } = req.body;
+    const { questionID, question, questionType, questionCategory, nextQuestions, disclaimer, alertText, options } = req.body;
 
     if (!questionID || !question || !questionType || !questionCategory) {
         return res.status(400).send('Question ID, Question, Question Type, and Question Category are required');
@@ -348,7 +348,7 @@ app.put('/api/assessments/:assessmentId/questions/:questionId', async (req, res)
             return res.status(404).send('Question not found');
         }
 
-        assessment.questions[questionIndex] = { _id: questionId, questionID, question, questionType, questionCategory, nextQuestions, disclaimer, options };
+        assessment.questions[questionIndex] = { _id: questionId, questionID, question, questionType, questionCategory, nextQuestions, disclaimer, alertText, options };
         await assessment.save();
 
         res.status(200).json({

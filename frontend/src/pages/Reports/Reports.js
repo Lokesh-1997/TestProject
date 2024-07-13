@@ -4,26 +4,23 @@ import { useNavigate } from 'react-router-dom';
 
 function Reports() {
 
-    const [assessments, setAssessments] = useState([]);
+    const [users, setUsers] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchAssessments = async () => {
-            try {
-                const response = await fetch('https://confess-data-tool-backend.vercel.app/api/assessments');
-                if (response.ok) {
-                    const data = await response.json();
-                    setAssessments(data);
-                } else {
-                    console.error('Failed to fetch assessments');
-                }
-            } catch (error) {
-                console.error('Error fetching assessments:', error);
-            }
-        };
+        const email = localStorage.getItem('email');
 
-        fetchAssessments();
+        if (email) {
+            fetch('https://confess-data-tool-backend.vercel.app/api/dashboard')
+                .then(response => response.json())
+                .then(data => {
+                    const filteredUsers = data.filter(user => user.email === email);
+                    setUsers(filteredUsers);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
     }, []);
+
 
 
     const ChartDetails = [

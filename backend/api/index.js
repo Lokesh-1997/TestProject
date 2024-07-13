@@ -528,7 +528,28 @@ app.get('/api/results/:examName/:examCategory/answers', async (req, res) => {
 
 
 
+app.get('/api/dashboard', async (req, res) => {
+    try {
+        const email = req.query.email;
+        if (!email) {
+            return res.status(400).send('Email query parameter is required');
+        }
+        const results = await Result.find({ 'userId.email': email });
+        // Extract unique users
+        const users = results.reduce((acc, result) => {
+            const { name, email } = result.userId;
+            if (!acc.find(user => user.email === email)) {
+                acc.push({ name, email });
+            }
+            return acc;
+        }, []);
 
+        res.json(users);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).send('Server error');
+    }
+});
 
 
 

@@ -234,6 +234,7 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
     const [name2, setName2] = useState(editingQuestion ? editingQuestion.question : '');
     const [name5, setName5] = useState(editingQuestion ? editingQuestion.nextQuestions : '');
     const [name6, setName6] = useState(editingQuestion ? editingQuestion.disclaimer : '');
+    const [name7, setName7] = useState(editingQuestion ? editingQuestion.alertText : '');
     const [options, setOptions] = useState(editingQuestion ? editingQuestion.options || [] : []);
     const [questionType, setQuestionType] = useState(editingQuestion ? editingQuestion.questionType : '');
     const [questionCategory, setQuestionCategory] = useState(editingQuestion ? editingQuestion.questionCategory : '');
@@ -273,6 +274,7 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
             questionCategory,
             nextQuestions: name5,
             disclaimer: name6,
+            alertText: name7,
             options: questionType === "MCQ" || questionType === "Multiple Select" ? options : [],
             examName: examDetails.examName,
             examCategory: examDetails.examCategory
@@ -347,7 +349,7 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
                     <div className={`input-wraps ${questionCategory ? 'has-values' : ''}`}>
                         <select className='input-3' value={questionCategory} onChange={(e) => setQuestionCategory(e.target.value)}>
                             <option className='d-none' value=""></option>
-                            <option value="Substential Contribution">Substantial Contribution</option>
+                            <option value="Substantial Contribution">Substantial Contribution</option>
                             <option value="DNSH - Adaptation">DNSH - Adaptation</option>
                             <option value="DNSH - Biodiversity">DNSH - Biodiversity</option>
                             <option value="DNSH - Water">DNSH - Water</option>
@@ -373,6 +375,15 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
                         <input type='text' className='input-5' value={name6} onChange={(e) => setName6(e.target.value)} />
                         <label>Add Disclaimers</label>
                         {name6 && <button type="button" className="clear-buttons" onClick={clearInput(setName6)}>
+                            <FontAwesomeIcon className='input-close-icons' icon={faCircleXmark} />
+                        </button>}
+                    </div>
+
+
+                    <div className={`input-wraps ${name7 ? 'has-values' : ''}`}>
+                        <input type='text' className='input-5' value={name7} onChange={(e) => setName7(e.target.value)} />
+                        <label>Alert if not answered</label>
+                        {name7 && <button type="button" className="clear-buttons" onClick={clearInput(setName7)}>
                             <FontAwesomeIcon className='input-close-icons' icon={faCircleXmark} />
                         </button>}
                     </div>

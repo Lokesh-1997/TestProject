@@ -75,6 +75,7 @@ const Assessment = mongoose.model('Assessment', new mongoose.Schema({
             questionCategory: String,
             nextQuestions: String,
             disclaimer: String,
+            alertText: String,
             options: [String]
         }
     ]
@@ -298,7 +299,7 @@ app.put('/api/assessments/:id', async (req, res) => {
 // POST route to add a new question to an assessment
 app.post('/api/assessments/:assessmentId/questions', async (req, res) => {
     const { assessmentId } = req.params;
-    const { questionID, question, questionType, questionCategory, nextQuestions, disclaimer, options } = req.body;
+    const { questionID, question, questionType, questionCategory, nextQuestions, disclaimer, alertText, options } = req.body;
 
     if (!questionID || !question || !questionType || !questionCategory) {
         return res.status(400).send('Question ID, Question, Question Type, and Question Category are required');
@@ -310,7 +311,7 @@ app.post('/api/assessments/:assessmentId/questions', async (req, res) => {
             return res.status(404).send('Assessment not found');
         }
 
-        const newQuestion = { questionID, question, questionType, questionCategory, nextQuestions, disclaimer, options };
+        const newQuestion = { questionID, question, questionType, questionCategory, nextQuestions, disclaimer, alertText, options };
         assessment.questions.push(newQuestion);
 
         await assessment.save();

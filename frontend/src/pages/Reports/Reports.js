@@ -175,7 +175,7 @@ function Reports() {
                                     <span className={`${value.text1[1]} mx-4`}></span>
                                 </div>
 
-                                <p className="mx-3 mt-4">Do Not Significant Harm</p>
+                                <p className="mx-3 mt-4">Do No Significant Harm</p>
 
 
                                 <div className='d-flex mx-3 mt-2 justify-content-between'>

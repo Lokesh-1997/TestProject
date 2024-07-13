@@ -534,7 +534,13 @@ app.get('/api/dashboard', async (req, res) => {
         if (!email) {
             return res.status(400).send('Email query parameter is required');
         }
-        const results = await Result.find({ 'userId.email': email });
+        // Find the user with the given email
+        const user = await User.findOne({ email: email });
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+        // Find results that reference this user
+        const results = await Result.find({ userId: user._id }).populate('userId');
         // Extract unique users
         const users = results.reduce((acc, result) => {
             const { name, email } = result.userId;

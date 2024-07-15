@@ -435,7 +435,11 @@ app.post('/api/results/submitresults', async (req, res) => {
                 };
             } else {
                 console.error(`Question with ID ${answer.questionID} not found in the assessment.`);
-                return null;
+                return {
+                    questionID: answer.questionID,
+                    questionCategory: answer.questionCategory || '',
+                    answer: [''] // Store empty string if question not found in the assessment
+                }
             }
         }).filter(Boolean); // Filter out null results
 

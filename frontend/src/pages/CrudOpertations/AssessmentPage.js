@@ -190,14 +190,17 @@ function AssessmentPage() {
         try {
             const formattedAnswers = Object.keys(answers).map(questionID => {
                 const answer = answers[questionID];
+                const question = questions.find(q => q.questionID === questionID);
+                const questionCategory = question ? question.questionCategory : '';
                 // Handle multiple select answers separately to format them correctly
                 if (Array.isArray(answer)) {
                     return {
                         questionID,
+                        questionCategory,
                         answer: answer.map(a => `${a.value0},${a.value1}`).join(';') // Format as a string separated by semicolons
                     };
                 } else {
-                    return { questionID, answer };
+                    return { questionID, questionCategory, answer };
                 }
             });
 

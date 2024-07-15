@@ -430,18 +430,21 @@ app.post('/api/results/submitresults', async (req, res) => {
             if (question) {
                 return {
                     questionID: answer.questionID,
-                    questionCategory: answer.questionCategory,
+                    questionCategory: answer.questionCategory, // Store the questionCategory from the answer
                     answer: answer.answer.includes(';') ? answer.answer.split(';') : [answer.answer], // Split multiple select answers
                 };
+            } else {
+                console.error(`Question with ID ${answer.questionID} not found in the assessment.`);
+                return null;
             }
-        });
+        }).filter(Boolean); // Filter out null results
 
         // Save result to database
         const result = new Result({
             examName,
             examCategory,
             userId: user._id,
-            answers: results, // Filter out undefined results
+            answers: results,
         });
 
         await result.save();
@@ -450,7 +453,6 @@ app.post('/api/results/submitresults', async (req, res) => {
             message: 'Result saved successfully',
             examName: result.examName,
             examCategory: result.examCategory,
-            questionCategory: result.questionCategory,
             userId: result.userId,
             answers: result.answers
         });
@@ -459,6 +461,7 @@ app.post('/api/results/submitresults', async (req, res) => {
         res.status(500).json({ message: 'Error saving results' });
     }
 });
+
 
 
 

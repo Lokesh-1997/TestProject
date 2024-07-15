@@ -6,6 +6,9 @@ function Reports() {
 
     const [users, setUsers] = useState([]);
     const [results, setResults] = useState([]);
+    const [totalTurnover, setTotalTurnover] = useState(0);
+    const [totalCapex, setTotalCapex] = useState(0);
+    const [totalOpex, setTotalOpex] = useState(0);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -18,6 +21,24 @@ function Reports() {
                     setUsers(data.users);
                     // Assuming you have a state to store results
                     setResults(data.results);
+                    let turnover = 0;
+                    let capex = 0;
+                    let opex = 0;
+
+                    data.results.forEach(result => {
+                        result.answers.forEach(answer => {
+                            if (answer.questionCategory === 'Turnover') {
+                                turnover += parseFloat(answer.answer[0]) || 0;
+                            } else if (answer.questionCategory === 'CapEx') {
+                                capex += parseFloat(answer.answer[0]) || 0;
+                            } else if (answer.questionCategory === 'OpEx') {
+                                opex += parseFloat(answer.answer[0]) || 0;
+                            }
+                        });
+                    });
+                    setTotalTurnover(turnover);
+                    setTotalCapex(capex);
+                    setTotalOpex(opex);
                 })
                 .catch(error => console.error('Error fetching data:', error));
         }
@@ -110,7 +131,7 @@ function Reports() {
                             <i>Disclaimer: The evaluation is based on the information provided in the tool. No verifications were conducted.</i>
                         </p>
                         <p className="card-title mt-3">Total Number of Activities: <span>{results.length}</span></p>
-                        <p className="mt-3">Total Turnover: 1,001 $ <br />Total CapEx: 1000 $ <br /> Total OpEx: 1000 $</p>
+                        <p className="mt-3">Total Turnover: {totalTurnover} $ <br />Total CapEx: {totalCapex} $ <br /> Total OpEx: {totalOpex} $</p>
                         <p></p>
                         <p></p>
                     </div>
@@ -170,6 +191,22 @@ function Reports() {
 
                     </div>
                 </div>
+
+
+                <section>
+                    {
+                        results.map((value) => {
+                            return <div className="card card-reports mt-5 text-start">
+                                <div className="card-header">
+                                    <h3 className='fw-light'>{value.examCategory} Activity 1  -{value.examName}</h3>
+                                </div>
+                            </div>
+                        })
+                    }
+
+                </section>
+
+
 
                 <section>
                     {

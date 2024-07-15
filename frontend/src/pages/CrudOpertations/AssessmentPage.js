@@ -186,7 +186,6 @@ function AssessmentPage() {
 
     const saveResults = async () => {
         const userEmail = localStorage.getItem('email');
-
         try {
             const formattedAnswers = Object.keys(answers).map(questionID => {
                 const answer = answers[questionID];
@@ -197,10 +196,14 @@ function AssessmentPage() {
                     return {
                         questionID,
                         questionCategory,
-                        answer: answer.map(a => `${a.value0},${a.value1}`).join(';') // Format as a string separated by semicolons
+                        answer: answer.length > 0 ? answer.map(a => `${a.value0},${a.value1}`).join(';') : ''
                     };
                 } else {
-                    return { questionID, questionCategory, answer };
+                    return {
+                        questionID,
+                        questionCategory,
+                        answer: answer || '' // Ensure empty answers are sent as ''
+                    };
                 }
             });
 

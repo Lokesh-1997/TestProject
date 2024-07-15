@@ -431,7 +431,7 @@ app.post('/api/results/submitresults', async (req, res) => {
                 return {
                     questionID: answer.questionID,
                     questionCategory: answer.questionCategory, // Store the questionCategory from the answer
-                    answer: answer.answer.includes(';') ? answer.answer.split(';') : [answer.answer], // Split multiple select answers
+                    answer: answer.answer.includes(';') ? answer.answer.split(';').map(a => a.trim()) : [answer.answer.trim()],// Split multiple select answers
                 };
             } else {
                 console.error(`Question with ID ${answer.questionID} not found in the assessment.`);
@@ -559,7 +559,6 @@ app.get('/api/dashboard', async (req, res) => {
             acc.results.push(result);
             return acc;
         }, { users: [], results: [] });
-
         res.json(users);
     } catch (error) {
         console.error('Error fetching users:', error);

@@ -166,14 +166,29 @@ function AssessmentPage() {
         }
     };
 
+
+
     const saveResults = async () => {
         const userEmail = localStorage.getItem('email');
         try {
+            // Accumulate all question IDs in allCurrentQuestions
             const questionIDs = allCurrentQuestions.map(question => question.questionID);
-            const formattedAnswers = allCurrentQuestions.map(question => {
+            // Filter out duplicate question IDs
+            const uniqueQuestionsMap = new Map();
+            allCurrentQuestions.forEach(question => {
+                if (!uniqueQuestionsMap.has(question.questionID)) {
+                    uniqueQuestionsMap.set(question.questionID, question);
+                }
+            });
+            const uniqueQuestions = Array.from(uniqueQuestionsMap.values());
+            const uniqueQuestionIDs = Array.from(uniqueQuestionsMap.keys());
+
+            // Loop through each unique question and format the answers
+            const formattedAnswers = uniqueQuestions.map(question => {
                 const currentAnswer = answers[question.questionID];
                 const questionCategory = question.questionCategory;
-
+                const questionType = question.questionType;
+                // Format the answer appropriately
                 if (Array.isArray(currentAnswer)) {
                     return {
                         questionID: question.questionID,
@@ -184,17 +199,18 @@ function AssessmentPage() {
                     return {
                         questionID: question.questionID,
                         questionCategory,
+                        questionType,
                         answer: currentAnswer || ''
                     };
                 }
             });
-
+            // Send the data to the backend
             const response = await fetch('https://confess-data-tool-backend.vercel.app/api/results/submitresults', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ examName, examCategory, userEmail, answers: formattedAnswers, questionIDs })
+                body: JSON.stringify({ examName, examCategory, userEmail, answers: formattedAnswers, questionIDs: uniqueQuestionIDs })
             });
 
             if (response.ok) {
@@ -209,6 +225,7 @@ function AssessmentPage() {
             console.error('Error saving results:', error);
         }
     };
+
 
     const renderQuestionInput = (question) => {
         const savedAnswer = answers[question.questionID];

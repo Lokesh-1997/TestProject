@@ -98,6 +98,7 @@ const resultSchema = new mongoose.Schema({
     answers: [{
         questionID: String,
         questionCategory: String,
+        questionType: String,
         answer: [String],
         isCorrect: Boolean
     }],
@@ -429,6 +430,7 @@ app.post('/api/results/submitresults', async (req, res) => {
                 return {
                     questionID: answer.questionID,
                     questionCategory: answer.questionCategory,
+                    questionType: answer.questionType,
                     answer: answer.answer.includes(';') ? answer.answer.split(';').map(a => a.trim()) : [answer.answer.trim()],
                 };
             } else {

@@ -184,10 +184,11 @@ function AssessmentPage() {
         const userEmail = localStorage.getItem('email');
         try {
             // Create an array of attended or answered questions with their answers
-            const formattedAnswers = Object.keys(answers).map(questionID => {
-                const answer = answers[questionID];
+            const attendedAndAnsweredQuestions = questionHistory.flat().map(questionID => {
+                const answer = answers[questionID] || '';
                 const question = questions.find(q => q.questionID === questionID);
                 const questionCategory = question ? question.questionCategory : '';
+
                 // Handle multiple select answers separately to format them correctly
                 if (Array.isArray(answer)) {
                     return {
@@ -199,22 +200,12 @@ function AssessmentPage() {
                     return {
                         questionID,
                         questionCategory,
-                        answer: answer || '' // Ensure empty answers are sent as ''
+                        answer // Ensure empty answers are sent as ''
                     };
                 }
-            }).filter(answer => answer.answer !== '' || questions.some(q => q.questionID === answer.questionID)); // Only include answers that are not empty or attended questions
-
-            // Add attended questions with empty answers
-            const attendedQuestions = questions.filter(q => !answers[q.questionID]);
-            attendedQuestions.forEach(question => {
-                formattedAnswers.push({
-                    questionID: question.questionID,
-                    questionCategory: question.questionCategory,
-                    answer: ''
-                });
             });
 
-            if (formattedAnswers.length === 0) {
+            if (attendedAndAnsweredQuestions.length === 0) {
                 alert("No answers to submit");
                 return;
             }
@@ -224,7 +215,7 @@ function AssessmentPage() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ examName, examCategory, userEmail, answers: formattedAnswers })
+                body: JSON.stringify({ examName, examCategory, userEmail, answers: attendedAndAnsweredQuestions })
             });
 
             if (response.ok) {
@@ -239,6 +230,7 @@ function AssessmentPage() {
             console.error('Error saving results:', error);
         }
     };
+
 
 
 

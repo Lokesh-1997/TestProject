@@ -13,6 +13,7 @@ function AssessmentPage() {
     const [currentQuestionIDs, setCurrentQuestionIDs] = useState([]);
     const [questionHistory, setQuestionHistory] = useState([]);
     const [savedOptions, setSavedOptions] = useState([]);
+    const [allCurrentQuestions, setAllCurrentQuestions] = useState([]);
 
     useEffect(() => {
         const fetchQuestions = async () => {
@@ -24,6 +25,7 @@ function AssessmentPage() {
                     if (data.length > 0) {
                         setCurrentQuestionIDs([data[0].questionID]);
                         setQuestionHistory([[data[0].questionID]]);
+                        setAllCurrentQuestions([data[0]]);
                     }
                 } else {
                     console.error('Failed to fetch questions');
@@ -36,21 +38,15 @@ function AssessmentPage() {
         fetchQuestions();
     }, [examName]);
 
-    // console.log(savedOptions);
-
     const handleNextQuestion = () => {
         const newQuestionIDs = [];
         let addHello = false;
         let savedque = [];
 
-        // console.log(savedque);
-
         currentQuestionIDs.forEach(id => {
             const currentQuestion = questions.find(q => q.questionID === id);
-            const answer = '';
+            const answer = answers[currentQuestion.questionID] || '';
 
-
-            // Alert
             if (
                 currentQuestion &&
                 ['MCQ', 'Multiple Select', 'Short', 'Long Text', 'Numerical Value'].includes(currentQuestion.questionType) &&
@@ -64,11 +60,8 @@ function AssessmentPage() {
             ) {
                 alert(currentQuestion.alertText); // Show alert with the value of alertText
             }
-            // alert end
-
 
             if (currentQuestion && currentQuestion.nextQuestions) {
-                console.log(currentQuestion.alertText);
                 if (currentQuestion.questionType === 'MCQ' && currentQuestion.options.includes('Yes') && currentQuestion.options.includes('No')) {
                     let selectedAnswer = answers[currentQuestion.questionID];
                     if (!selectedAnswer) {
@@ -84,6 +77,7 @@ function AssessmentPage() {
                     newQuestionIDs.push(...currentQuestion.nextQuestions.split(',').map(q => q.trim()));
                 }
             }
+
             const prevQuestion = questions.find(q => q.questionID === id);
             if (prevQuestion && prevQuestion.questionType === 'Multiple Select') {
                 addHello = true; // Set flag to true to add Hello to the next question
@@ -91,11 +85,13 @@ function AssessmentPage() {
 
                 if (savedOptionsForCurrentQuestion && savedOptionsForCurrentQuestion.length > 0) {
                     savedque = savedOptionsForCurrentQuestion.map(opt => opt.value1 || opt.value0);
-
-
                 }
             }
         });
+
+        const nextQuestions = newQuestionIDs.map(id => questions.find(q => q.questionID === id));
+        setAllCurrentQuestions(prev => [...prev, ...nextQuestions.filter(Boolean)]);
+
         setCurrentQuestionIDs(newQuestionIDs);
         setQuestionHistory(prevHistory => [...prevHistory, newQuestionIDs]);
 
@@ -105,22 +101,14 @@ function AssessmentPage() {
 
             if (nextQuestionIndex !== -1) {
                 const nextQuestion = questions[nextQuestionIndex];
-                console.log(savedque);
-                // Split the savedque values by comma, trim whitespace, and remove duplicates
                 const allValues = savedque.flatMap(item => item.split('¦').map(s => s.trim()));
                 const uniqueValues = Array.from(new Set(allValues));
-                console.log(allValues);
-                // Combine the unique values into a string with <li> tags
                 const combinedSavedque = uniqueValues.map(item => `<li>${item}</li>`).join(' ');
-                // Append the combinedSavedque to the next question's question
                 nextQuestion.question = `${nextQuestion.question} ${combinedSavedque}`;
-                // Update the questions state
                 setQuestions([...questions]);
-                // Clear saved options
                 setSavedOptions('');
             }
         }
-
     };
 
     const handlePreviousQuestion = () => {
@@ -130,13 +118,10 @@ function AssessmentPage() {
             const previousQuestionIDs = newHistory[newHistory.length - 1];
             setCurrentQuestionIDs(previousQuestionIDs);
             setQuestionHistory(newHistory);
-            // setSavedOptions('')
         }
     };
 
     const currentQuestions = questions.filter(q => currentQuestionIDs.includes(q.questionID));
-
-
 
     if (!currentQuestions.length) {
         return <div>Loading...</div>;
@@ -164,7 +149,6 @@ function AssessmentPage() {
             };
         });
 
-        // Only add to savedOptions if value1 is present
         if (optionValue1) {
             setSavedOptions(prevSavedOptions => {
                 const prevOptions = prevSavedOptions[questionID] || [];
@@ -182,39 +166,29 @@ function AssessmentPage() {
         }
     };
 
-
-    console.log(currentQuestions);
-
-
     const saveResults = async () => {
         const userEmail = localStorage.getItem('email');
         try {
-            // Accumulate all question IDs in currentQuestions
-            const questionIDs = currentQuestions.map(currentQuestion => currentQuestion.questionID);
+            const questionIDs = allCurrentQuestions.map(question => question.questionID);
+            const formattedAnswers = allCurrentQuestions.map(question => {
+                const currentAnswer = answers[question.questionID];
+                const questionCategory = question.questionCategory;
 
-            // Loop through each question in currentQuestions and format the answers
-            const formattedAnswers = currentQuestions.map(currentQuestion => {
-                const currentquestionId = currentQuestion.questionID;
-                const currentAnswer = answers[currentquestionId];
-                const questionCategory = currentQuestion.questionCategory;
-
-                // Format the answer appropriately
                 if (Array.isArray(currentAnswer)) {
                     return {
-                        questionID: currentquestionId,
+                        questionID: question.questionID,
                         questionCategory,
                         answer: currentAnswer.length > 0 ? currentAnswer.map(a => `${a.value0},${a.value1}`).join(';') : ''
                     };
                 } else {
                     return {
-                        questionID: currentquestionId,
+                        questionID: question.questionID,
                         questionCategory,
                         answer: currentAnswer || ''
                     };
                 }
             });
 
-            // Send the data to the backend
             const response = await fetch('https://confess-data-tool-backend.vercel.app/api/results/submitresults', {
                 method: 'POST',
                 headers: {
@@ -236,14 +210,8 @@ function AssessmentPage() {
         }
     };
 
-
-
-
-
-
     const renderQuestionInput = (question) => {
         const savedAnswer = answers[question.questionID];
-        const prevSavedOptions = savedOptions[question.questionID];
         switch (question.questionType) {
             case 'MCQ':
                 return (
@@ -286,12 +254,6 @@ function AssessmentPage() {
                                 </div>
                             );
                         })}
-
-                        {/* {prevSavedOptions && prevSavedOptions.length > 0 && (
-                            <p className='saved-options'>
-                                Saved Options: {prevSavedOptions.map(opt => opt.value1).join(', ')}
-                            </p>
-                        )} */}
                     </>
                 );
 

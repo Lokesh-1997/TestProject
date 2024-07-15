@@ -478,6 +478,7 @@ app.post('/api/results/submitresults', async (req, res) => {
 
 
 
+
 app.get('/api/results', async (req, res) => {
     try {
         const results = await Result.find().populate('userId', 'name email');

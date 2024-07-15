@@ -402,7 +402,7 @@ app.get('/api/assessments/:examName/questions', async (req, res) => {
 
 app.post('/api/results/submitresults', async (req, res) => {
     const { examName, examCategory, userEmail, answers } = req.body;
-    console.log('Received request:', req.body); // Log incoming request data
+    console.log('Received request:', req.body);
 
     if (!examName || !examCategory || !userEmail || !Array.isArray(answers)) {
         console.error('Invalid request data');
@@ -410,53 +410,43 @@ app.post('/api/results/submitresults', async (req, res) => {
     }
 
     try {
-        // Retrieve user by email
         const user = await User.findOne({ email: userEmail });
         if (!user) {
             console.error('User not found');
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Find the assessment by examName
         const assessment = await Assessment.findOne({ examName });
         if (!assessment) {
             console.error('Assessment not found');
             return res.status(404).json({ message: 'Assessment not found' });
         }
 
-        // Prepare the results array
-        const results = [];
+        const answeredQuestionIDs = answers.map(answer => answer.questionID);
+        const filteredQuestions = assessment.questions.filter(q => answeredQuestionIDs.includes(q.questionID));
 
-        for (const answer of answers) {
-            const question = assessment.questions.find(q => q.questionID === answer.questionID);
+        const results = answers.map(answer => {
+            const question = filteredQuestions.find(q => q.questionID === answer.questionID);
             if (question) {
-                results.push({
+                return {
                     questionID: answer.questionID,
-                    questionCategory: answer.questionCategory, // Store the questionCategory from the answer
-                    answer: answer.answer.includes(';') ? answer.answer.split(';').map(a => a.trim()) : [answer.answer.trim()] // Split multiple select answers
-                });
+                    questionCategory: answer.questionCategory,
+                    answer: answer.answer.includes(';') ? answer.answer.split(';').map(a => a.trim()) : [answer.answer.trim()],
+                };
             } else {
                 console.error(`Question with ID ${answer.questionID} not found in the assessment.`);
+                return null;
             }
-        }
+        }).filter(Boolean);
 
-        // Add attended questions with empty answers
-        const attendedQuestions = assessment.questions.filter(q => answers.some(a => a.questionID === q.questionID));
+        const attendedQuestions = filteredQuestions.filter(q => !answers.find(a => a.questionID === q.questionID));
         attendedQuestions.forEach(question => {
-            if (!answers.find(a => a.questionID === question.questionID)) {
-                results.push({
-                    questionID: question.questionID,
-                    questionCategory: question.questionCategory,
-                    answer: ''
-                });
-            }
+            results.push({
+                questionID: question.questionID,
+                questionCategory: question.questionCategory,
+                answer: ''
+            });
         });
-
-        // Save result to database only if there are attended or answered questions
-        if (results.length === 0) {
-            console.error('No attended or answered questions to save');
-            return res.status(400).json({ message: 'No attended or answered questions to save' });
-        }
 
         const result = new Result({
             examName,
@@ -479,6 +469,8 @@ app.post('/api/results/submitresults', async (req, res) => {
         res.status(500).json({ message: 'Error saving results' });
     }
 });
+
+
 
 
 

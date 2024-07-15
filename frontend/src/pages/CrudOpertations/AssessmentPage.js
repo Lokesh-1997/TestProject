@@ -180,31 +180,34 @@ function AssessmentPage() {
         }
     };
 
-
-
-
-
     const saveResults = async () => {
         const userEmail = localStorage.getItem('email');
         try {
-            const formattedAnswers = questions.map(question => {
-                const answer = answers[question.questionID] || '';
-                const questionCategory = question.questionCategory || '';
+            // Create an array of only attended questions with their answers
+            const formattedAnswers = Object.keys(answers).map(questionID => {
+                const answer = answers[questionID];
+                const question = questions.find(q => q.questionID === questionID);
+                const questionCategory = question ? question.questionCategory : '';
                 // Handle multiple select answers separately to format them correctly
                 if (Array.isArray(answer)) {
                     return {
-                        questionID: question.questionID,
+                        questionID,
                         questionCategory,
                         answer: answer.length > 0 ? answer.map(a => `${a.value0},${a.value1}`).join(';') : ''
                     };
                 } else {
                     return {
-                        questionID: question.questionID,
+                        questionID,
                         questionCategory,
                         answer: answer || '' // Ensure empty answers are sent as ''
                     };
                 }
-            });
+            }).filter(answer => answer.answer !== ''); // Only include answers that are not empty
+
+            if (formattedAnswers.length === 0) {
+                alert("No answers to submit");
+                return;
+            }
 
             const response = await fetch('https://confess-data-tool-backend.vercel.app/api/results/submitresults', {
                 method: 'POST',
@@ -226,6 +229,7 @@ function AssessmentPage() {
             console.error('Error saving results:', error);
         }
     };
+
 
     const renderQuestionInput = (question) => {
         const savedAnswer = answers[question.questionID];

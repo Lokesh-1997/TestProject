@@ -59,7 +59,7 @@ function AssessmentPage() {
                     (currentQuestion.questionType === 'MCQ' && !answer) ||
                     (currentQuestion.questionType === 'Multiple Select' && (!answer || answer.length === 0)) ||
                     ((currentQuestion.questionType === 'Short' || currentQuestion.questionType === 'Long Text') && !answer) ||
-                    (currentQuestion.questionType === 'Numerical Value' && (answer === undefined || answer === ''))
+                    (currentQuestion.questionType === 'Numerical Value' && answer === '')
                 )
             ) {
                 alert(currentQuestion.alertText); // Show alert with the value of alertText
@@ -184,12 +184,10 @@ function AssessmentPage() {
         const userEmail = localStorage.getItem('email');
         try {
             // Create an array of attended or answered questions with their answers
-            const attendedAndAnsweredQuestions = questionHistory.flat().map(questionID => {
-                const answer = answers[questionID] || '';
+            const formattedAnswers = Object.keys(answers).map(questionID => {
+                const answer = answers[questionID];
                 const question = questions.find(q => q.questionID === questionID);
                 const questionCategory = question ? question.questionCategory : '';
-
-                // Handle multiple select answers separately to format them correctly
                 if (Array.isArray(answer)) {
                     return {
                         questionID,
@@ -200,12 +198,21 @@ function AssessmentPage() {
                     return {
                         questionID,
                         questionCategory,
-                        answer // Ensure empty answers are sent as ''
+                        answer: answer || ''
                     };
                 }
+            }).filter(answer => answer.answer !== '' || questions.some(q => q.questionID === answer.questionID));
+
+            const attendedQuestions = questions.filter(q => !answers[q.questionID]);
+            attendedQuestions.forEach(question => {
+                formattedAnswers.push({
+                    questionID: question.questionID,
+                    questionCategory: question.questionCategory,
+                    answer: ''
+                });
             });
 
-            if (attendedAndAnsweredQuestions.length === 0) {
+            if (formattedAnswers.length === 0) {
                 alert("No answers to submit");
                 return;
             }
@@ -215,7 +222,7 @@ function AssessmentPage() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ examName, examCategory, userEmail, answers: attendedAndAnsweredQuestions })
+                body: JSON.stringify({ examName, examCategory, userEmail, answers: formattedAnswers })
             });
 
             if (response.ok) {

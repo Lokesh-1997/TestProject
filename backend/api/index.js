@@ -422,12 +422,9 @@ app.post('/api/results/submitresults', async (req, res) => {
             return res.status(404).json({ message: 'Assessment not found' });
         }
 
-        // Filter the assessment questions to only include those in the answers array
-        const filteredQuestions = assessment.questions.filter(q => answers.some(a => a.questionID === q.questionID));
-
-        // Map the answers to include only those in the filtered questions
+        // Map the answers to include only those that are attended
         const results = answers.map(answer => {
-            const question = filteredQuestions.find(q => q.questionID === answer.questionID);
+            const question = assessment.questions.find(q => q.questionID === answer.questionID);
             if (question) {
                 return {
                     questionID: answer.questionID,
@@ -461,6 +458,7 @@ app.post('/api/results/submitresults', async (req, res) => {
         res.status(500).json({ message: 'Error saving results' });
     }
 });
+
 
 
 

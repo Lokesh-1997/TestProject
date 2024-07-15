@@ -97,6 +97,7 @@ const resultSchema = new mongoose.Schema({
     },
     answers: [{
         questionID: String,
+        questionCategory: String,
         answer: [String],
         isCorrect: Boolean
     }],
@@ -429,6 +430,7 @@ app.post('/api/results/submitresults', async (req, res) => {
             if (question) {
                 return {
                     questionID: answer.questionID,
+                    questionCategory: answer.questionCategory,
                     answer: answer.answer.includes(';') ? answer.answer.split(';') : [answer.answer], // Split multiple select answers
                 };
             }
@@ -448,6 +450,7 @@ app.post('/api/results/submitresults', async (req, res) => {
             message: 'Result saved successfully',
             examName: result.examName,
             examCategory: result.examCategory,
+            questionCategory: result.questionCategory,
             userId: result.userId,
             answers: result.answers
         });

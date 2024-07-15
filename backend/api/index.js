@@ -427,7 +427,8 @@ app.post('/api/results/submitresults', async (req, res) => {
         // Format answers to store
         const results = answers.map(answer => {
             const question = assessment.questions.find(q => q.questionID === answer.questionID);
-            if (question) {
+            const category = assessment.questions.find(q => q.questionCategory === answer.questionCategory);
+            if (question && category) {
                 return {
                     questionID: answer.questionID,
                     questionCategory: answer.questionCategory,

@@ -441,7 +441,7 @@ app.post('/api/results/submitresults', async (req, res) => {
             examName,
             examCategory,
             userId: user._id,
-            answers: results.filter(Boolean), // Filter out undefined results
+            answers: results, // Filter out undefined results
         });
 
         await result.save();

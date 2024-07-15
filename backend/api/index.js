@@ -424,25 +424,38 @@ app.post('/api/results/submitresults', async (req, res) => {
             return res.status(404).json({ message: 'Assessment not found' });
         }
 
-        // Ensure that only attended questions are included in the results array
-        const results = answers.map(answer => {
+        // Prepare the results array
+        const results = [];
+
+        for (const answer of answers) {
             const question = assessment.questions.find(q => q.questionID === answer.questionID);
             if (question) {
-                return {
+                results.push({
                     questionID: answer.questionID,
                     questionCategory: answer.questionCategory, // Store the questionCategory from the answer
                     answer: answer.answer.includes(';') ? answer.answer.split(';').map(a => a.trim()) : [answer.answer.trim()] // Split multiple select answers
-                };
+                });
             } else {
                 console.error(`Question with ID ${answer.questionID} not found in the assessment.`);
-                return null;
             }
-        }).filter(Boolean); // Filter out null results
+        }
 
-        // Save result to database only if there are attended questions
+        // Add attended questions with empty answers
+        const attendedQuestions = assessment.questions.filter(q => answers.some(a => a.questionID === q.questionID));
+        attendedQuestions.forEach(question => {
+            if (!answers.find(a => a.questionID === question.questionID)) {
+                results.push({
+                    questionID: question.questionID,
+                    questionCategory: question.questionCategory,
+                    answer: ''
+                });
+            }
+        });
+
+        // Save result to database only if there are attended or answered questions
         if (results.length === 0) {
-            console.error('No attended questions to save');
-            return res.status(400).json({ message: 'No attended questions to save' });
+            console.error('No attended or answered questions to save');
+            return res.status(400).json({ message: 'No attended or answered questions to save' });
         }
 
         const result = new Result({
@@ -466,6 +479,7 @@ app.post('/api/results/submitresults', async (req, res) => {
         res.status(500).json({ message: 'Error saving results' });
     }
 });
+
 
 
 

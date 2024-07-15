@@ -183,7 +183,7 @@ function AssessmentPage() {
     const saveResults = async () => {
         const userEmail = localStorage.getItem('email');
         try {
-            // Create an array of only attended questions with their answers
+            // Create an array of attended or answered questions with their answers
             const formattedAnswers = Object.keys(answers).map(questionID => {
                 const answer = answers[questionID];
                 const question = questions.find(q => q.questionID === questionID);
@@ -202,7 +202,17 @@ function AssessmentPage() {
                         answer: answer || '' // Ensure empty answers are sent as ''
                     };
                 }
-            }).filter(answer => answer.answer !== ''); // Only include answers that are not empty
+            }).filter(answer => answer.answer !== '' || questions.some(q => q.questionID === answer.questionID)); // Only include answers that are not empty or attended questions
+
+            // Add attended questions with empty answers
+            const attendedQuestions = questions.filter(q => !answers[q.questionID]);
+            attendedQuestions.forEach(question => {
+                formattedAnswers.push({
+                    questionID: question.questionID,
+                    questionCategory: question.questionCategory,
+                    answer: ''
+                });
+            });
 
             if (formattedAnswers.length === 0) {
                 alert("No answers to submit");

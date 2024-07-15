@@ -416,13 +416,11 @@ app.post('/api/results/submitresults', async (req, res) => {
             console.error('User not found');
             return res.status(404).json({ message: 'User not found' });
         }
-
         const assessment = await Assessment.findOne({ examName });
         if (!assessment) {
             console.error('Assessment not found');
             return res.status(404).json({ message: 'Assessment not found' });
         }
-
         // Process the answers to ensure they are in the correct format
         const results = answers.map(answer => {
             const question = assessment.questions.find(q => q.questionID === answer.questionID);
@@ -442,7 +440,6 @@ app.post('/api/results/submitresults', async (req, res) => {
                 };
             }
         });
-
         const result = new Result({
             examName,
             examCategory,

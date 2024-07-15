@@ -425,23 +425,15 @@ app.post('/api/results/submitresults', async (req, res) => {
         }
 
         // Format answers to store
-        const results = answers.map(answer => {
-            const question = assessment.questions.find(q => q.questionID === answer.questionID);
-            if (question) {
-                return {
-                    questionID: answer.questionID,
-                    questionCategory: answer.questionCategory, // Store the questionCategory from the answer
-                    answer: answer.answer.includes(';') ? answer.answer.split(';').map(a => a.trim()) : [answer.answer.trim() || ''],
-                };
-            } else {
-                console.error(`Question with ID ${answer.questionID} not found in the assessment.`);
-                return {
-                    questionID: answer.questionID,
-                    questionCategory: answer.questionCategory || '',
-                    answer: [''] // Store empty string if question not found in the assessment
-                }
-            }
-        }).filter(Boolean); // Filter out null results
+        const allQuestionIDs = assessment.questions.map(q => q.questionID);
+        const results = allQuestionIDs.map(questionID => {
+            const answer = answers.find(a => a.questionID === questionID);
+            return {
+                questionID,
+                questionCategory: answer ? answer.questionCategory : '', // Use the questionCategory from the answer or an empty string
+                answer: answer ? answer.answer.includes(';') ? answer.answer.split(';').map(a => a.trim()) : [answer.answer.trim()] : [''] // Ensure empty answers are stored
+            };
+        });
 
         // Save result to database
         const result = new Result({

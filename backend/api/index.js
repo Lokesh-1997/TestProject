@@ -422,7 +422,7 @@ app.post('/api/results/submitresults', async (req, res) => {
             return res.status(404).json({ message: 'Assessment not found' });
         }
 
-        // Map the answers to include only those that are attended
+        // Process the answers to ensure they are in the correct format
         const results = answers.map(answer => {
             const question = assessment.questions.find(q => q.questionID === answer.questionID);
             if (question) {
@@ -433,9 +433,13 @@ app.post('/api/results/submitresults', async (req, res) => {
                 };
             } else {
                 console.error(`Question with ID ${answer.questionID} not found in the assessment.`);
-                return null;
+                return {
+                    questionID: answer.questionID,
+                    questionCategory: answer.questionCategory,
+                    answer: answer.answer.includes(';') ? answer.answer.split(';').map(a => a.trim()) : [answer.answer.trim()],
+                };
             }
-        }).filter(Boolean);
+        });
 
         const result = new Result({
             examName,
@@ -458,6 +462,7 @@ app.post('/api/results/submitresults', async (req, res) => {
         res.status(500).json({ message: 'Error saving results' });
     }
 });
+
 
 
 

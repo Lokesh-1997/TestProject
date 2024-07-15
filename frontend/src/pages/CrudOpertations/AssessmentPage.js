@@ -136,6 +136,8 @@ function AssessmentPage() {
 
     const currentQuestions = questions.filter(q => currentQuestionIDs.includes(q.questionID));
 
+
+
     if (!currentQuestions.length) {
         return <div>Loading...</div>;
     }
@@ -180,43 +182,36 @@ function AssessmentPage() {
         }
     };
 
+
+    console.log(currentQuestions);
+
+
     const saveResults = async () => {
         const userEmail = localStorage.getItem('email');
         try {
-            // Create an array of attended or answered questions with their answers
-            const formattedAnswers = Object.keys(answers).map(questionID => {
-                const answer = answers[questionID];
-                const question = questions.find(q => q.questionID === questionID);
-                const questionCategory = question ? question.questionCategory : '';
-                if (Array.isArray(answer)) {
+            // Loop through each question in currentQuestions
+            const formattedAnswers = currentQuestions.map(currentQuestion => {
+                const currentquestionId = currentQuestion.questionID;
+                const currentAnswer = answers[currentquestionId];
+                const questionCategory = currentQuestion.questionCategory;
+
+                // Format the answer appropriately
+                if (Array.isArray(currentAnswer)) {
                     return {
-                        questionID,
+                        questionID: currentquestionId,
                         questionCategory,
-                        answer: answer.length > 0 ? answer.map(a => `${a.value0},${a.value1}`).join(';') : ''
+                        answer: currentAnswer.length > 0 ? currentAnswer.map(a => `${a.value0},${a.value1}`).join(';') : ''
                     };
                 } else {
                     return {
-                        questionID,
+                        questionID: currentquestionId,
                         questionCategory,
-                        answer: answer || ''
+                        answer: currentAnswer || ''
                     };
                 }
-            }).filter(answer => answer.answer !== '' || questions.some(q => q.questionID === answer.questionID));
-
-            const attendedQuestions = questions.filter(q => !answers[q.questionID]);
-            attendedQuestions.forEach(question => {
-                formattedAnswers.push({
-                    questionID: question.questionID,
-                    questionCategory: question.questionCategory,
-                    answer: ''
-                });
             });
 
-            if (formattedAnswers.length === 0) {
-                alert("No answers to submit");
-                return;
-            }
-
+            // Send the data to the backend
             const response = await fetch('https://confess-data-tool-backend.vercel.app/api/results/submitresults', {
                 method: 'POST',
                 headers: {
@@ -237,6 +232,7 @@ function AssessmentPage() {
             console.error('Error saving results:', error);
         }
     };
+
 
 
 

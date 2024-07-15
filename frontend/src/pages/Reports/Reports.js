@@ -9,6 +9,7 @@ function Reports() {
     const [totalCapex, setTotalCapex] = useState(0);
     const [totalOpex, setTotalOpex] = useState(0);
     const navigate = useNavigate();
+    const [green, setGreen] = useState('darkgreen-dot')
 
     useEffect(() => {
         const email = localStorage.getItem('email');
@@ -22,7 +23,6 @@ function Reports() {
                     let turnover = 0;
                     let capex = 0;
                     let opex = 0;
-
                     data.results.forEach(result => {
                         result.answers.forEach(answer => {
                             if (answer.questionCategory === 'Turnover') {
@@ -45,7 +45,7 @@ function Reports() {
                     });
 
                     if (hasUnansweredQuestions) {
-                        alert("Not all answered");
+                        // alert("Not all answered");
                     }
                 })
                 .catch(error => console.error('Error fetching data:', error));
@@ -83,35 +83,7 @@ function Reports() {
         }
     ];
 
-    const ActivitiesDetails = [
-        {
-            title: "Energy Activity 1 - Electricity generation using solar photovoltaic technology",
-            text1: ["Substential Contribution (Climate Change Mitigation)", "darkgreen-dot"],
-            text2: ["Climate Change Adaptation", "darkgreen-dot"],
-            text3: ["Water and Marine Protection", "orage-dot"],
-            text4: ["Circular Economy", "darkgreen-dot"],
-            text5: ["Pollution Prevention", "darkgreen-dot"],
-            text6: ["Biodiversity", "darkgreen-dot"]
-        },
-        {
-            title: "Energy Activity 2 - Electricity generation using solar photovoltaic technology",
-            text1: ["Substential Contribution (Climate Change Mitigation)", "darkgreen-dot"],
-            text2: ["Climate Change Adaptation", "orage-dot"],
-            text3: ["Water and Marine Protection", "darkgreen-dot"],
-            text4: ["Circular Economy", "darkgreen-dot"],
-            text5: ["Pollution Prevention", "darkgreen-dot"],
-            text6: ["Biodiversity", "orage-dot"]
-        },
-        {
-            title: "Energy Activity 3 - Electricity generation using solar photovoltaic technology",
-            text1: ["Substential Contribution (Climate Change Mitigation)", "darkgrey-dot"],
-            text2: ["Climate Change Adaptation", "darkgreen-dot"],
-            text3: ["Water and Marine Protection", "darkgreen-dot"],
-            text4: ["Circular Economy", "darkgreen-dot"],
-            text5: ["Pollution Prevention", "darkgrey-dot"],
-            text6: ["Biodiversity", "darkgreen-dot"]
-        }
-    ];
+
 
     return (
         <div className='d-flex justify-content-center mt-5'>
@@ -184,64 +156,70 @@ function Reports() {
 
 
                 <section>
-                    {results.map((value) => {
+                    {results.map((value, index) => {
                         const filteredAnswers = value.answers.filter(answer => answer.questionType !== "Blank");
+                        const SubstentialContribution = value.answers.filter(answer => answer.questionCategory === 'Substantial Contribution');
+                        const DNSHAdaption = value.answers.filter(answer => answer.questionCategory === 'DNSH - Adaptation');
+                        const DNSHce = value.answers.filter(answer => answer.questionCategory === 'DNSH - CE');
+                        const DNSHwater = value.answers.filter(answer => answer.questionCategory === 'DNSH - Water');
+                        const DNSHpollution = value.answers.filter(answer => answer.questionCategory === 'DNSH - Pollution');
+                        const DNSHbiodibersity = value.answers.filter(answer => answer.questionCategory === 'DNSH - Biodiversity');
+
+                        const AllSubstential = SubstentialContribution.every(answer =>
+                            answer.answer.every(ans => ans.trim() !== "")
+                        );
+                        const AllDNSHAdaption = DNSHAdaption.every(answer =>
+                            answer.answer.every(ans => ans.trim() !== "")
+                        );
+                        const AllDNSHce = DNSHce.every(answer =>
+                            answer.answer.every(ans => ans.trim() !== "")
+                        );
+                        const AllDNSHwater = DNSHwater.every(answer =>
+                            answer.answer.every(ans => ans.trim() !== "")
+                        );
+                        const AllDNSHpollution = DNSHpollution.every(answer =>
+                            answer.answer.every(ans => ans.trim() !== "")
+                        );
+                        const AllDNSHbiodibersity = DNSHbiodibersity.every(answer =>
+                            answer.answer.every(ans => ans.trim() !== "")
+                        );
                         return (
                             <div key={value._id} className="card card-reports mt-5 text-start">
                                 <div className="card-header">
-                                    <h3 className='fw-light'>{value.examCategory} Activity 1 - {value.examName}</h3>
+                                    <h3 className='fw-light'>{value.examCategory} Activity {index + 1} - {value.examName}</h3>
                                 </div>
-                                <div className="card-body">
-                                    {filteredAnswers.map(answer => (
-                                        <div key={answer._id}>
-                                            <h5>{answer.questionCategory}</h5>
-                                            <p>Type: {answer.questionType}</p>
-                                            <p>Answer: {answer.answer.join(", ")}</p>
-                                        </div>
-                                    ))}
+
+                                <div className='d-flex mx-3 mt-3 justify-content-between'>
+                                    <p>Substential Contribution (Climate Change Mitigation)</p>
+                                    <span className={AllSubstential ? 'darkgreen-dot mx-4' : 'orage-dot mx-4'}></span>
+                                </div>
+                                <p className="mx-3 mt-4">Do No Significant Harm</p>
+                                <div className='d-flex mx-3 mt-2 justify-content-between'>
+                                    <p>Climate Change Adaptation</p>
+                                    <span className={AllDNSHAdaption ? 'darkgrey-dot mx-4' : 'darkgrey-dot mx-4'}></span>
+                                </div>
+                                <div className='d-flex mx-3 justify-content-between'>
+                                    <p>Water and Marine Protection</p>
+                                    <span className={AllDNSHwater ? 'darkgreen-dot mx-4' : 'orage-dot mx-4'}></span>
+                                </div>
+                                <div className='d-flex mx-3 justify-content-between'>
+                                    <p>Circular Economy</p>
+                                    <span className={AllDNSHce ? 'darkgreen-dot mx-4' : 'orage-dot mx-4'}></span>
+                                </div>
+                                <div className='d-flex mx-3 justify-content-between'>
+                                    <p>Pollution Prevention</p>
+                                    <span className={AllDNSHpollution ? 'darkgreen-dot mx-4' : 'orage-dot mx-4'}></span>
+                                </div>
+                                <div className='d-flex mx-3 justify-content-between'>
+                                    <p>Biodiversity</p>
+                                    <span className={AllDNSHbiodibersity ? 'darkgreen-dot mx-4' : 'orage-dot mx-4'}></span>
                                 </div>
                             </div>
                         );
                     })}
                 </section>
-
-
-                <section>
-                    {ActivitiesDetails.map((value, index) => (
-                        <div key={index} className="card card-reports mt-5 text-start">
-                            <div className="card-header">
-                                <h3 className='fw-light'>{value.title}</h3>
-                            </div>
-                            <div className='d-flex mx-3 mt-3 justify-content-between'>
-                                <p>{value.text1[0]}</p>
-                                <span className={`${value.text1[1]} mx-4`}></span>
-                            </div>
-                            <p className="mx-3 mt-4">Do No Significant Harm</p>
-                            <div className='d-flex mx-3 mt-2 justify-content-between'>
-                                <p>{value.text2[0]}</p>
-                                <span className={`${value.text2[1]} mx-4`}></span>
-                            </div>
-                            <div className='d-flex mx-3 justify-content-between'>
-                                <p>{value.text3[0]}</p>
-                                <span className={`${value.text3[1]} mx-4`}></span>
-                            </div>
-                            <div className='d-flex mx-3 justify-content-between'>
-                                <p>{value.text4[0]}</p>
-                                <span className={`${value.text4[1]} mx-4`}></span>
-                            </div>
-                            <div className='d-flex mx-3 justify-content-between'>
-                                <p>{value.text5[0]}</p>
-                                <span className={`${value.text5[1]} mx-4`}></span>
-                            </div>
-                            <div className='d-flex mx-3 justify-content-between'>
-                                <p>{value.text6[0]}</p>
-                                <span className={`${value.text6[1]} mx-4`}></span>
-                            </div>
-                        </div>
-                    ))}
-                </section>
             </section>
-        </div>
+        </div >
     );
 }
 

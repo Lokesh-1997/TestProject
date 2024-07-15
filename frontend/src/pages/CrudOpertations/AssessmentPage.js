@@ -187,20 +187,19 @@ function AssessmentPage() {
     const saveResults = async () => {
         const userEmail = localStorage.getItem('email');
         try {
-            const formattedAnswers = Object.keys(answers).map(questionID => {
-                const answer = answers[questionID];
-                const question = questions.find(q => q.questionID === questionID);
-                const questionCategory = question ? question.questionCategory : '';
+            const formattedAnswers = questions.map(question => {
+                const answer = answers[question.questionID] || '';
+                const questionCategory = question.questionCategory || '';
                 // Handle multiple select answers separately to format them correctly
                 if (Array.isArray(answer)) {
                     return {
-                        questionID,
+                        questionID: question.questionID,
                         questionCategory,
                         answer: answer.length > 0 ? answer.map(a => `${a.value0},${a.value1}`).join(';') : ''
                     };
                 } else {
                     return {
-                        questionID,
+                        questionID: question.questionID,
                         questionCategory,
                         answer: answer || '' // Ensure empty answers are sent as ''
                     };

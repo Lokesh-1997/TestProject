@@ -189,7 +189,10 @@ function AssessmentPage() {
     const saveResults = async () => {
         const userEmail = localStorage.getItem('email');
         try {
-            // Loop through each question in currentQuestions
+            // Accumulate all question IDs in currentQuestions
+            const questionIDs = currentQuestions.map(currentQuestion => currentQuestion.questionID);
+
+            // Loop through each question in currentQuestions and format the answers
             const formattedAnswers = currentQuestions.map(currentQuestion => {
                 const currentquestionId = currentQuestion.questionID;
                 const currentAnswer = answers[currentquestionId];
@@ -217,7 +220,7 @@ function AssessmentPage() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ examName, examCategory, userEmail, answers: formattedAnswers })
+                body: JSON.stringify({ examName, examCategory, userEmail, answers: formattedAnswers, questionIDs })
             });
 
             if (response.ok) {
@@ -232,6 +235,7 @@ function AssessmentPage() {
             console.error('Error saving results:', error);
         }
     };
+
 
 
 

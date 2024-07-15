@@ -401,12 +401,12 @@ app.get('/api/assessments/:examName/questions', async (req, res) => {
 
 
 app.post('/api/results/submitresults', async (req, res) => {
-    const { examName, examCategory, userEmail, answers } = req.body;
+    const { examName, examCategory, userEmail, answers, questionIDs } = req.body;
     console.log('Received request:', req.body);
 
-    if (!examName || !examCategory || !userEmail || !Array.isArray(answers)) {
+    if (!examName || !examCategory || !userEmail || !Array.isArray(answers) || !Array.isArray(questionIDs)) {
         console.error('Invalid request data');
-        return res.status(400).json({ message: 'Exam Name, Exam Category, User Email, and Answers array are required' });
+        return res.status(400).json({ message: 'Exam Name, Exam Category, User Email, Answers array, and Question IDs array are required' });
     }
 
     try {
@@ -445,6 +445,7 @@ app.post('/api/results/submitresults', async (req, res) => {
             examName,
             examCategory,
             userId: user._id,
+            questionIDs,
             answers: results,
         });
 
@@ -455,6 +456,7 @@ app.post('/api/results/submitresults', async (req, res) => {
             examName: result.examName,
             examCategory: result.examCategory,
             userId: result.userId,
+            questionIDs: result.questionIDs,
             answers: result.answers
         });
     } catch (error) {
@@ -462,6 +464,7 @@ app.post('/api/results/submitresults', async (req, res) => {
         res.status(500).json({ message: 'Error saving results' });
     }
 });
+
 
 
 

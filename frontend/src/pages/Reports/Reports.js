@@ -56,32 +56,33 @@ function Reports() {
         {
             title: "Turnover",
             topic: "EU Taxonomy alignment for Clean Energy Activities",
-            text1: "Aligned",
-            text2: "Not aligned but eligible",
-            text3: "Not eligible"
+            alignedValue: 200,
+            notAlignedButEligibleValue: 100,
+            notEligibleValue: 600
         },
         {
             title: "CapEx",
             topic: "EU Taxonomy alignment for Clean Energy Activities",
-            text1: "Aligned",
-            text2: "Not aligned but eligible",
-            text3: "Not eligible"
+            alignedValue: 100,
+            notAlignedButEligibleValue: 500,
+            notEligibleValue: 200
         },
         {
             title: "OpEx",
             topic: "EU Taxonomy alignment for Clean Energy Activities",
-            text1: "Aligned",
-            text2: "Not aligned but eligible",
-            text3: "Not eligible"
+            alignedValue: 500,
+            notAlignedButEligibleValue: 600,
+            notEligibleValue: 600
         },
         {
             title: "# of Activities",
             topic: "EU Taxonomy alignment for Clean Energy Activities",
-            text1: "Aligned",
-            text2: "Not aligned but eligible",
-            text3: "Not eligible"
+            alignedValue: results.length,
+            notAlignedButEligibleValue: 600,
+            notEligibleValue: 600
         }
     ];
+
 
 
     console.log(users);
@@ -95,7 +96,7 @@ function Reports() {
                             const capitalizeName = (name) => {
                                 return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
                             };
-                            return <p key={index}>For {capitalizeName(val.name)}</p>;
+                            return <p key={index}>For {capitalizeName(val.companyName)}</p>;
                         })}
                     </div>
                     <div className="card-body text-start">
@@ -108,33 +109,47 @@ function Reports() {
                 </div>
 
                 <section className='section-card'>
-                    {ChartDetails.map((value, index) => (
-                        <div key={index} className='card-main'>
-                            <div className="card card-stats mt-5">
-                                <div className="card-body text-start">
-                                    <h3>{value.title}</h3>
-                                    <p className="card-title">{value.topic}</p>
-                                    <div className="circle m-4">
-                                        <div className="circle-progress"></div>
-                                    </div>
-                                    <div className='row d-flex flex-column justify-content-bet align-items-center'>
-                                        <div className='col d-flex justify-content-between'>
-                                            <p>Aligned</p>
-                                            <p>600 $ (60%)</p>
+                    {ChartDetails.map((value, index) => {
+                        // Calculate percentages
+                        const total = value.alignedValue + value.notAlignedButEligibleValue + value.notEligibleValue;
+                        const alignedPercentage = (value.alignedValue / total) * 100;
+                        const notAlignedButEligiblePercentage = (value.notAlignedButEligibleValue / total) * 100;
+                        const notEligiblePercentage = (value.notEligibleValue / total) * 100;
+
+                        return (
+                            <div key={index} className='card-main'>
+                                <div className="card card-stats mt-5">
+                                    <div className="card-body text-start">
+                                        <h3>{value.title}</h3>
+                                        <p className="card-title">{value.topic}</p>
+                                        <div className="circle m-4">
+                                            <div className="circle-progress"
+                                                style={{
+                                                    background: `conic-gradient(#394D2C 0% ${alignedPercentage}%, #C4C4C4 ${alignedPercentage}% ${alignedPercentage + notAlignedButEligiblePercentage}%, #6CC784 ${alignedPercentage + notAlignedButEligiblePercentage}% 100%)`
+                                                }}>
+                                                {/* <span className="percentage-label">{alignedPercentage.toFixed(1)}%</span> */}
+                                            </div>
                                         </div>
-                                        <div className='col d-flex justify-content-between'>
-                                            <p>Not aligned but eligible</p>
-                                            <p>600 $ (60%)</p>
-                                        </div>
-                                        <div className='col d-flex justify-content-between'>
-                                            <p>Not eligible</p>
-                                            <p>600 $ (60%)</p>
+                                        <div className='row d-flex flex-column justify-content-between align-items-center'>
+                                            <div className='col d-flex justify-content-between'>
+                                                <p>Aligned</p>
+                                                <p>{value.alignedValue} $ ({alignedPercentage.toFixed(1)}%)</p>
+                                            </div>
+                                            <div className='col d-flex justify-content-between'>
+                                                <p>Not aligned but eligible</p>
+                                                <p>{value.notAlignedButEligibleValue} $ ({notAlignedButEligiblePercentage.toFixed(1)}%)</p>
+                                            </div>
+                                            <div className='col d-flex justify-content-between'>
+                                                <p>Not eligible</p>
+                                                <p>{value.notEligibleValue} $ ({notEligiblePercentage.toFixed(1)}%)</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
+
                 </section>
 
                 <div className="card card-reports mt-5">

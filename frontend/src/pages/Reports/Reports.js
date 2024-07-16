@@ -56,30 +56,30 @@ function Reports() {
         {
             title: "Turnover",
             topic: "EU Taxonomy alignment for Clean Energy Activities",
-            alignedValue: 200,
-            notAlignedButEligibleValue: 100,
-            notEligibleValue: 600
+            alignedValue: 0,
+            notAlignedButEligibleValue: totalTurnover,
+            notEligibleValue: 0
         },
         {
             title: "CapEx",
             topic: "EU Taxonomy alignment for Clean Energy Activities",
-            alignedValue: 100,
-            notAlignedButEligibleValue: 500,
-            notEligibleValue: 200
+            alignedValue: 0,
+            notAlignedButEligibleValue: totalCapex,
+            notEligibleValue: 0
         },
         {
             title: "OpEx",
             topic: "EU Taxonomy alignment for Clean Energy Activities",
-            alignedValue: 500,
-            notAlignedButEligibleValue: 600,
-            notEligibleValue: 600
+            alignedValue: 0,
+            notAlignedButEligibleValue: totalOpex,
+            notEligibleValue: 0
         },
         {
             title: "# of Activities",
             topic: "EU Taxonomy alignment for Clean Energy Activities",
-            alignedValue: results.length,
-            notAlignedButEligibleValue: 600,
-            notEligibleValue: 600
+            alignedValue: 0,
+            notAlignedButEligibleValue: results.length,
+            notEligibleValue: 0
         }
     ];
 
@@ -125,7 +125,8 @@ function Reports() {
                                         <div className="circle m-4">
                                             <div className="circle-progress"
                                                 style={{
-                                                    background: `conic-gradient(#394D2C 0% ${alignedPercentage}%, #C4C4C4 ${alignedPercentage}% ${alignedPercentage + notAlignedButEligiblePercentage}%, #6CC784 ${alignedPercentage + notAlignedButEligiblePercentage}% 100%)`
+                                                    background: `conic-gradient(#394D2C 0% ${alignedPercentage}%, #6CC784 ${alignedPercentage}% ${alignedPercentage + notAlignedButEligiblePercentage}%, #C4C4C4 ${alignedPercentage + notAlignedButEligiblePercentage}% 100%)`
+                                                    // background: `conic-gradient(#394D2C 0% ${alignedPercentage}%, #C4C4C4 ${alignedPercentage}% ${alignedPercentage + notAlignedButEligiblePercentage}%, #6CC784 ${alignedPercentage + notAlignedButEligiblePercentage}% 100%)`
                                                 }}>
                                                 {/* <span className="percentage-label">{alignedPercentage.toFixed(1)}%</span> */}
                                             </div>

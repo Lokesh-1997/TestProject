@@ -8,14 +8,16 @@ import axios from 'axios';
 
 function SignupPage() {
     const [name, setName] = useState('');
+    const [companyName, setCompanyName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
     const clearInput1 = () => setName('');
-    const clearInput2 = () => setEmail('');
-    const clearInput3 = () => setPassword('');
+    const clearInput2 = () => setCompanyName('');
+    const clearInput3 = () => setEmail('');
+    const clearInput4 = () => setPassword('');
 
     const navigate = useNavigate();
 
@@ -26,11 +28,13 @@ function SignupPage() {
         try {
             const response = await axios.post('https://confess-data-tool-backend.vercel.app/api/users/register', {
                 name,
+                companyName,
                 email,
                 password
             });
             setSuccess(response.data);
             setName('');
+            setCompanyName('');
             setEmail('');
             setPassword('');
             navigate('/login'); // Redirect to login page after successful registration
@@ -63,27 +67,39 @@ function SignupPage() {
                                 <FontAwesomeIcon className='input-close-icon' icon={faCircleXmark} />
                             </button>}
                         </div>
+                        <div className={`input-wrap ${companyName ? 'has-value' : ''}`}>
+                            <input
+                                type='text'
+                                className='login-input2'
+                                value={companyName}
+                                onChange={(e) => setCompanyName(e.target.value)}
+                            />
+                            <label>Company Name</label>
+                            {companyName && <button type="button" className="clear-button" onClick={clearInput2}>
+                                <FontAwesomeIcon className='input-close-icon' icon={faCircleXmark} />
+                            </button>}
+                        </div>
                         <div className={`input-wrap ${email ? 'has-value' : ''}`}>
                             <input
                                 type='email'
-                                className='login-input2'
+                                className='login-input3'
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                             />
                             <label>Email Address</label>
-                            {email && <button type="button" className="clear-button" onClick={clearInput2}>
+                            {email && <button type="button" className="clear-button" onClick={clearInput3}>
                                 <FontAwesomeIcon className='input-close-icon' icon={faCircleXmark} />
                             </button>}
                         </div>
                         <div className={`input-wrap ${password ? 'has-value' : ''}`}>
                             <input
                                 type='password'
-                                className='login-input3'
+                                className='login-input4'
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                             />
                             <label>Password</label>
-                            {password && <button type="button" className="clear-button" onClick={clearInput3}>
+                            {password && <button type="button" className="clear-button" onClick={clearInput4}>
                                 <FontAwesomeIcon className='input-close-icon' icon={faCircleXmark} />
                             </button>}
                         </div>

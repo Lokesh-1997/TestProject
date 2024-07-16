@@ -34,6 +34,10 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    companyName: {
+        type: String,
+        required: true
+    },
     password: {
         type: String,
         required: true
@@ -113,9 +117,9 @@ const Result = mongoose.model('Result', resultSchema);
 
 // POST route to register a user
 app.post('/api/users/register', async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, companyName } = req.body;
     const role = "users"
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !companyName) {
         return res.status(400).send('Name, Email, and Password are required');
     }
     try {
@@ -124,7 +128,7 @@ app.post('/api/users/register', async (req, res) => {
             return res.status(400).send('User already exists');
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ name, role, email, password: hashedPassword });
+        const newUser = new User({ name, role, email, companyName, password: hashedPassword });
         await newUser.save();
         res.status(201).send('User registered successfully');
     } catch (error) {

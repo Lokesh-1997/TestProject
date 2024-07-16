@@ -16,7 +16,8 @@
 
 .login-input1,
 .login-input2,
-.login-input3 {
+.login-input3,
+.login-input4 {
     border: 2px solid rgba(0, 0, 0, 0.211);
     border-radius: 10px;
     height: 55px;
@@ -31,13 +32,15 @@
 
 .login-input1:focus,
 .login-input2:focus,
-.login-input3:focus {
+.login-input3:focus,
+.login-input4:focus {
     border: 2px solid rgba(27, 27, 27, 0.485);
 }
 
 .login-input1:focus+label,
 .login-input2:focus+label,
 .login-input3:focus+label,
+.login-input4:focus+label,
 .input-wrap.has-value label {
     font-size: 10px;
     color: rgba(0, 0, 0, 0.479);

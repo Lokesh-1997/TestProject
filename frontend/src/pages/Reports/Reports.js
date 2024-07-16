@@ -84,7 +84,7 @@ function Reports() {
     ];
 
 
-
+    console.log(users);
     return (
         <div className='d-flex justify-content-center mt-5'>
             <section className='reports-main'>

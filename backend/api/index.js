@@ -567,9 +567,9 @@ app.get('/api/dashboard', async (req, res) => {
 
         // Extract unique users and full results
         const users = results.reduce((acc, result) => {
-            const { name, email } = result.userId;
+            const { name, email, companyName } = result.userId;
             if (!acc.users.find(user => user.email === email)) {
-                acc.users.push({ name, email });
+                acc.users.push({ name, email, companyName });
             }
             acc.results.push(result);
             return acc;

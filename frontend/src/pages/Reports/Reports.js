@@ -85,7 +85,6 @@ function Reports() {
 
 
 
-    console.log(users);
     return (
         <div className='d-flex justify-content-center mt-5'>
             <section className='reports-main'>
@@ -174,12 +173,12 @@ function Reports() {
                 <section>
                     {results.map((value, index) => {
                         const filteredAnswers = value.answers.filter(answer => answer.questionType !== "Blank");
-                        const SubstentialContribution = value.answers.filter(answer => answer.questionCategory === 'Substantial Contribution');
-                        const DNSHAdaption = value.answers.filter(answer => answer.questionCategory === 'DNSH - Adaptation');
-                        const DNSHce = value.answers.filter(answer => answer.questionCategory === 'DNSH - CE');
-                        const DNSHwater = value.answers.filter(answer => answer.questionCategory === 'DNSH - Water');
-                        const DNSHpollution = value.answers.filter(answer => answer.questionCategory === 'DNSH - Pollution');
-                        const DNSHbiodibersity = value.answers.filter(answer => answer.questionCategory === 'DNSH - Biodiversity');
+                        const SubstentialContribution = filteredAnswers.filter(answer => answer.questionCategory === 'Substantial Contribution');
+                        const DNSHAdaption = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Adaptation');
+                        const DNSHce = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - CE');
+                        const DNSHwater = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Water');
+                        const DNSHpollution = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Pollution');
+                        const DNSHbiodibersity = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Biodiversity');
 
                         const AllSubstential = SubstentialContribution.every(answer =>
                             answer.answer.every(ans => ans.trim() !== "")
@@ -199,6 +198,8 @@ function Reports() {
                         const AllDNSHbiodibersity = DNSHbiodibersity.every(answer =>
                             answer.answer.every(ans => ans.trim() !== "")
                         );
+
+
                         return (
                             <div key={value._id} className="card card-reports mt-5 text-start">
                                 <div className="card-header">
@@ -206,7 +207,7 @@ function Reports() {
                                 </div>
 
                                 <div className='d-flex mx-3 mt-3 justify-content-between'>
-                                    <p>Substential Contribution (Climate Change Mitigation)</p>
+                                    <p>Substantial Contribution (Climate Change Mitigation)</p>
                                     <span className={AllSubstential ? 'darkgreen-dot mx-4' : 'orage-dot mx-4'}></span>
                                 </div>
                                 <p className="mx-3 mt-4">Do No Significant Harm</p>

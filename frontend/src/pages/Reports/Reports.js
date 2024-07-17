@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import './Reports.css';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEuroSign, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 
 function Reports() {
     const [users, setUsers] = useState([]);
@@ -9,7 +11,7 @@ function Reports() {
     const [totalCapex, setTotalCapex] = useState(0);
     const [totalOpex, setTotalOpex] = useState(0);
     const navigate = useNavigate();
-    const [green, setGreen] = useState('darkgreen-dot')
+    const [Dashopop, setDashopop] = useState(true)
 
     useEffect(() => {
         const email = localStorage.getItem('email');
@@ -83,7 +85,7 @@ function Reports() {
         }
     ];
 
-
+    const TotalActivity = results.length
 
     return (
         <div className='d-flex justify-content-center mt-5'>
@@ -199,7 +201,7 @@ function Reports() {
                             answer.answer.every(ans => ans.trim() !== "")
                         );
 
-
+                        console.log(AllSubstential);
                         return (
                             <div key={value._id} className="card card-reports mt-5 text-start">
                                 <div className="card-header">
@@ -235,9 +237,93 @@ function Reports() {
                         );
                     })}
                 </section>
+
+                {Dashopop && <DashboardPop totalTurnover={totalTurnover} totalCapex={totalCapex} totalOpex={totalOpex} TotalActivity={TotalActivity} setDashopop={setDashopop} />}
             </section>
+
         </div >
     );
 }
 
 export default Reports;
+
+
+const DashboardPop = ({ totalTurnover, totalCapex, totalOpex, TotalActivity, setDashopop }) => {
+
+    const [turnover, setTurnover] = useState()
+    const [capex, setCapex] = useState()
+    const [opex, setOpex] = useState()
+    const [totalact, setTotalact] = useState()
+
+    const closeThePop = () => {
+        setDashopop(false)
+    }
+
+
+    return <div className='Dash-pop'>
+
+        <section >
+            <h4>Update Total Turnover, CapEx, OpEx</h4>
+            <p>Reporting in accordance with the EU taxonomy indicates the proportion of taxonomy eligible and taxonomy aligned economic activities.</p>
+            <p>In order to determine their monetary value, the share of taxonomy eligible and taxonomy-aligned activities in turnover, CapEx and OpEx is calculated and reported.
+                To calculate this, we need to know your total turnover, CapEx and OpEx of the last fiscal year.
+                We also need to know the total number of economic activities your company performs.</p>
+            <p>If you do not know and cannot collect the exact total financials of the last year, please estimate:</p>
+
+            <form>
+                <div>
+                    <div className={`input-wraps-dash ${turnover ? 'has-values' : ''}`}>
+                        <input type='number' className='input-turnover' value={totalTurnover} onChange={(e) => setTurnover(e.target.value)} />
+                        <label>Total Turnover <span className='text-danger'>*</span></label>
+
+                        <FontAwesomeIcon
+                            icon={faEuroSign}
+                            className='euro-signs'
+                        />
+                    </div>
+                    <div className={`input-wraps-dash ${capex ? 'has-values' : ''}`}>
+                        <input type='number' className='input-capex' value={totalCapex} onChange={(e) => setCapex(e.target.value)} />
+                        <label>Total Capex <span className='text-danger'>*</span></label>
+
+                        <FontAwesomeIcon
+                            icon={faEuroSign}
+                            className='euro-signs'
+                        />
+                    </div>
+                    <div className={`input-wraps-dash ${opex ? 'has-values' : ''}`}>
+                        <input type='number' className='input-opex' value={totalOpex} onChange={(e) => setOpex(e.target.value)} />
+                        <label>Total OpEx<span className='text-danger'>*</span></label>
+
+                        <FontAwesomeIcon
+                            icon={faEuroSign}
+                            className='euro-signs'
+                        />
+                    </div>
+                    <div className={`input-wraps-dash ${totalact ? 'has-values' : ''}`}>
+                        <input type='number' className='input-totalact' value={TotalActivity} onChange={(e) => setTotalact(e.target.value)} />
+                        <label>Total Activities<span className='text-danger'>*</span></label>
+
+                        <FontAwesomeIcon
+                            icon={faEuroSign}
+                            className='euro-signs'
+                        />
+                    </div>
+
+
+
+                </div>
+                <div className='Dash-submit-buttons'>
+                    <button onClick={closeThePop} className='btn btn-secondary'>Cancel</button>
+                    <button onClick={closeThePop} className='btn btn-primary'>Submit</button>
+                </div>
+
+            </form>
+
+        </section>
+
+
+
+
+
+    </div>
+}

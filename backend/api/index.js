@@ -41,6 +41,26 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    totalTurnover: {
+        type: Number,
+        default: 0
+    },
+    totalCapex: {
+        type: Number,
+        default: 0
+    },
+    totalOpex: {
+        type: Number,
+        default: 0
+    },
+    totalActivity: {
+        type: Number,
+        default: 0
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
 });
 
@@ -580,6 +600,32 @@ app.get('/api/dashboard', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
+
+app.post('/api/update-financials', async (req, res) => {
+    const { email, totalTurnover, totalCapex, totalOpex } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.totalTurnover = totalTurnover;
+        user.totalCapex = totalCapex;
+        user.totalOpex = totalOpex;
+
+        await user.save();
+
+        res.status(200).json({ message: 'Financial data updated successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server error');
+    }
+});
+
+
 
 
 

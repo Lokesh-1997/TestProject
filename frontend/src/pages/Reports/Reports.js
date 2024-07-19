@@ -54,6 +54,8 @@ function Reports() {
         }
     }, []);
 
+
+
     const ChartDetails = [
         {
             title: "Turnover",
@@ -201,7 +203,7 @@ function Reports() {
                             answer.answer.every(ans => ans.trim() !== "")
                         );
 
-                        console.log(AllSubstential);
+
                         return (
                             <div key={value._id} className="card card-reports mt-5 text-start">
                                 <div className="card-header">
@@ -255,10 +257,15 @@ const DashboardPop = ({ totalTurnover, totalCapex, totalOpex, TotalActivity, set
     const [opex, setOpex] = useState()
     const [totalact, setTotalact] = useState()
 
+    const navigate = useNavigate();
+
     const closeThePop = () => {
         setDashopop(false)
     }
 
+    const GoHome = () => {
+        navigate('/landing')
+    }
 
     return <div className='Dash-pop'>
 
@@ -302,18 +309,10 @@ const DashboardPop = ({ totalTurnover, totalCapex, totalOpex, TotalActivity, set
                     <div className={`input-wraps-dash ${totalact ? 'has-values' : ''}`}>
                         <input type='number' className='input-totalact' value={TotalActivity} onChange={(e) => setTotalact(e.target.value)} />
                         <label>Total Activities<span className='text-danger'>*</span></label>
-
-                        <FontAwesomeIcon
-                            icon={faEuroSign}
-                            className='euro-signs'
-                        />
                     </div>
-
-
-
                 </div>
                 <div className='Dash-submit-buttons'>
-                    <button onClick={closeThePop} className='btn btn-secondary'>Cancel</button>
+                    <button onClick={GoHome} className='btn btn-secondary'>Cancel</button>
                     <button onClick={closeThePop} className='btn btn-primary'>Submit</button>
                 </div>
 

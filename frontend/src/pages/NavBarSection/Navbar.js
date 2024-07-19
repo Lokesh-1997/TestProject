@@ -68,6 +68,61 @@ function NavSection() {
     };
 
 
+    // Total calculations
+
+
+    const [results, setResults] = useState([]);
+    const [totalTurnover, setTotalTurnover] = useState(0);
+    const [totalCapex, setTotalCapex] = useState(0);
+    const [totalOpex, setTotalOpex] = useState(0);
+
+    useEffect(() => {
+        const email = localStorage.getItem('email');
+
+        if (email) {
+            fetch(`https://confess-data-tool-backend.vercel.app/api/dashboard?email=${email}`)
+                .then(response => response.json())
+                .then(data => {
+                    setUsers(data.users);
+                    setResults(data.results);
+                    let turnover = 0;
+                    let capex = 0;
+                    let opex = 0;
+                    data.results.forEach(result => {
+                        result.answers.forEach(answer => {
+                            if (answer.questionCategory === 'Turnover') {
+                                turnover += parseFloat(answer.answer[0]) || 0;
+                            } else if (answer.questionCategory === 'CapEx') {
+                                capex += parseFloat(answer.answer[0]) || 0;
+                            } else if (answer.questionCategory === 'OpEx') {
+                                opex += parseFloat(answer.answer[0]) || 0;
+                            }
+                        });
+                    });
+                    setTotalTurnover(turnover);
+                    setTotalCapex(capex);
+                    setTotalOpex(opex);
+
+                    // Check if all filtered answers have non-empty values
+                    const hasUnansweredQuestions = data.results.some(result => {
+                        const filteredAnswers = result.answers.filter(answer => answer.questionType !== "Blank");
+                        return !filteredAnswers.every(answer => answer.answer.some(ans => ans.trim() !== ''));
+                    });
+
+                    if (hasUnansweredQuestions) {
+                        // alert("Not all answered");
+                    }
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+    }, []);
+
+
+    console.log(totalTurnover);
+    console.log(totalCapex);
+    console.log(totalOpex);
+
+    
 
     return (
         <nav className="navbar navbar-expand-lg darkmode">

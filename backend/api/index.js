@@ -445,10 +445,28 @@ app.post('/api/results/submitresults', async (req, res) => {
             console.error('Assessment not found');
             return res.status(404).json({ message: 'Assessment not found' });
         }
+
+        // Initialize totals to update the user's schema
+        let totalTurnover = 0;
+        let totalCapex = 0;
+        let totalOpex = 0;
+        let totalActivity = 0;
+
         // Process the answers to ensure they are in the correct format
         const results = answers.map(answer => {
             const question = assessment.questions.find(q => q.questionID === answer.questionID);
             if (question) {
+                // Update totals based on question category
+                if (answer.questionCategory === 'Turnover') {
+                    totalTurnover += parseFloat(answer.answer);
+                } else if (answer.questionCategory === 'CapEx') {
+                    totalCapex += parseFloat(answer.answer);
+                } else if (answer.questionCategory === 'OpEx') {
+                    totalOpex += parseFloat(answer.answer);
+                } else if (answer.questionCategory === 'TotalActivity') {
+                    totalActivity += parseFloat(answer.answer);
+                }
+
                 return {
                     questionID: answer.questionID,
                     questionCategory: answer.questionCategory,
@@ -464,6 +482,15 @@ app.post('/api/results/submitresults', async (req, res) => {
                 };
             }
         });
+
+        // Update the user's totals
+        user.totalTurnover += totalTurnover;
+        user.totalCapex += totalCapex;
+        user.totalOpex += totalOpex;
+        user.totalActivity += totalActivity;
+
+        await user.save();
+
         const result = new Result({
             examName,
             examCategory,
@@ -487,6 +514,7 @@ app.post('/api/results/submitresults', async (req, res) => {
         res.status(500).json({ message: 'Error saving results' });
     }
 });
+
 
 
 

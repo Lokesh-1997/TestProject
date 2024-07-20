@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEuroSign, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 
 function Reports() {
-    const [users, setUsers] = useState([]);
     const [results, setResults] = useState([]);
     const [totalTurnover, setTotalTurnover] = useState(0);
     const [totalCapex, setTotalCapex] = useState(0);
@@ -13,47 +12,32 @@ function Reports() {
     const navigate = useNavigate();
     const [Dashopop, setDashopop] = useState(true)
 
+    const [users, setUsers] = useState([]);
+
     useEffect(() => {
-        const email = localStorage.getItem('email');
-
-        if (email) {
-            fetch(`https://confess-data-tool-backend.vercel.app/api/dashboard?email=${email}`)
-                .then(response => response.json())
-                .then(data => {
-                    setUsers(data.users);
-                    setResults(data.results);
-                    let turnover = 0;
-                    let capex = 0;
-                    let opex = 0;
-                    data.results.forEach(result => {
-                        result.answers.forEach(answer => {
-                            if (answer.questionCategory === 'Turnover') {
-                                turnover += parseFloat(answer.answer[0]) || 0;
-                            } else if (answer.questionCategory === 'CapEx') {
-                                capex += parseFloat(answer.answer[0]) || 0;
-                            } else if (answer.questionCategory === 'OpEx') {
-                                opex += parseFloat(answer.answer[0]) || 0;
-                            }
-                        });
-                    });
-                    setTotalTurnover(turnover);
-                    setTotalCapex(capex);
-                    setTotalOpex(opex);
-
-                    // Check if all filtered answers have non-empty values
-                    const hasUnansweredQuestions = data.results.some(result => {
-                        const filteredAnswers = result.answers.filter(answer => answer.questionType !== "Blank");
-                        return !filteredAnswers.every(answer => answer.answer.some(ans => ans.trim() !== ''));
-                    });
-
-                    if (hasUnansweredQuestions) {
-                        // alert("Not all answered");
+        const fetchUsers = async () => {
+            const email = localStorage.getItem('email');
+            try {
+                const response = await fetch(`https://confess-data-tool-backend.vercel.app/api/users`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const matchedUser = data.find(user => user.email === email);
+                    if (matchedUser) {
+                        setUsers(matchedUser);
+                    } else {
+                        console.error('No matching user found');
                     }
-                })
-                .catch(error => console.error('Error fetching data:', error));
-        }
-    }, []);
 
+                } else {
+                    console.error('Failed to fetch users');
+                }
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            }
+        };
+        fetchUsers();
+    }, []);
+    console.log(users);
 
 
     const ChartDetails = [
@@ -89,25 +73,23 @@ function Reports() {
 
     const TotalActivity = results.length
 
+
+
     return (
         <div className='d-flex justify-content-center mt-5'>
             <section className='reports-main'>
                 <div className="card card-reports">
                     <div className="card-header text-start">
                         <h3 className='fw-light'>Report: CONFESS</h3>
-                        {users.map((val, index) => {
-                            const capitalizeName = (name) => {
-                                return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-                            };
-                            return <p key={index}>For {capitalizeName(val.companyName)}</p>;
-                        })}
+                        <p>For {users.companyName}</p>
+
                     </div>
                     <div className="card-body text-start">
                         <p className="card-title">
                             <i>Disclaimer: The evaluation is based on the information provided in the tool. No verifications were conducted.</i>
                         </p>
-                        <p className="card-title mt-3">Total Number of Activities: <span>{results.length}</span></p>
-                        <p className="mt-3">Total Turnover: {totalTurnover} $ <br />Total CapEx: {totalCapex} $ <br /> Total OpEx: {totalOpex} $</p>
+                        <p className="card-title mt-3">Total Number of Activities: <span>{users.totalActivity}</span></p>
+                        <p className="mt-3">Total Turnover: {users.totalTurnover} $ <br />Total CapEx: {users.totalCapex} $ <br /> Total OpEx: {users.totalOpex} $</p>
                     </div>
                 </div>
 
@@ -240,7 +222,7 @@ function Reports() {
                     })}
                 </section>
 
-                {Dashopop && <DashboardPop totalTurnover={totalTurnover} totalCapex={totalCapex} totalOpex={totalOpex} TotalActivity={TotalActivity} setDashopop={setDashopop} />}
+                {Dashopop && <DashboardPop totalTurnover={totalTurnover} totalCapex={totalCapex} totalOpex={totalOpex} TotalActivity={TotalActivity} setDashopop={setDashopop} users={users} />}
             </section>
 
         </div >
@@ -250,79 +232,65 @@ function Reports() {
 export default Reports;
 
 
-const DashboardPop = ({ totalTurnover, totalCapex, totalOpex, TotalActivity, setDashopop }) => {
+const DashboardPop = ({ setDashopop, users }) => {
+    const [turnover, setTurnover] = useState();
+    const [capex, setCapex] = useState();
+    const [opex, setOpex] = useState();
+    const [totalact, setTotalact] = useState();
 
-    const [turnover, setTurnover] = useState()
-    const [capex, setCapex] = useState()
-    const [opex, setOpex] = useState()
-    const [totalact, setTotalact] = useState()
 
     const navigate = useNavigate();
 
+    console.log(users);
+
     const closeThePop = () => {
-        setDashopop(false)
+        setDashopop(false);
     }
 
     const GoHome = () => {
-        navigate('/landing')
+        navigate('/landing');
     }
 
-    return <div className='Dash-pop'>
+    return (
+        <div className='Dash-pop'>
+            <section>
+                <h4>Update Total Turnover, CapEx, OpEx</h4>
+                <p>Reporting in accordance with the EU taxonomy indicates the proportion of taxonomy eligible and taxonomy aligned economic activities.</p>
+                <p>In order to determine their monetary value, the share of taxonomy eligible and taxonomy-aligned activities in turnover, CapEx and OpEx is calculated and reported.
+                    To calculate this, we need to know your total turnover, CapEx and OpEx of the last fiscal year.
+                    We also need to know the total number of economic activities your company performs.</p>
+                <p>If you do not know and cannot collect the exact total financials of the last year, please estimate:</p>
 
-        <section >
-            <h4>Update Total Turnover, CapEx, OpEx</h4>
-            <p>Reporting in accordance with the EU taxonomy indicates the proportion of taxonomy eligible and taxonomy aligned economic activities.</p>
-            <p>In order to determine their monetary value, the share of taxonomy eligible and taxonomy-aligned activities in turnover, CapEx and OpEx is calculated and reported.
-                To calculate this, we need to know your total turnover, CapEx and OpEx of the last fiscal year.
-                We also need to know the total number of economic activities your company performs.</p>
-            <p>If you do not know and cannot collect the exact total financials of the last year, please estimate:</p>
 
-            <form>
-                <div>
-                    <div className={`input-wraps-dash ${turnover ? 'has-values' : ''}`}>
-                        <input type='number' className='input-turnover' value={totalTurnover} onChange={(e) => setTurnover(e.target.value)} />
-                        <label>Total Turnover <span className='text-danger'>*</span></label>
-
-                        <FontAwesomeIcon
-                            icon={faEuroSign}
-                            className='euro-signs'
-                        />
+                <form>
+                    <div>
+                        <div className={`input-wraps-dash ${turnover ? 'has-values' : ''}`}>
+                            <input type='number' className='input-turnover' value={users.totalTurnover} onChange={(e) => setTurnover(e.target.value)} />
+                            <label>Total Turnover <span className='text-danger'>*</span></label>
+                            <FontAwesomeIcon icon={faEuroSign} className='euro-signs' />
+                        </div>
+                        <div className={`input-wraps-dash ${capex ? 'has-values' : ''}`}>
+                            <input type='number' className='input-capex' value={users.totalCapex} onChange={(e) => setCapex(e.target.value)} />
+                            <label>Total Capex <span className='text-danger'>*</span></label>
+                            <FontAwesomeIcon icon={faEuroSign} className='euro-signs' />
+                        </div>
+                        <div className={`input-wraps-dash ${opex ? 'has-values' : ''}`}>
+                            <input type='number' className='input-opex' value={users.totalOpex} onChange={(e) => setOpex(e.target.value)} />
+                            <label>Total OpEx<span className='text-danger'>*</span></label>
+                            <FontAwesomeIcon icon={faEuroSign} className='euro-signs' />
+                        </div>
+                        <div className={`input-wraps-dash ${totalact ? 'has-values' : ''}`}>
+                            <input type='number' className='input-totalact' value={users.totalActivity} onChange={(e) => setTotalact(e.target.value)} />
+                            <label>Total Activities<span className='text-danger'>*</span></label>
+                        </div>
                     </div>
-                    <div className={`input-wraps-dash ${capex ? 'has-values' : ''}`}>
-                        <input type='number' className='input-capex' value={totalCapex} onChange={(e) => setCapex(e.target.value)} />
-                        <label>Total Capex <span className='text-danger'>*</span></label>
-
-                        <FontAwesomeIcon
-                            icon={faEuroSign}
-                            className='euro-signs'
-                        />
+                    <div className='Dash-submit-buttons'>
+                        <button type="button" onClick={GoHome} className='btn btn-secondary'>Cancel</button>
+                        <button type="button" onClick={closeThePop} className='btn btn-primary'>Submit</button>
                     </div>
-                    <div className={`input-wraps-dash ${opex ? 'has-values' : ''}`}>
-                        <input type='number' className='input-opex' value={totalOpex} onChange={(e) => setOpex(e.target.value)} />
-                        <label>Total OpEx<span className='text-danger'>*</span></label>
+                </form>
 
-                        <FontAwesomeIcon
-                            icon={faEuroSign}
-                            className='euro-signs'
-                        />
-                    </div>
-                    <div className={`input-wraps-dash ${totalact ? 'has-values' : ''}`}>
-                        <input type='number' className='input-totalact' value={TotalActivity} onChange={(e) => setTotalact(e.target.value)} />
-                        <label>Total Activities<span className='text-danger'>*</span></label>
-                    </div>
-                </div>
-                <div className='Dash-submit-buttons'>
-                    <button onClick={GoHome} className='btn btn-secondary'>Cancel</button>
-                    <button onClick={closeThePop} className='btn btn-primary'>Submit</button>
-                </div>
-
-            </form>
-
-        </section>
-
-
-
-
-
-    </div>
+            </section>
+        </div>
+    );
 }

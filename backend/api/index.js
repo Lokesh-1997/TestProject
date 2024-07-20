@@ -450,7 +450,7 @@ app.post('/api/results/submitresults', async (req, res) => {
         let totalTurnover = 0;
         let totalCapex = 0;
         let totalOpex = 0;
-        let totalActivity = 0;
+        let totalActivity = 1;
 
         // Process the answers to ensure they are in the correct format
         const results = answers.map(answer => {
@@ -463,8 +463,6 @@ app.post('/api/results/submitresults', async (req, res) => {
                     totalCapex += parseFloat(answer.answer);
                 } else if (answer.questionCategory === 'OpEx') {
                     totalOpex += parseFloat(answer.answer);
-                } else if (answer.questionCategory === 'TotalActivity') {
-                    totalActivity += parseFloat(answer.answer);
                 }
 
                 return {

@@ -75,12 +75,14 @@ function Reports() {
     useEffect(() => {
         const fetchResults = async () => {
             const email = localStorage.getItem('email');
+            if (!email) {
+                console.error('Email not found in localStorage');
+                return;
+            }
             try {
-                const response = await fetch(`https://confess-data-tool-backend.vercel.app/api/dashboard`);
+                const response = await fetch(`https://confess-data-tool-backend.vercel.app/api/dashboard?email=${email}`);
                 if (response.ok) {
                     const data = await response.json();
-                    console.log(data);
-                    // const userResults = data.filter(result => result.Email === email);
                     setResults(data);
                 } else {
                     console.error('Failed to fetch results');
@@ -94,7 +96,10 @@ function Reports() {
 
 
 
-    console.log(results);
+    const DashResult = results.results || [];
+    console.log(DashResult);
+
+
 
     const TotalActivity = results.length
 
@@ -182,7 +187,7 @@ function Reports() {
 
 
                 <section>
-                    {/* {results.map((value, index) => {
+                    {DashResult.map((value, index) => {
                         const filteredAnswers = value.answers.filter(answer => answer.questionType !== "Blank");
                         const SubstentialContribution = filteredAnswers.filter(answer => answer.questionCategory === 'Substantial Contribution');
                         const DNSHAdaption = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Adaptation');
@@ -244,7 +249,7 @@ function Reports() {
                                 </div>
                             </div>
                         );
-                    })} */}
+                    })}
                 </section>
 
                 {Dashopop && <DashboardPop totalTurnover={totalTurnover} totalCapex={totalCapex} totalOpex={totalOpex} TotalActivity={TotalActivity} setDashopop={setDashopop} users={users} />}
@@ -257,22 +262,60 @@ function Reports() {
 export default Reports;
 
 
-const DashboardPop = ({ setDashopop, users }) => {
-    const [turnover, setTurnover] = useState();
-    const [capex, setCapex] = useState();
-    const [opex, setOpex] = useState();
-    const [totalact, setTotalact] = useState();
 
+
+const DashboardPop = ({ setDashopop, users, setResults }) => {
+    const [turnover, setTurnover] = useState('');
+    const [capex, setCapex] = useState('');
+    const [opex, setOpex] = useState('');
+    const [totalact, setTotalact] = useState('');
+
+    useEffect(() => {
+        if (users) {
+            setTurnover(users.totalTurnover);
+            setCapex(users.totalCapex);
+            setOpex(users.totalOpex);
+            setTotalact(users.totalActivity);
+        }
+    }, [users]);
 
     const navigate = useNavigate();
 
-    const closeThePop = () => {
-        setDashopop(false);
-    }
-
+ 
     const GoHome = () => {
         navigate('/landing');
-    }
+    };
+
+    const handleFormSubmit = async (e) => {
+        e.preventDefault();
+
+        const updatedData = {
+            totalTurnover: turnover,
+            totalCapex: capex,
+            totalOpex: opex,
+            totalActivity: totalact
+        };
+
+        try {
+            const response = await fetch(`https://confess-data-tool-backend.vercel.app/api/users/${users._id}/financial-data`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedData),
+            });
+
+            if (response.ok) {
+                const updatedUser = await response.json();
+                setResults(updatedUser); // Update results with the updated user data
+                setDashopop(false); // Close the modal on successful update
+            } else {
+                console.error('Failed to update data');
+            }
+        } catch (error) {
+            console.error('Error updating data:', error);
+        }
+    };
 
     return (
         <div className='Dash-pop'>
@@ -284,36 +327,63 @@ const DashboardPop = ({ setDashopop, users }) => {
                     We also need to know the total number of economic activities your company performs.</p>
                 <p>If you do not know and cannot collect the exact total financials of the last year, please estimate:</p>
 
-
-                <form>
+                <form onSubmit={handleFormSubmit}>
                     <div>
                         <div className={`input-wraps-dash ${turnover ? 'has-values' : ''}`}>
-                            <input type='number' className='input-turnover' value={users.totalTurnover} onChange={(e) => setTurnover(e.target.value)} />
+                            <input
+                                type='number'
+                                className='input-turnover'
+                                value={turnover}
+                                onChange={(e) => setTurnover(parseFloat(e.target.value) || 0)}
+                            />
                             <label>Total Turnover <span className='text-danger'>*</span></label>
                             <FontAwesomeIcon icon={faEuroSign} className='euro-signs' />
                         </div>
                         <div className={`input-wraps-dash ${capex ? 'has-values' : ''}`}>
-                            <input type='number' className='input-capex' value={users.totalCapex} onChange={(e) => setCapex(e.target.value)} />
+                            <input
+                                type='number'
+                                className='input-capex'
+                                value={capex}
+                                onChange={(e) => setCapex(parseFloat(e.target.value) || 0)}
+                            />
                             <label>Total Capex <span className='text-danger'>*</span></label>
                             <FontAwesomeIcon icon={faEuroSign} className='euro-signs' />
                         </div>
                         <div className={`input-wraps-dash ${opex ? 'has-values' : ''}`}>
-                            <input type='number' className='input-opex' value={users.totalOpex} onChange={(e) => setOpex(e.target.value)} />
-                            <label>Total OpEx<span className='text-danger'>*</span></label>
+                            <input
+                                type='number'
+                                className='input-opex'
+                                value={opex}
+                                onChange={(e) => setOpex(parseFloat(e.target.value) || 0)}
+                            />
+                            <label>Total OpEx <span className='text-danger'>*</span></label>
                             <FontAwesomeIcon icon={faEuroSign} className='euro-signs' />
                         </div>
                         <div className={`input-wraps-dash ${totalact ? 'has-values' : ''}`}>
-                            <input type='number' className='input-totalact' value={users.totalActivity} onChange={(e) => setTotalact(e.target.value)} />
-                            <label>Total Activities<span className='text-danger'>*</span></label>
+                            <input
+                                type='number'
+                                className='input-totalact'
+                                value={totalact}
+                                onChange={(e) => setTotalact(parseFloat(e.target.value) || 0)}
+                            />
+                            <label>Total Activities <span className='text-danger'>*</span></label>
                         </div>
                     </div>
                     <div className='Dash-submit-buttons'>
                         <button type="button" onClick={GoHome} className='btn btn-secondary'>Cancel</button>
-                        <button type="button" onClick={closeThePop} className='btn btn-primary'>Submit</button>
+                        <button type="submit" className='btn btn-primary'>Submit</button>
                     </div>
                 </form>
-
             </section>
         </div>
     );
-}
+};
+
+
+
+
+
+
+
+
+

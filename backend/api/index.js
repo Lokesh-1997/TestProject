@@ -628,23 +628,23 @@ app.get('/api/dashboard', async (req, res) => {
 });
 
 
-app.post('/api/update-financials', async (req, res) => {
-    const { email, totalTurnover, totalCapex, totalOpex } = req.body;
+// PUT route to update user financial data
+app.put('/api/users/:id/financial-data', async (req, res) => {
+    const { id } = req.params;
+    const { totalTurnover, totalCapex, totalOpex, totalActivity } = req.body;
 
     try {
-        const user = await User.findOne({ email });
+        const updatedUser = await User.findByIdAndUpdate(
+            id,
+            { totalTurnover, totalCapex, totalOpex, totalActivity },
+            { new: true }
+        );
 
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+        if (!updatedUser) {
+            return res.status(404).send('User not found');
         }
 
-        user.totalTurnover = totalTurnover;
-        user.totalCapex = totalCapex;
-        user.totalOpex = totalOpex;
-
-        await user.save();
-
-        res.status(200).json({ message: 'Financial data updated successfully' });
+        res.status(200).json(updatedUser);
     } catch (error) {
         console.error(error);
         res.status(500).send('Server error');

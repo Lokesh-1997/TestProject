@@ -6,6 +6,7 @@ import { faEuroSign, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 
 function Reports() {
     const [results, setResults] = useState([]);
+    const [result, setResult] = useState([]);
     const [totalTurnover, setTotalTurnover] = useState(0);
     const [totalCapex, setTotalCapex] = useState(0);
     const [totalOpex, setTotalOpex] = useState(0);
@@ -84,6 +85,7 @@ function Reports() {
                 if (response.ok) {
                     const data = await response.json();
                     setResults(data);
+                    setResult(data)
                 } else {
                     console.error('Failed to fetch results');
                 }
@@ -96,7 +98,7 @@ function Reports() {
 
 
 
-    const DashResult = results.results || [];
+    const DashResult = result.results || [];
     console.log(DashResult);
 
 
@@ -264,7 +266,7 @@ export default Reports;
 
 
 
-const DashboardPop = ({ setDashopop, users, setTotalTurnover, TotalActivity, setTotalOpex, results, setResults }) => {
+const DashboardPop = ({ setDashopop, users, TotalActivity, setResults }) => {
     const [turnover, setTurnover] = useState('');
     const [capex, setCapex] = useState('');
     const [opex, setOpex] = useState('');

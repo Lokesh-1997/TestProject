@@ -37,7 +37,7 @@ function Reports() {
         };
         fetchUsers();
     }, []);
-    console.log(users);
+
 
 
     const ChartDetails = [
@@ -70,6 +70,31 @@ function Reports() {
             notEligibleValue: 0
         }
     ];
+
+
+    useEffect(() => {
+        const fetchResults = async () => {
+            const email = localStorage.getItem('email');
+            try {
+                const response = await fetch(`https://confess-data-tool-backend.vercel.app/api/dashboard`);
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);
+                    // const userResults = data.filter(result => result.Email === email);
+                    setResults(data);
+                } else {
+                    console.error('Failed to fetch results');
+                }
+            } catch (error) {
+                console.error('Error fetching results:', error);
+            }
+        };
+        fetchResults();
+    }, []);
+
+
+
+    console.log(results);
 
     const TotalActivity = results.length
 
@@ -157,7 +182,7 @@ function Reports() {
 
 
                 <section>
-                    {results.map((value, index) => {
+                    {/* {results.map((value, index) => {
                         const filteredAnswers = value.answers.filter(answer => answer.questionType !== "Blank");
                         const SubstentialContribution = filteredAnswers.filter(answer => answer.questionCategory === 'Substantial Contribution');
                         const DNSHAdaption = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Adaptation');
@@ -219,7 +244,7 @@ function Reports() {
                                 </div>
                             </div>
                         );
-                    })}
+                    })} */}
                 </section>
 
                 {Dashopop && <DashboardPop totalTurnover={totalTurnover} totalCapex={totalCapex} totalOpex={totalOpex} TotalActivity={TotalActivity} setDashopop={setDashopop} users={users} />}
@@ -240,8 +265,6 @@ const DashboardPop = ({ setDashopop, users }) => {
 
 
     const navigate = useNavigate();
-
-    console.log(users);
 
     const closeThePop = () => {
         setDashopop(false);

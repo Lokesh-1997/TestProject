@@ -162,7 +162,7 @@ const EditDetails = ({ examName, examCategory, assessmentId }) => {
     const handleSave = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`https://confess-data-tool-backend.vercel.app/${assessmentId}`, {
+            const response = await fetch(`https://confess-data-tool-backend.vercel.app/api/assessments/${assessmentId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -174,12 +174,14 @@ const EditDetails = ({ examName, examCategory, assessmentId }) => {
                 alert('Assessment updated successfully');
                 navigate('/assessment');
             } else {
-                console.error('Failed to update assessment');
+                const errorData = await response.json();
+                console.error('Failed to update assessment:', errorData.message);
             }
         } catch (error) {
             console.error('Error updating assessment:', error);
         }
     };
+
 
     return (
         <>

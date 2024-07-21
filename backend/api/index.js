@@ -91,6 +91,7 @@ const Admin = mongoose.model('Admin', adminSchema);
 const Assessment = mongoose.model('Assessment', new mongoose.Schema({
     examName: String,
     examCategory: String,
+    language: String,
     questions: [
         {
             questionID: String,
@@ -253,12 +254,12 @@ app.post('/api/admin/login', async (req, res) => {
 
 // POST route to create an assessment
 app.post('/api/assessments', async (req, res) => {
-    const { examName, examCategory } = req.body;
-    if (!examName || !examCategory) {
-        return res.status(400).send('Exam Name and Exam Category are required');
+    const { examName, examCategory, language } = req.body; // Include language in the destructuring
+    if (!examName || !examCategory || !language) {
+        return res.status(400).send('Exam Name, Exam Category, and Language are required');
     }
     try {
-        const newAssessment = new Assessment({ examName, examCategory });
+        const newAssessment = new Assessment({ examName, examCategory, language }); // Include language in the new assessment
         await newAssessment.save();
         res.status(201).send('Assessment created successfully');
     } catch (error) {
@@ -266,6 +267,7 @@ app.post('/api/assessments', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
 
 // GET route to fetch all assessments
 app.get('/api/assessments', async (req, res) => {

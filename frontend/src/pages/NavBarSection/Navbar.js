@@ -69,48 +69,100 @@ function NavSection() {
     };
 
 
-    return (
-        <nav className="navbar navbar-expand-lg darkmode">
+    return (<>
+        <nav className="navbar navbar-expand-lg bg-dark">
             <div className="container">
-                <a className="navbar-brand Landing-main" href="#">
-                    <img src={LogoLight} alt='logo' />
+                <a className="navbar-brand" href="/landing">
+                    <img src={LogoLight} alt='logo' width={200} />
                 </a>
-                <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <button className="navbar-toggler btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-expanded="false" aria-label="Toggle navigation">
                     <span className="navbar-toggler-icon"></span>
                 </button>
-                <div className="collapse navbar-collapse" id="navbarNav">
-                    <div className='d-flex justify-content-around align-items-center w-100'>
-                        <div>
-                            <ul className="navbar-nav">
-                                <li className="nav-item">
-                                    <a className="nav-link active" aria-current="page" href="/landing">Home</a>
-                                </li>
-                                <li className="nav-item">
-                                    <a className="nav-link" href="/reports">Dashboard</a>
-                                </li>
-                                {currentUser?.role === 'admin' && (
-                                    <>
-                                        <li className="nav-item">
-                                            <a className="nav-link" href="/assessment">Assessments</a>
-                                        </li>
-                                        <li className="nav-item">
-                                            <a className="nav-link" href="/results">Reports</a>
-                                        </li>
-                                    </>
-                                )}
-                            </ul>
-                        </div>
-                        <div>
-                            <ul className='navbar-nav'>
-                                <li className="nav-item">
-                                    <button className="nav-link btn btn-link" onClick={handleLogout}>Logout</button>
-                                </li>
-                            </ul>
-                        </div>
+                {/* Toggle menu */}
+                <div className="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+                    <div className="offcanvas-header">
+                        <h5 className="offcanvas-title" id="offcanvasNavbarLabel">Confess-data-tool-Menu</h5>
+                        <button type="button" className="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                    <div className="offcanvas-body">
+                        <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
+                            <li className="nav-item">
+                                <a className="dropdown-item" aria-current="page" href="/landing">Home</a>
+                            </li>
+                            <li className="nav-item">
+                                <a className="dropdown-item" href="/reports">Dashboard</a>
+                            </li>
+                            {currentUser?.role === 'admin' && (
+                                <>
+                                    <li className="nav-item">
+                                        <a className="dropdown-item" href="/assessment">Assessments</a>
+                                    </li>
+                                    <li className="nav-item">
+                                        <a className="dropdown-item" href="/results">Reports</a>
+                                    </li>
+                                </>
+                            )}
+                            <li className="nav-item dropdown">
+                                <a className="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Language
+                                </a>
+                                <ul className="dropdown-menu">
+                                    <li className="nav-item">
+                                        <a className="dropdown-item" href="#">English</a>
+                                    </li>
+                                    <li className="nav-item">
+                                        <a className="dropdown-item" href="#">German</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li className="nav-item">
+                                <a className="dropdown-item logout-btn" onClick={handleLogout}>Logout</a>
+                            </li>
+                        </ul>
+
                     </div>
                 </div>
+                {/* Normal menu */}
+                <div className="d-none d-lg-block">
+                    <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li className="nav-item">
+                            <a className="nav-link active" aria-current="page" href="/landing">Home</a>
+                        </li>
+                        <li className="nav-item">
+                            <a className="nav-link" href="/reports">Dashboard</a>
+                        </li>
+                        {currentUser?.role === 'admin' && (
+                            <>
+                                <li className="nav-item">
+                                    <a className="nav-link" href="/assessment">Assessments</a>
+                                </li>
+                                <li className="nav-item">
+                                    <a className="nav-link" href="/results">Reports</a>
+                                </li>
+                            </>
+                        )}
+                        <li className="nav-item dropdown">
+                            <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Language
+                            </a>
+                            <ul className="dropdown-menu">
+                                <li><a className="dropdown-item" href="#">English</a></li>
+                                <li><a className="dropdown-item" href="#">German</a></li>
+                            </ul>
+                        </li>
+                        <li className="nav-item">
+                            <a className="dropdown-item logout-btn" onClick={handleLogout}>Logout</a>
+                        </li>
+                    </ul>
+
+                </div>
+
             </div>
         </nav>
+
+
+
+    </>
     );
 }
 

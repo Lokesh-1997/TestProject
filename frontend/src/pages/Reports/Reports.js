@@ -167,7 +167,6 @@ function Reports() {
                             </div>
                         );
                     })}
-
                 </section>
 
                 <div className="card card-reports mt-5">

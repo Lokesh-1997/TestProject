@@ -631,12 +631,14 @@ app.get('/api/dashboard', async (req, res) => {
 // PUT route to update user financial data
 app.put('/api/users/:id/financial-data', async (req, res) => {
     const { id } = req.params;
-    const { totalTurnover, totalCapex, totalOpex, totalActivity } = req.body;
+    const { totalTurnover, totalCapex, totalOpex } = req.body;
+
+    console.log("Received PUT request with data:", { id, totalTurnover, totalCapex, totalOpex });
 
     try {
         const updatedUser = await User.findByIdAndUpdate(
             id,
-            { totalTurnover, totalCapex, totalOpex, totalActivity },
+            { totalTurnover, totalCapex, totalOpex },
             { new: true }
         );
 

@@ -101,7 +101,7 @@ function Reports() {
 
 
 
-    const TotalActivity = results.length
+    const TotalActivity = DashResult.length
 
 
 
@@ -252,7 +252,7 @@ function Reports() {
                     })}
                 </section>
 
-                {Dashopop && <DashboardPop totalTurnover={totalTurnover} totalCapex={totalCapex} totalOpex={totalOpex} TotalActivity={TotalActivity} setDashopop={setDashopop} users={users} />}
+                {Dashopop && <DashboardPop setResults={setResults} totalTurnover={totalTurnover} totalCapex={totalCapex} totalOpex={totalOpex} TotalActivity={TotalActivity} setDashopop={setDashopop} users={users} />}
             </section>
 
         </div >
@@ -264,24 +264,26 @@ export default Reports;
 
 
 
-const DashboardPop = ({ setDashopop, users, setResults }) => {
+const DashboardPop = ({ setDashopop, users, setTotalTurnover, TotalActivity, setTotalOpex, results, setResults }) => {
     const [turnover, setTurnover] = useState('');
     const [capex, setCapex] = useState('');
     const [opex, setOpex] = useState('');
-    const [totalact, setTotalact] = useState('');
+
 
     useEffect(() => {
         if (users) {
             setTurnover(users.totalTurnover);
             setCapex(users.totalCapex);
             setOpex(users.totalOpex);
-            setTotalact(users.totalActivity);
         }
     }, [users]);
 
     const navigate = useNavigate();
 
- 
+    const closeThePop = () => {
+        setDashopop(false);
+    };
+
     const GoHome = () => {
         navigate('/landing');
     };
@@ -290,13 +292,14 @@ const DashboardPop = ({ setDashopop, users, setResults }) => {
         e.preventDefault();
 
         const updatedData = {
-            totalTurnover: turnover,
-            totalCapex: capex,
-            totalOpex: opex,
-            totalActivity: totalact
+            totalTurnover: parseFloat(turnover),
+            totalCapex: parseFloat(capex),
+            totalOpex: parseFloat(opex),
+
         };
 
         try {
+            console.log("Sending updated data:", updatedData);
             const response = await fetch(`https://confess-data-tool-backend.vercel.app/api/users/${users._id}/financial-data`, {
                 method: 'PUT',
                 headers: {
@@ -307,6 +310,7 @@ const DashboardPop = ({ setDashopop, users, setResults }) => {
 
             if (response.ok) {
                 const updatedUser = await response.json();
+                console.log("Received response:", updatedUser);
                 setResults(updatedUser); // Update results with the updated user data
                 setDashopop(false); // Close the modal on successful update
             } else {
@@ -359,12 +363,12 @@ const DashboardPop = ({ setDashopop, users, setResults }) => {
                             <label>Total OpEx <span className='text-danger'>*</span></label>
                             <FontAwesomeIcon icon={faEuroSign} className='euro-signs' />
                         </div>
-                        <div className={`input-wraps-dash ${totalact ? 'has-values' : ''}`}>
+                        <div className={`input-wraps-dash ${TotalActivity ? 'has-values' : ''}`}>
                             <input
                                 type='number'
                                 className='input-totalact'
-                                value={totalact}
-                                onChange={(e) => setTotalact(parseFloat(e.target.value) || 0)}
+                                value={TotalActivity}
+
                             />
                             <label>Total Activities <span className='text-danger'>*</span></label>
                         </div>
@@ -378,7 +382,6 @@ const DashboardPop = ({ setDashopop, users, setResults }) => {
         </div>
     );
 };
-
 
 
 

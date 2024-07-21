@@ -308,11 +308,11 @@ app.get('/api/assessments/:id', async (req, res) => {
 
 // PUT route to update an assessment
 app.put('/api/assessments/:id', async (req, res) => {
-    const { examName, examCategory } = req.body;
+    const { examName, examCategory, language } = req.body;
     try {
         const assessment = await Assessment.findByIdAndUpdate(
             req.params.id,
-            { examName, examCategory },
+            { examName, examCategory, language },
             { new: true }
         );
         if (!assessment) {

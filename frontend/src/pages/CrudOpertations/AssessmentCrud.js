@@ -62,6 +62,7 @@ function AssessmentCrud() {
                         <tr className="Crud-thead-wrapper">
                             <th scope="col" className='text-start'>Name</th>
                             <th scope="col">Category</th>
+                            <th scope="col">Language</th>
                             <th scope="col">Action</th>
                         </tr>
                     </thead>
@@ -70,6 +71,7 @@ function AssessmentCrud() {
                             <tr key={assessment._id}>
                                 <td className='w-75 text-start'>{assessment.examName}</td>
                                 <td>{assessment.examCategory}</td>
+                                <td>{assessment.language}</td>
                                 <td>
                                     <FontAwesomeIcon
                                         onClick={() => handleUpdate(assessment)}

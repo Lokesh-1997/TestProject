@@ -104,7 +104,7 @@ function UpdateAssessment() {
                     <button className={question ? 'active' : ''} onClick={showQuestions}>Questions</button>
                 </section>
 
-                {exam && <EditDetails examName={assessment.examName} examCategory={assessment.examCategory} assessmentId={assessment._id} />}
+                {exam && <EditDetails examName={assessment.examName} examCategory={assessment.examCategory} languageselected={assessment.language} assessmentId={assessment._id} />}
                 {question &&
                     <>
                         <div className='d-flex container justify-content-end'>
@@ -151,9 +151,10 @@ function UpdateAssessment() {
 
 export default UpdateAssessment;
 
-const EditDetails = ({ examName, examCategory, assessmentId }) => {
+const EditDetails = ({ examName, examCategory, languageselected, assessmentId }) => {
     const [name1, setName1] = useState(examName);
     const [name2, setName2] = useState(examCategory);
+    const [language, setLanguage] = useState(languageselected);
     const navigate = useNavigate();
 
     const clearInput1 = () => setName1('');
@@ -167,7 +168,7 @@ const EditDetails = ({ examName, examCategory, assessmentId }) => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ examName: name1, examCategory: name2 }),
+                body: JSON.stringify({ examName: name1, examCategory: name2, language: language }),
             });
 
             if (response.ok) {
@@ -203,6 +204,7 @@ const EditDetails = ({ examName, examCategory, assessmentId }) => {
                             )}
                         </div>
 
+
                         <div className={`input-wrap ${name2 ? 'has-value' : ''}`}>
                             <input
                                 type='text'
@@ -218,6 +220,17 @@ const EditDetails = ({ examName, examCategory, assessmentId }) => {
                             )}
                         </div>
 
+                        <div className={`input-wrap ${language ? 'has-value' : ''}`}>
+                            <select className='input3' value={language} onChange={(e) => setLanguage(e.target.value)}>
+                                <option className='d-none text-secondary' value=""></option>
+                                <option value="English">English</option>
+                                <option value="German">German</option>
+                            </select>
+                            <label className='text-secondary'>Language <span className='text-danger'>*</span></label>
+                        </div>
+
+
+
                         <div className='d-flex justify-content-between mt-3'>
                             <button type="button" onClick={() => navigate('/assessment')} className='btn-cancel'>Cancel</button>
                             <button type="submit" className='btn-Create'>Save</button>
@@ -229,6 +242,9 @@ const EditDetails = ({ examName, examCategory, assessmentId }) => {
         </>
     );
 };
+
+
+
 
 const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuestion }) => {
     const { id } = useParams();

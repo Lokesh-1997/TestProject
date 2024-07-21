@@ -33,6 +33,7 @@ const NavSection = () => {
     const [admins, setAdmins] = useState([]);
     const [currentUser, setCurrentUser] = useState(null);
     const [currentLanguage, setCurrentLanguage] = useState(localStorage.getItem('language') || 'english');
+    const [loading, setLoading] = useState(true); // Add loading state
 
     const fetchUsers = useCallback(async () => {
         try {
@@ -63,8 +64,12 @@ const NavSection = () => {
     }, []);
 
     useEffect(() => {
-        fetchUsers();
-        fetchAdmins();
+        const fetchData = async () => {
+            await fetchUsers();
+            await fetchAdmins();
+            setLoading(false); // Set loading to false after data is fetched
+        };
+        fetchData();
     }, [fetchUsers, fetchAdmins]);
 
     useEffect(() => {
@@ -120,7 +125,7 @@ const NavSection = () => {
                                 <li className="nav-item">
                                     <a className="dropdown-item" href="/reports">{currentLanguage === 'english' ? 'Dashboard' : 'Armaturenbrett'}</a>
                                 </li>
-                                {currentUser?.role === 'admin' && <UserLinks />}
+                                {!loading && currentUser?.role === 'admin' && <UserLinks />} {/* Show UserLinks only after loading */}
                                 <LanguageSelector changeLanguage={changeLanguage} currentLanguage={currentLanguage} />
                                 <li className="nav-item">
                                     <a className="dropdown-item logout-btn" onClick={handleLogout}>{currentLanguage === 'english' ? 'Logout' : 'Abmelden'}</a>
@@ -138,7 +143,7 @@ const NavSection = () => {
                             <li className="nav-item">
                                 <a className="nav-link" href="/reports">{currentLanguage === 'english' ? 'Dashboard' : 'Armaturenbrett'}</a>
                             </li>
-                            {currentUser?.role === 'admin' && <UserLinks />}
+                            {!loading && currentUser?.role === 'admin' && <UserLinks />} {/* Show UserLinks only after loading */}
                             <LanguageSelector changeLanguage={changeLanguage} currentLanguage={currentLanguage} />
                             <li className="nav-item">
                                 <a className="dropdown-item logout-btn" onClick={handleLogout}>{currentLanguage === 'english' ? 'Logout' : 'Abmelden'}</a>

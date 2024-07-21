@@ -223,8 +223,8 @@ const EditDetails = ({ examName, examCategory, languageselected, assessmentId })
                         <div className={`input-wrap ${language ? 'has-value' : ''}`}>
                             <select className='input3' value={language} onChange={(e) => setLanguage(e.target.value)}>
                                 <option className='d-none text-secondary' value=""></option>
-                                <option value="English">English</option>
-                                <option value="German">German</option>
+                                <option value="english">English</option>
+                                <option value="german">German</option>
                             </select>
                             <label className='text-secondary'>Language <span className='text-danger'>*</span></label>
                         </div>

@@ -255,7 +255,7 @@ function AssessmentPage() {
                             const optionValue = option.split('#');
 
                             return (
-                                <div key={index} className='fs-5'>
+                                <div key={index} className='fs-6'>
                                     <input
                                         type="checkbox"
                                         className='m-1 form-check-input'

@@ -22,6 +22,7 @@ const translations = {
 const LandingPage = () => {
     const [assessments, setAssessments] = useState([]);
     const [currentLanguage, setCurrentLanguage] = useState(localStorage.getItem('language') || 'english');
+    const [selectedCategory, setSelectedCategory] = useState('All');
     const navigate = useNavigate();
 
     const fetchAssessments = useCallback(async () => {
@@ -55,6 +56,19 @@ const LandingPage = () => {
 
     const lang = translations[currentLanguage];
 
+    // Filter assessments based on the selected language
+    const filteredAssessments = assessments.filter(
+        assessment => assessment.language === currentLanguage
+    );
+
+    // Get unique categories from filtered assessments
+    const uniqueCategories = ['All', ...new Set(filteredAssessments.map(assessment => assessment.examCategory))];
+
+    // Further filter assessments based on selected category
+    const categoryFilteredAssessments = selectedCategory === 'All'
+        ? filteredAssessments
+        : filteredAssessments.filter(assessment => assessment.examCategory === selectedCategory);
+
     return (
         <div className='mt-5 d-flex justify-content-center align-items-center landing-page'>
             <section className='landing-main'>
@@ -63,8 +77,22 @@ const LandingPage = () => {
                     <FontAwesomeIcon icon={faInfoCircle} /> {lang.description}
                 </h5>
 
+                {/* Category buttons */}
+                <div className='category-nav mt-5 text-start'>
+                    {uniqueCategories.map(category => (
+                        <button
+                            key={category}
+                            className={`nav-button ${selectedCategory === category ? 'active' : ''}`}
+                            onClick={() => setSelectedCategory(category)}
+                        >
+                            {category}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Assessments cards */}
                 <div className='cards-main'>
-                    {assessments.map((assessment) => (
+                    {categoryFilteredAssessments.map((assessment) => (
                         <div className="card" key={assessment._id}>
                             <div className='card-body'>
                                 <h5 className="card-text">{assessment.examName}</h5>

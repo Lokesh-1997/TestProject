@@ -69,7 +69,7 @@ function AssessmentCrud() {
                     <tbody>
                         {assessments.map((assessment) => (
                             <tr key={assessment._id}>
-                                <td className='w-75 text-start'>{assessment.examName}</td>
+                                <td className='w-50 text-start'>{assessment.examName}</td>
                                 <td>{assessment.examCategory}</td>
                                 <td>{assessment.language}</td>
                                 <td>

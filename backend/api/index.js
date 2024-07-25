@@ -461,11 +461,11 @@ app.post('/api/results/submitresults', async (req, res) => {
             if (question) {
                 // Update totals based on question category
                 if (answer.questionCategory === 'Turnover') {
-                    totalTurnover += parseFloat(answer.answer);
+                    totalTurnover += parseFloat(answer.answer) || 0;
                 } else if (answer.questionCategory === 'CapEx') {
-                    totalCapex += parseFloat(answer.answer);
+                    totalCapex += parseFloat(answer.answer) || 0;
                 } else if (answer.questionCategory === 'OpEx') {
-                    totalOpex += parseFloat(answer.answer);
+                    totalOpex += parseFloat(answer.answer) || 0;
                 }
 
                 return {

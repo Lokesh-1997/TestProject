@@ -230,6 +230,14 @@ function AssessmentPage() {
                     };
                 }
             });
+
+            console.log('Sending data to backend:', {
+                examName,
+                examCategory,
+                userEmail,
+                answers: formattedAnswers,
+                questionIDs: uniqueQuestionIDs
+            });
             // Send the data to the backend
             const response = await fetch('https://confess-data-tool-backend.vercel.app/api/results/submitresults', {
                 method: 'POST',
@@ -260,7 +268,7 @@ function AssessmentPage() {
                 return (
                     <>
                         {question.options.filter(option => option).map((option, index) => (
-                            <div key={index} className='fs-5'>
+                            <div key={index} className='fs-6'>
                                 <input
                                     type="radio"
                                     className='m-1 form-check-input'

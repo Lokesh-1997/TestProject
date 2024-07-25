@@ -117,6 +117,7 @@ function UpdateAssessment() {
                                         <th scope="col">Question ID</th>
                                         <th scope="col">Question</th>
                                         <th scope="col">Question Type</th>
+                                        <th scope="col">Question Category</th>
                                         <th scope="col">Next Questions</th>
                                         <th scope="col">Action</th>
                                     </tr>
@@ -127,6 +128,7 @@ function UpdateAssessment() {
                                             <td>{question.questionID}</td>
                                             <td>{question.question}</td>
                                             <td>{question.questionType}</td>
+                                            <td>{question.questionCategory}</td>
                                             <td>{question.nextQuestions}</td>
                                             <td>
                                                 <FontAwesomeIcon className='icon' icon={faPenToSquare} onClick={() => handleEditQuestion(question)} />

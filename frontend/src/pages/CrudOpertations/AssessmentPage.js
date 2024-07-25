@@ -231,13 +231,6 @@ function AssessmentPage() {
                 }
             });
 
-            console.log('Sending data to backend:', {
-                examName,
-                examCategory,
-                userEmail,
-                answers: formattedAnswers,
-                questionIDs: uniqueQuestionIDs
-            });
             // Send the data to the backend
             const response = await fetch('https://confess-data-tool-backend.vercel.app/api/results/submitresults', {
                 method: 'POST',

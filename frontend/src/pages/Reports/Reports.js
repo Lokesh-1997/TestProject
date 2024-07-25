@@ -55,6 +55,7 @@ function Reports() {
         fetchUsers();
     }, []);
 
+
     const ChartDetails = [
         {
             title: currentLanguage === 'english' ? "Turnover" : "Umsatz",
@@ -108,12 +109,13 @@ function Reports() {
         };
         fetchResults();
     }, []);
-
-
-
     const DashResult = result.results || [];
     const TotalActivity = DashResult.length;
 
+
+
+
+  
     return (
         <div className='d-flex justify-content-center mt-5'>
             <section className='reports-main'>
@@ -175,6 +177,9 @@ function Reports() {
                             </div>
                         );
                     })}
+
+                  
+
                 </section>
 
                 <div className="card card-reports mt-5">

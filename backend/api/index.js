@@ -472,14 +472,14 @@ app.post('/api/results/submitresults', async (req, res) => {
                     questionID: answer.questionID,
                     questionCategory: answer.questionCategory,
                     questionType: answer.questionType,
-                    answer: answer.answer.includes(';') ? answer.answer.split(';').map(a => a.trim()) : [answer.answer.trim()],
+                    answer: answer.answer ? (answer.answer.includes(';') ? answer.answer.split(';').map(a => a.trim()) : [answer.answer.trim()]) : []
                 };
             } else {
                 console.error(`Question with ID ${answer.questionID} not found in the assessment.`);
                 return {
                     questionID: answer.questionID,
                     questionCategory: answer.questionCategory,
-                    answer: answer.answer.includes(';') ? answer.answer.split(';').map(a => a.trim()) : [answer.answer.trim()],
+                    answer: answer.answer ? (answer.answer.includes(';') ? answer.answer.split(';').map(a => a.trim()) : [answer.answer.trim()]) : []
                 };
             }
         });

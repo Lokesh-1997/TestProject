@@ -363,6 +363,7 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
                             <option value="Long Text">Long Text</option>
                             <option value="Numerical Value">Numerical Value</option>
                             <option value="Multiple Select">Multiple Select</option>
+                            <option value="Year">Fiscal Year</option>
                             <option value="Blank">Blank</option>
                         </select>
                         <label>Question Type <span className='text-danger'>*</span></label>
@@ -377,9 +378,11 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
                             <option value="DNSH - Water">DNSH - Water</option>
                             <option value="DNSH - CE">DNSH - CE</option>
                             <option value="DNSH - Pollution">DNSH - Pollution</option>
+                            <option value="Fiscal Year">Fiscal Year</option>
                             <option value="Turnover">Turnover</option>
                             <option value="CapEx">CapEx</option>
                             <option value="OpEx">OpEx</option>
+
                             <option value="Blank">Blank</option>
                         </select>
                         <label>Question Category <span className='text-danger'>*</span></label>

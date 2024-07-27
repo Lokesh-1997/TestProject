@@ -101,11 +101,6 @@ function Reports() {
     const FineaNotEligible = prevNotEligibleRef.current;
 
     console.log(FinalAligned);
-    console.log(FinalNotAligned);
-    console.log(FineaNotEligible);
-
-
-    // const ChartDetails = [FinalAligned, FinalNotAligned, FineaNotEligible]
 
     const AlignedturnoverAnswers = FinalAligned.map(item =>
         item.answers.find(answer => answer.questionCategory === 'Turnover')
@@ -215,6 +210,8 @@ function Reports() {
 
                 <section className='section-card'>
                     {ChartDetails.map((value, index) => {
+
+
                         // Calculate percentages
                         const total = value.alignedValue + value.notAlignedButEligibleValue + value.notEligibleValue;
                         const alignedPercentage = (value.alignedValue / total) * 100;
@@ -227,13 +224,15 @@ function Reports() {
                                     <div className="card-body text-start">
                                         <h3>{value.title}</h3>
                                         <p className="card-title">{value.topic}</p>
+
                                         <div className="circle m-4">
                                             <div className="circle-progress"
                                                 style={{
-                                                    background: `conic-gradient(#394D2C 0% ${alignedPercentage}%, #6CC784 ${alignedPercentage}% ${alignedPercentage + notAlignedButEligiblePercentage}%, #C4C4C4 ${alignedPercentage + notAlignedButEligiblePercentage}% 100%)`
+                                                    background: `conic-gradient(#6CC784 0% ${alignedPercentage}%,  #394D2C ${alignedPercentage}% ${alignedPercentage + notAlignedButEligiblePercentage}%, #C4C4C4 ${alignedPercentage + notAlignedButEligiblePercentage}% 100%)`
                                                 }}>
                                             </div>
                                         </div>
+
                                         <div className='row d-flex flex-column justify-content-between align-items-center'>
                                             <div className='col d-flex justify-content-between'>
                                                 <p>{currentLanguage === 'english' ? 'Aligned' : 'Ausrichtung'}</p>
@@ -255,6 +254,7 @@ function Reports() {
                     })}
                 </section>
 
+
                 <div className="card card-reports mt-5">
                     <div className="card-header text-start">
                         <h3 className='fw-light'>{currentLanguage === 'english' ? 'Activities in Detail' : 'Aktivitäten im Detail'}</h3>
@@ -273,7 +273,7 @@ function Reports() {
                     </div>
                 </div>
 
-                <section>
+                {/* <section>
 
                     {DashResult.map((value, index) => {
 
@@ -344,7 +344,6 @@ function Reports() {
                                 <div className='d-flex mx-3 mt-3 justify-content-between'>
                                     <p>{currentLanguage === 'english' ? 'Substantial Contribution (Climate Change Mitigation)' : 'Substanzielle Beiträge (Klimaschutz)'}</p>
                                     <span className={AllSubstential ? 'darkgreen-dot mx-4' : 'orange-dot mx-4'}></span>
-                                    {/* <span className={AllSubstential.length > 0 ? (AllSubstential ? 'darkgrey-dot mx-4' : 'darkgrey-dot mx-4') : 'white-dot mx-4'}></span> */}
                                 </div>
                                 <p className="mx-3 mt-4">{currentLanguage === 'english' ? 'Do No Significant Harm' : 'Keine wesentlichen Schäden'}</p>
                                 <div className='d-flex mx-3 mt-2 justify-content-between'>
@@ -371,9 +370,13 @@ function Reports() {
                         );
                     })}
 
-                </section>
+                </section> */}
+
+
+                {<DashActivity currentLanguage={currentLanguage} DashResult={DashResult} alignedValue={alignedValue} notAlignedButEligibleValue={notAlignedButEligibleValue} NotEligible={NotEligible} />}
 
                 {Dashopop && <DashboardPop setResults={setResults} totalTurnover={totalTurnover} totalCapex={totalCapex} totalOpex={totalOpex} TotalActivity={TotalActivity} setDashopop={setDashopop} users={users} />}
+
             </section>
         </div>
     );
@@ -385,7 +388,7 @@ export default Reports;
 
 
 
-const DashboardPop = ({ setDashopop, users, TotalActivity, setResults }) => {
+const DashboardPop = ({ setDashopop, users, TotalActivity, setResults, }) => {
     const [turnover, setTurnover] = useState('');
     const [capex, setCapex] = useState('');
     const [opex, setOpex] = useState('');
@@ -604,6 +607,171 @@ const DashboardPop = ({ setDashopop, users, TotalActivity, setResults }) => {
         </div>
     );
 };
+
+
+
+const DashActivity = ({ DashResult, currentLanguage, alignedValue, notAlignedButEligibleValue, NotEligible }) => {
+    const [selectedFiscalYear, setSelectedFiscalYear] = useState('All');
+    // Handler for changing the fiscal year
+    const handleFiscalYearChange = (event) => {
+        setSelectedFiscalYear(event.target.value);
+    };
+
+    // Function to get unique fiscal years from the data
+    const getUniqueFiscalYears = () => {
+        if (!Array.isArray(DashResult)) {
+            return []; // Return an empty array if DashResult is not an array
+        }
+
+        const fiscalYears = DashResult.flatMap(value => {
+            if (!Array.isArray(value?.answers)) {
+                return []; // Return an empty array if value.answers is not an array
+            }
+
+            return value.answers
+                .filter(answer => answer.questionType !== "Blank")
+                .filter(answer => answer.questionCategory === 'Fiscal Year')
+                .flatMap(answer => answer.answer || []); // Default to empty array if answer.answer is undefined
+        });
+
+        return Array.from(new Set(fiscalYears)); // Remove duplicates
+    };
+
+    // Function to filter DashResult based on the selected fiscal year
+    const getFilteredDashResult = () => {
+        if (selectedFiscalYear === 'All') {
+            return DashResult;
+        }
+
+        if (!Array.isArray(DashResult)) {
+            return []; // Ensure DashResult is an array
+        }
+
+        return DashResult.filter(value => {
+            const filteredAnswers = Array.isArray(value?.answers) ? value.answers.filter(answer => answer.questionType !== "Blank") : [];
+            const FiscalYear = filteredAnswers.filter(answer => answer.questionCategory === 'Fiscal Year');
+            return FiscalYear.some(answer => answer.answer.includes(selectedFiscalYear));
+        });
+    };
+
+    // Get filtered data based on the selected fiscal year
+    const filteredDashResult = getFilteredDashResult();
+
+    return (
+        <section>
+
+            <div className='mt-5'>
+                <h5 className='text-start'>Filter with Fiscal year</h5>
+                <select className="form-select select-year" aria-label="Default select example" onChange={handleFiscalYearChange} value={selectedFiscalYear}>
+                    <option selected value="All">All</option>
+                    {getUniqueFiscalYears().map((year, idx) => (
+                        <option key={idx} value={year}>{year}</option>
+                    ))}
+                </select>
+            </div>
+
+            {filteredDashResult.map((value, index) => {
+                const filteredAnswers = Array.isArray(value?.answers) ? value.answers.filter(answer => answer.questionType !== "Blank") : [];
+                const SubstentialContribution = filteredAnswers.filter(answer => answer.questionCategory === 'Substantial Contribution');
+                const DNSHAdaption = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Adaptation');
+                const DNSHce = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - CE');
+                const DNSHwater = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Water');
+                const DNSHpollution = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Pollution');
+                const DNSHbiodibersity = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Biodiversity');
+                const Turnover = filteredAnswers.filter(answer => answer.questionCategory === 'Turnover');
+                const Capex = filteredAnswers.filter(answer => answer.questionCategory === 'Capex');
+                const OpEx = filteredAnswers.filter(answer => answer.questionCategory === 'OpEx');
+
+                const AllSubstential = SubstentialContribution.length > 0 && SubstentialContribution.every(answer =>
+                    answer.answer.every(ans => ans.trim() !== "")
+                );
+                const AllDNSHAdaption = DNSHAdaption.length > 0 && DNSHAdaption.every(answer =>
+                    answer.answer.every(ans => ans.trim() !== "")
+                );
+                const AllDNSHce = DNSHce.length > 0 && DNSHce.every(answer =>
+                    answer.answer.every(ans => ans.trim() !== "")
+                );
+                const AllDNSHwater = DNSHwater.length > 0 && DNSHwater.every(answer =>
+                    answer.answer.every(ans => ans.trim() !== "")
+                );
+                const AllDNSHpollution = DNSHpollution.length > 0 && DNSHpollution.every(answer =>
+                    answer.answer.every(ans => ans.trim() !== "")
+                );
+                const AllDNSHbiodibersity = DNSHbiodibersity.length > 0 && DNSHbiodibersity.every(answer =>
+                    answer.answer.every(ans => ans.trim() !== "")
+                );
+                const AllTurnover = Turnover.length > 0 && Turnover.every(answer =>
+                    answer.answer.every(ans => ans.trim() !== "")
+                );
+                const AllCapex = Capex.length > 0 && Capex.every(answer =>
+                    answer.answer.every(ans => ans.trim() !== "")
+                );
+                const AllOpEx = OpEx.length > 0 && OpEx.every(answer =>
+                    answer.answer.every(ans => ans.trim() !== "")
+                );
+
+                const dotStatuses = [
+                    DNSHAdaption.length > 0 ? (AllDNSHAdaption ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
+                    DNSHwater.length > 0 ? (AllDNSHwater ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
+                    DNSHce.length > 0 ? (AllDNSHce ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
+                    DNSHpollution.length > 0 ? (AllDNSHpollution ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
+                    DNSHbiodibersity.length > 0 ? (AllDNSHbiodibersity ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
+                    Turnover.length > 0 ? (AllTurnover ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
+                    Capex.length > 0 ? (AllCapex ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
+                    OpEx.length > 0 ? (AllOpEx ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
+                ];
+
+
+                if (dotStatuses.every(status => status === 'white-dot')) {
+                    NotEligible.push(value);
+                } else if (dotStatuses.includes('orange-dot')) {
+                    notAlignedButEligibleValue.push(value);
+                } else if (!dotStatuses.includes('orange-dot')) {
+                    alignedValue.push(value);
+
+                }
+
+                return (
+                    <div key={value._id} className="card card-reports mt-5 text-start">
+                        <div className="card-header">
+                            <h3 className='fw-light'>
+                                {currentLanguage === 'english' ? `Activity ${index + 1} - ${value.examName}` : `Aktivität ${index + 1} - ${value.examName}`}
+                            </h3>
+                        </div>
+                        <div className='d-flex mx-3 mt-3 justify-content-between'>
+                            <p>{currentLanguage === 'english' ? 'Substantial Contribution (Climate Change Mitigation)' : 'Substanzielle Beiträge (Klimaschutz)'}</p>
+                            <span className={AllSubstential ? 'darkgreen-dot mx-4' : 'orange-dot mx-4'}></span>
+                        </div>
+                        <p className="mx-3 mt-4">{currentLanguage === 'english' ? 'Do No Significant Harm' : 'Keine wesentlichen Schäden'}</p>
+                        <div className='d-flex mx-3 mt-2 justify-content-between'>
+                            <p>{currentLanguage === 'english' ? 'Climate Change Adaptation' : 'Klimawandel-Anpassung'}</p>
+                            <span className={DNSHAdaption.length > 0 ? (AllDNSHAdaption ? 'darkgrey-dot mx-4' : 'darkgrey-dot mx-4') : 'white-dot mx-4'}></span>
+                        </div>
+                        <div className='d-flex mx-3 justify-content-between'>
+                            <p>{currentLanguage === 'english' ? 'Water and Marine Protection' : 'Wasser- und Meeresschutz'}</p>
+                            <span className={DNSHwater.length > 0 ? (AllDNSHwater ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'white-dot mx-4'}></span>
+                        </div>
+                        <div className='d-flex mx-3 justify-content-between'>
+                            <p>{currentLanguage === 'english' ? 'Circular Economy' : 'Kreislaufwirtschaft'}</p>
+                            <span className={DNSHce.length > 0 ? (AllDNSHce ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'white-dot mx-4'}></span>
+                        </div>
+                        <div className='d-flex mx-3 justify-content-between'>
+                            <p>{currentLanguage === 'english' ? 'Pollution Prevention' : 'Verschmutzungsprävention'}</p>
+                            <span className={DNSHpollution.length > 0 ? (AllDNSHpollution ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'white-dot mx-4'}></span>
+                        </div>
+                        <div className='d-flex mx-3 justify-content-between'>
+                            <p>{currentLanguage === 'english' ? 'Biodiversity' : 'Biodiversität'}</p>
+                            <span className={DNSHbiodibersity.length > 0 ? (AllDNSHbiodibersity ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'white-dot mx-4'}></span>
+                        </div>
+                    </div>
+                );
+            })}
+        </section>
+    );
+};
+
+
+
 
 
 

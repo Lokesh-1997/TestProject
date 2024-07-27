@@ -47,6 +47,7 @@ function AssessmentPage() {
         const newQuestionIDs = [];
         let addHello = false;
         let savedque = [];
+        let shouldProceed = true;
         currentQuestionIDs.forEach(id => {
             const currentQuestion = questions.find(q => q.questionID === id);
             const answer = answers[currentQuestion.questionID] || '';
@@ -62,6 +63,7 @@ function AssessmentPage() {
                 )
             ) {
                 alert(currentQuestion.alertText);
+                shouldProceed = false;
             }
 
             if (
@@ -116,27 +118,35 @@ function AssessmentPage() {
                 }
             }
         });
-        const nextQuestions = newQuestionIDs.map(id => questions.find(q => q.questionID === id));
-        setAllCurrentQuestions(prev => [...prev, ...nextQuestions.filter(Boolean)]);
 
-        setCurrentQuestionIDs(newQuestionIDs);
-        setQuestionHistory(prevHistory => [...prevHistory, newQuestionIDs]);
+        if (shouldProceed) { // Only proceed if no alert was shown
+            const nextQuestions = newQuestionIDs.map(id => questions.find(q => q.questionID === id));
+            setAllCurrentQuestions(prev => [...prev, ...nextQuestions.filter(Boolean)]);
 
-        if (addHello && newQuestionIDs.length > 0) {
-            const nextQuestionID = newQuestionIDs[0];
-            const nextQuestionIndex = questions.findIndex(q => q.questionID === nextQuestionID);
+            setCurrentQuestionIDs(newQuestionIDs);
+            setQuestionHistory(prevHistory => [...prevHistory, newQuestionIDs]);
 
-            if (nextQuestionIndex !== -1) {
-                const nextQuestion = questions[nextQuestionIndex];
-                const allValues = savedque.flatMap(item => item.split('¦').map(s => s.trim()));
-                const uniqueValues = Array.from(new Set(allValues));
-                const combinedSavedque = uniqueValues.map(item => `<li>${item}</li>`).join(' ');
-                nextQuestion.question = `${nextQuestion.question} ${combinedSavedque}`;
-                setQuestions([...questions]);
-                setSavedOptions('');
+            if (addHello && newQuestionIDs.length > 0) {
+                const nextQuestionID = newQuestionIDs[0];
+                const nextQuestionIndex = questions.findIndex(q => q.questionID === nextQuestionID);
+
+                if (nextQuestionIndex !== -1) {
+                    const nextQuestion = questions[nextQuestionIndex];
+                    const allValues = savedque.flatMap(item => item.split('¦').map(s => s.trim()));
+                    const uniqueValues = Array.from(new Set(allValues));
+                    const combinedSavedque = uniqueValues.map(item => `<li>${item}</li>`).join(' ');
+                    nextQuestion.question = `${nextQuestion.question} ${combinedSavedque}`;
+                    setQuestions([...questions]);
+                    setSavedOptions('');
+                }
             }
         }
+
+
+
     };
+
+
     const handlePreviousQuestion = () => {
         if (questionHistory.length > 1) {
             const newHistory = [...questionHistory];
@@ -327,6 +337,25 @@ function AssessmentPage() {
                         />
                     </div>
                 );
+            case 'Year':
+                return (
+                    <div className='numerical'>
+                        <input
+                            type="number"
+                            className='input-4 border-secondary text-secondary w-100'
+                            name={`question-${question.questionID}`}
+                            value={savedAnswer || ''}
+                            max="9999" // Ensure maximum year value is set
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                if (/^\d{0,4}$/.test(value)) { // Only allow up to 4 digits
+                                    handleAnswerChange(question.questionID, value);
+                                }
+                            }}
+                        />
+                    </div>
+                );
+
             default:
                 return null;
         }
@@ -339,8 +368,7 @@ function AssessmentPage() {
     return (
         <div className='assessment-page container mt-5 py-5'>
             <h4>{examName}</h4>
-            <h4>{excludedCategories.includes(currentCategory) ? '' : currentCategory}</h4>
-
+            {excludedCategories.includes(currentCategory) ? '' : <h4 className='container bg-secondary text-white p-2' style={{ borderRadius: "10px 10px 0px 0px" }}>{currentCategory}</h4>}
 
 
             {currentQuestions.map(question => (

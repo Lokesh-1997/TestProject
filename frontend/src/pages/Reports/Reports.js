@@ -17,6 +17,8 @@ function Reports() {
     const [currentLanguage, setCurrentLanguage] = useState(localStorage.getItem('language') || 'english');
     const navigate = useNavigate();
 
+    const [reloaddash, setreloaddash] = useState(false);
+
     const SaveLanguage = useCallback((language) => {
         if (currentLanguage !== language) {
             localStorage.setItem('language', language);
@@ -52,7 +54,10 @@ function Reports() {
             }
         };
         fetchUsers();
-    }, []);
+    }, [reloaddash]);
+
+
+    console.log(users.totalCapex);
 
     useEffect(() => {
         const fetchResults = async () => {
@@ -375,7 +380,7 @@ function Reports() {
 
                 {<DashActivity currentLanguage={currentLanguage} DashResult={DashResult} alignedValue={alignedValue} notAlignedButEligibleValue={notAlignedButEligibleValue} NotEligible={NotEligible} />}
 
-                {Dashopop && <DashboardPop setResults={setResults} totalTurnover={totalTurnover} totalCapex={totalCapex} totalOpex={totalOpex} TotalActivity={TotalActivity} setDashopop={setDashopop} users={users} />}
+                {Dashopop && <DashboardPop setreloaddash={setreloaddash} setResults={setResults} totalTurnover={totalTurnover} totalCapex={totalCapex} totalOpex={totalOpex} TotalActivity={TotalActivity} setDashopop={setDashopop} users={users} />}
 
             </section>
         </div>
@@ -388,7 +393,7 @@ export default Reports;
 
 
 
-const DashboardPop = ({ setDashopop, users, TotalActivity, setResults, }) => {
+const DashboardPop = ({ setDashopop, users, TotalActivity, setResults, setreloaddash }) => {
     const [turnover, setTurnover] = useState('');
     const [capex, setCapex] = useState('');
     const [opex, setOpex] = useState('');
@@ -495,6 +500,8 @@ const DashboardPop = ({ setDashopop, users, TotalActivity, setResults, }) => {
                 const updatedUser = await response.json();
                 setResults(updatedUser);
                 setDashopop(false);
+                setreloaddash(true)
+
             } else {
                 console.error('Failed to update data');
             }

@@ -297,7 +297,7 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
             disclaimer: name6,
             alertText: name7,
             notifytext: name8,
-            options: questionType === "MCQ" || questionType === "Multiple Select" ? options : [],
+            options: questionType === "MCQ" || questionType === "Multiple Select" || questionType === "Numerical Value" ? options : [],
             examName: examDetails.examName,
             examCategory: examDetails.examCategory
         };
@@ -332,7 +332,7 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
     };
 
 
-    const canAddOption = (questionType === "MCQ" && options.length < 4) || (questionType === "Multiple Select" && options.length < 10);
+    const canAddOption = (questionType === "MCQ" && options.length < 4) || (questionType === "Multiple Select" && options.length < 10) || (questionType === "Numerical Value" && options.length < 1);
 
     return (
         <section className='add-question-main'>
@@ -421,7 +421,7 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
                         </button>}
                     </div>
 
-                    {(questionType === "MCQ" || questionType === "Multiple Select") && (
+                    {(questionType === "MCQ" || questionType === "Multiple Select" || questionType === "Numerical Value") && (
                         <div className='msq-options'>
                             {options.map((option, index) => (
                                 <div className='d-flex m-1' key={index}>

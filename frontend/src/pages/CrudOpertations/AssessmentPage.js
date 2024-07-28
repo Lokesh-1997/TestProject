@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './AssessmentPage.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEuroSign } from '@fortawesome/free-solid-svg-icons';
+import { faEuroSign, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -90,24 +90,61 @@ function AssessmentPage() {
             }
 
 
-
-
             if (currentQuestion && currentQuestion.nextQuestions) {
                 if (currentQuestion.questionType === 'MCQ' && currentQuestion.options.includes('Yes') && currentQuestion.options.includes('No')) {
                     let selectedAnswer = answers[currentQuestion.questionID];
                     if (!selectedAnswer) {
                         selectedAnswer = 'Yes';
                     }
+
                     const nextQuestionsArray = currentQuestion.nextQuestions.split(',').map(q => q.trim());
+                    console.log('selectedAnswer:', selectedAnswer);
+                    console.log('nextQuestionsArray:', nextQuestionsArray);
+
                     if (selectedAnswer === 'Yes' && nextQuestionsArray.length >= 1) {
                         newQuestionIDs.push(nextQuestionsArray[0]);
-                    } else if (selectedAnswer === 'No' && nextQuestionsArray.length >= 2) {
+                        console.log("Next question for Yes:", nextQuestionsArray[0]);
+                    } else if (selectedAnswer === 'No' && nextQuestionsArray.length >= 1) {
                         newQuestionIDs.push(nextQuestionsArray[1]);
+                        console.log("Next question for No:", nextQuestionsArray[1]);
                     }
                 } else {
                     newQuestionIDs.push(...currentQuestion.nextQuestions.split(',').map(q => q.trim()));
                 }
             }
+
+
+
+            if (currentQuestion && currentQuestion.nextQuestions) {
+                if (currentQuestion.questionType === 'Numerical Value' && currentQuestion.options) {
+                    let GivenAnswer = answers[currentQuestion.questionID];
+
+                    if (!GivenAnswer) {
+                        GivenAnswer = 0;
+                    }
+                    GivenAnswer = Number(GivenAnswer);
+                    const threshold = Number(currentQuestion.options[0]);
+                    console.log(GivenAnswer);
+                    console.log(threshold);
+                    const nextQuestionsArray = currentQuestion.nextQuestions.split(',').map(q => q.trim());
+                    if (GivenAnswer < threshold && nextQuestionsArray.length >= 1) {
+                        newQuestionIDs.push(nextQuestionsArray[0]);
+                        console.log("Lower");
+                    } else if (GivenAnswer >= threshold && nextQuestionsArray.length >= 1) {
+                        newQuestionIDs.push(nextQuestionsArray[1]);
+                        console.log("Higher");
+                    }
+                } else {
+                    newQuestionIDs.push(...currentQuestion.nextQuestions.split(',').map(q => q.trim()));
+                }
+            }
+
+
+
+
+
+
+
             const prevQuestion = questions.find(q => q.questionID === id);
             if (prevQuestion && prevQuestion.questionType === 'Multiple Select') {
                 addHello = true; // Set flag to true to add Hello to the next question
@@ -414,3 +451,19 @@ function AssessmentPage() {
 }
 
 export default AssessmentPage;
+
+
+const Tooltip = ({ text, tooltipText }) => {
+    const [hover, setHover] = useState(false);
+
+    return (
+        <span
+            className="tooltip-container"
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+        >
+            {text}
+            {hover && <span className="tooltip">{tooltipText}</span>}
+        </span>
+    );
+};

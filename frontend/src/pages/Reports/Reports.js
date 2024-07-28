@@ -240,15 +240,15 @@ function Reports() {
 
                                         <div className='row d-flex flex-column justify-content-between align-items-center'>
                                             <div className='col d-flex justify-content-between'>
-                                                <p>{currentLanguage === 'english' ? 'Aligned' : 'Ausrichtung'}</p>
+                                                <p> <span className='green-dot'></span>{currentLanguage === 'english' ? 'Aligned' : 'Ausrichtung'}</p>
                                                 <p>{value.alignedValue} $ ({alignedPercentage.toFixed(1)}%)</p>
                                             </div>
                                             <div className='col d-flex justify-content-between'>
-                                                <p>{currentLanguage === 'english' ? 'Not aligned but eligible' : 'Nicht ausgerichtet, aber berechtigt'}</p>
+                                                <p><span className='grey-dot'></span> {currentLanguage === 'english' ? 'Not aligned but eligible' : 'Nicht ausgerichtet, aber berechtigt'}</p>
                                                 <p>{value.notAlignedButEligibleValue} $ ({notAlignedButEligiblePercentage.toFixed(1)}%)</p>
                                             </div>
                                             <div className='col d-flex justify-content-between'>
-                                                <p>{currentLanguage === 'english' ? 'Not eligible' : 'Nicht berechtigt'}</p>
+                                                <p><span className='dark-dot'></span>{currentLanguage === 'english' ? 'Not eligible' : 'Nicht berechtigt'}</p>
                                                 <p>{value.notEligibleValue} $ ({notEligiblePercentage.toFixed(1)}%)</p>
                                             </div>
                                         </div>
@@ -258,7 +258,6 @@ function Reports() {
                         );
                     })}
                 </section>
-
 
                 <div className="card card-reports mt-5">
                     <div className="card-header text-start">
@@ -277,106 +276,6 @@ function Reports() {
                         </div>
                     </div>
                 </div>
-
-                {/* <section>
-
-                    {DashResult.map((value, index) => {
-
-                        const filteredAnswers = value.answers.filter(answer => answer.questionType !== "Blank");
-                        const SubstentialContribution = filteredAnswers.filter(answer => answer.questionCategory === 'Substantial Contribution');
-                        const DNSHAdaption = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Adaptation');
-                        const DNSHce = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - CE');
-                        const DNSHwater = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Water');
-                        const DNSHpollution = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Pollution');
-                        const DNSHbiodibersity = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Biodiversity');
-                        const Turnover = filteredAnswers.filter(answer => answer.questionCategory === 'Turnover');
-                        const Capex = filteredAnswers.filter(answer => answer.questionCategory === 'Capex');
-                        const OpEx = filteredAnswers.filter(answer => answer.questionCategory === 'OpEx');
-
-                        const AllSubstential = SubstentialContribution.length > 0 && SubstentialContribution.every(answer =>
-                            answer.answer.every(ans => ans.trim() !== "")
-                        );
-                        const AllDNSHAdaption = DNSHAdaption.length > 0 && DNSHAdaption.every(answer =>
-                            answer.answer.every(ans => ans.trim() !== "")
-                        );
-                        const AllDNSHce = DNSHce.length > 0 && DNSHce.every(answer =>
-                            answer.answer.every(ans => ans.trim() !== "")
-                        );
-                        const AllDNSHwater = DNSHwater.length > 0 && DNSHwater.every(answer =>
-                            answer.answer.every(ans => ans.trim() !== "")
-                        );
-                        const AllDNSHpollution = DNSHpollution.length > 0 && DNSHpollution.every(answer =>
-                            answer.answer.every(ans => ans.trim() !== "")
-                        );
-                        const AllDNSHbiodibersity = DNSHbiodibersity.length > 0 && DNSHbiodibersity.every(answer =>
-                            answer.answer.every(ans => ans.trim() !== "")
-                        );
-                        const AllTurnover = DNSHbiodibersity.length > 0 && Turnover.every(answer =>
-                            answer.answer.every(ans => ans.trim() !== "")
-                        );
-                        const AllCapex = DNSHbiodibersity.length > 0 && Capex.every(answer =>
-                            answer.answer.every(ans => ans.trim() !== "")
-                        );
-                        const AllOpEx = DNSHbiodibersity.length > 0 && OpEx.every(answer =>
-                            answer.answer.every(ans => ans.trim() !== "")
-                        );
-
-                        const dotStatuses = [
-                            DNSHAdaption.length > 0 ? (AllDNSHAdaption ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
-                            DNSHwater.length > 0 ? (AllDNSHwater ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
-                            DNSHce.length > 0 ? (AllDNSHce ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
-                            DNSHpollution.length > 0 ? (AllDNSHpollution ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
-                            DNSHbiodibersity.length > 0 ? (AllDNSHbiodibersity ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
-                            Turnover.length > 0 ? (AllTurnover ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
-                            Capex.length > 0 ? (AllCapex ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
-                            OpEx.length > 0 ? (AllOpEx ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
-                        ];
-
-                        if (dotStatuses.every(status => status === 'white-dot')) {
-                            NotEligible.push(value);
-                        } else if (dotStatuses.includes('orange-dot')) {
-                            notAlignedButEligibleValue.push(value);
-                        } else if (!dotStatuses.includes('orange-dot')) {
-                            alignedValue.push(value);
-                        }
-
-
-                        return (
-                            <div key={value._id} className="card card-reports mt-5 text-start">
-                                <div className="card-header">
-                                    <h3 className='fw-light'>{currentLanguage === 'english' ? `Activity ${index + 1} - ${value.examName}` : `Aktivität ${index + 1} - ${value.examName}`}</h3>
-                                </div>
-                                <div className='d-flex mx-3 mt-3 justify-content-between'>
-                                    <p>{currentLanguage === 'english' ? 'Substantial Contribution (Climate Change Mitigation)' : 'Substanzielle Beiträge (Klimaschutz)'}</p>
-                                    <span className={AllSubstential ? 'darkgreen-dot mx-4' : 'orange-dot mx-4'}></span>
-                                </div>
-                                <p className="mx-3 mt-4">{currentLanguage === 'english' ? 'Do No Significant Harm' : 'Keine wesentlichen Schäden'}</p>
-                                <div className='d-flex mx-3 mt-2 justify-content-between'>
-                                    <p>{currentLanguage === 'english' ? 'Climate Change Adaptation' : 'Klimawandel-Anpassung'}</p>
-                                    <span className={DNSHAdaption.length > 0 ? (AllDNSHAdaption ? 'darkgrey-dot mx-4' : 'darkgrey-dot mx-4') : 'white-dot mx-4'}></span>
-                                </div>
-                                <div className='d-flex mx-3 justify-content-between'>
-                                    <p>{currentLanguage === 'english' ? 'Water and Marine Protection' : 'Wasser- und Meeresschutz'}</p>
-                                    <span className={DNSHwater.length > 0 ? (AllDNSHwater ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'white-dot mx-4'}></span>
-                                </div>
-                                <div className='d-flex mx-3 justify-content-between'>
-                                    <p>{currentLanguage === 'english' ? 'Circular Economy' : 'Kreislaufwirtschaft'}</p>
-                                    <span className={DNSHce.length > 0 ? (AllDNSHce ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'white-dot mx-4'}></span>
-                                </div>
-                                <div className='d-flex mx-3 justify-content-between'>
-                                    <p>{currentLanguage === 'english' ? 'Pollution Prevention' : 'Verschmutzungsprävention'}</p>
-                                    <span className={DNSHpollution.length > 0 ? (AllDNSHpollution ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'white-dot mx-4'}></span>
-                                </div>
-                                <div className='d-flex mx-3 justify-content-between'>
-                                    <p>{currentLanguage === 'english' ? 'Biodiversity' : 'Biodiversität'}</p>
-                                    <span className={DNSHbiodibersity.length > 0 ? (AllDNSHbiodibersity ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'white-dot mx-4'}></span>
-                                </div>
-                            </div>
-                        );
-                    })}
-
-                </section> */}
-
 
                 {<DashActivity currentLanguage={currentLanguage} DashResult={DashResult} alignedValue={alignedValue} notAlignedButEligibleValue={notAlignedButEligibleValue} NotEligible={NotEligible} />}
 
@@ -776,6 +675,8 @@ const DashActivity = ({ DashResult, currentLanguage, alignedValue, notAlignedBut
         </section>
     );
 };
+
+
 
 
 

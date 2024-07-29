@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import './Result.css';
 
 function Answers() {
     const { examName, examCategory } = useParams();
     const [questionAnswers, setQuestionAnswers] = useState([]);
-    const { email } = useParams();
+    const location = useLocation();
+    const email = new URLSearchParams(location.search).get('email'); // Get email from query params
 
     useEffect(() => {
-        fetch(`https://confess-data-tool-backend.vercel.app/api/results/${examName}/${examCategory}/answers/?email=${email}`)
+        fetch(`https://confess-data-tool-backend.vercel.app/api/results/${examName}/${examCategory}/answers?email=${email}`)
             .then(response => response.json())
             .then(data => setQuestionAnswers(data))
             .catch(error => console.error('Error fetching answers:', error));
-    }, [examName, examCategory]);
+    }, [examName, examCategory, email]);
+
     console.log(questionAnswers);
     return (
         <div>

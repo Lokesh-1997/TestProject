@@ -561,26 +561,36 @@ app.get('/api/results/:email/exams', async (req, res) => {
 // GET route to fetch answers for a specific exam
 app.get('/api/results/:examName/:examCategory/answers', async (req, res) => {
     const { examName, examCategory } = req.params;
+    const { email } = req.query; // Get the email from query parameters
+
     try {
-        const assessment = await Assessment.findOne({ examName, examCategory });
-        if (!assessment) {
-            return res.status(404).send('Assessment not found');
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
 
-        const results = await Result.find({ examName, examCategory });
+        const assessment = await Assessment.findOne({ examName, examCategory });
+        if (!assessment) {
+            return res.status(404).json({ message: 'Assessment not found' });
+        }
+
+        const results = await Result.find({ examName, examCategory, userId: user._id });
 
         const questionAnswers = results.map(result => {
-            const answers = result.answers.map(answer => ({
-                question: assessment.questions.find(q => q.questionID === answer.questionID)?.question || 'Question not found',
-                answer: answer.answer.join(', ') || 'Answer not found'
-            }));
+            const answers = result.answers.map(answer => {
+                const question = assessment.questions.find(q => q.questionID === answer.questionID)?.question;
+                return {
+                    question: question || null,
+                    answer: answer.answer.length > 0 ? answer.answer.join(', ') : null
+                };
+            }).filter(qa => qa.question && qa.answer); // Filter out entries with null values
             return answers;
         }).flat(); // Flattens the array of arrays into a single array
 
         res.json(questionAnswers);
     } catch (error) {
         console.error('Error fetching answers:', error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 

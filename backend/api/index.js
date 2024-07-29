@@ -561,19 +561,33 @@ app.get('/api/results/:email/exams', async (req, res) => {
 // GET route to fetch answers for a specific exam
 app.get('/api/results/:examName/:examCategory/answers', async (req, res) => {
     const { examName, examCategory } = req.params;
+    const { email } = req.query; // Get the email from query parameters
+
     try {
         const assessment = await Assessment.findOne({ examName, examCategory });
         if (!assessment) {
             return res.status(404).send('Assessment not found');
         }
 
-        const results = await Result.find({ examName, examCategory });
+        let query = { examName, examCategory };
+        if (email) {
+            const user = await User.findOne({ email });
+            if (!user) {
+                return res.status(404).send('User not found');
+            }
+            query.userId = user._id; // Add userId to the query if email is provided
+        }
+
+        const results = await Result.find(query);
 
         const questionAnswers = results.map(result => {
-            const answers = result.answers.map(answer => ({
-                question: assessment.questions.find(q => q.questionID === answer.questionID)?.question || 'Question not found',
-                answer: answer.answer.join(', ') || 'Answer not found'
-            }));
+            const answers = result.answers.map(answer => {
+                const question = assessment.questions.find(q => q.questionID === answer.questionID)?.question;
+                return {
+                    question: question || null,
+                    answer: answer.answer.length > 0 ? answer.answer.join(', ') : null
+                };
+            }).filter(qa => qa.question && qa.answer); // Filter out entries with null values
             return answers;
         }).flat(); // Flattens the array of arrays into a single array
 
@@ -583,6 +597,8 @@ app.get('/api/results/:examName/:examCategory/answers', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
+
 
 
 

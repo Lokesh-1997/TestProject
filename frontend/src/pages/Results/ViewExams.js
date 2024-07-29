@@ -15,9 +15,10 @@ function ViewExams() {
             .then(data => setExams(data))
             .catch(error => console.error('Error fetching exams:', error));
     }, [email]);
+    console.log(exams);
 
-    const GotoViewAnswer = (examName, examCategory) => {
-        navigate(`/answers/${examName}/${examCategory}?email=${email}`);
+    const GotoViewAnswer = (_id) => {
+        navigate(`/answers/${_id}`);
     };
 
     return (
@@ -36,7 +37,7 @@ function ViewExams() {
                             <tr key={index}>
                                 <td className='text-start'>{exam.examName}</td>
                                 <td>{exam.examCategory}</td>
-                                <td className='view-exam-icon' onClick={() => GotoViewAnswer(exam.examName, exam.examCategory)}>
+                                <td className='view-exam-icon' onClick={() => GotoViewAnswer(exam._id)}>
                                     <FontAwesomeIcon icon={faEye} /> View Answer
                                 </td>
                             </tr>

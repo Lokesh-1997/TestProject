@@ -7,7 +7,9 @@ function Answers() {
     const [questionAnswers, setQuestionAnswers] = useState([]);
     const location = useLocation();
     const email = new URLSearchParams(location.search).get('email'); // Get email from query params
-    const _id = new URLSearchParams(location.search).get('_id'); // Get _id from query params
+    const _id = new URLSearchParams(location.search).get('_id');
+
+    console.log(examCategory);
 
     useEffect(() => {
         if (_id) {
@@ -19,6 +21,8 @@ function Answers() {
             console.error('No _id provided');
         }
     }, [examName, examCategory, _id]);
+
+    console.log(questionAnswers);
 
     return (
         <div>

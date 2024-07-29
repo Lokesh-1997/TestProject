@@ -17,8 +17,8 @@ function ViewExams() {
     }, [email]);
     console.log(exams);
 
-    const GotoViewAnswer = (_id) => {
-        navigate(`/answers/${_id}`);
+    const GotoViewAnswer = (_id, examName, examCategory) => {
+        navigate(`/answers/${examName}/${examCategory}?_id=${_id}`);
     };
 
     return (
@@ -37,7 +37,7 @@ function ViewExams() {
                             <tr key={index}>
                                 <td className='text-start'>{exam.examName}</td>
                                 <td>{exam.examCategory}</td>
-                                <td className='view-exam-icon' onClick={() => GotoViewAnswer(exam._id)}>
+                                <td className='view-exam-icon' onClick={() => GotoViewAnswer(exam._id, exam.examName, exam.examCategory)}>
                                     <FontAwesomeIcon icon={faEye} /> View Answer
                                 </td>
                             </tr>

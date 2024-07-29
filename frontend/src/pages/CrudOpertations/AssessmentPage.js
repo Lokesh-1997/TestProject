@@ -108,6 +108,9 @@ function AssessmentPage() {
                         newQuestionIDs.push(nextQuestionsArray[1]);
                         console.log("Next question for No:", nextQuestionsArray[1]);
                     }
+                    else {
+                        newQuestionIDs.push(...currentQuestion.nextQuestions.split(',').map(q => q.trim()));
+                    }
                 }
 
                 else if (currentQuestion.questionType === 'Numerical Value' && currentQuestion.options) {
@@ -128,6 +131,10 @@ function AssessmentPage() {
                         newQuestionIDs.push(nextQuestionsArray[1]);
                         console.log("Higher");
                     }
+                    else {
+                        newQuestionIDs.push(...currentQuestion.nextQuestions.split(',').map(q => q.trim()));
+                    }
+
                 }
                 else {
                     newQuestionIDs.push(...currentQuestion.nextQuestions.split(',').map(q => q.trim()));

@@ -18,7 +18,7 @@ function ViewExams() {
     }, [email]);
 
     const GotoViewAnswer = () => {
-        navigate('/answers/${exam.examName}/${exam.examCategory}')
+        navigate('/answers/${exam.examName}/${exam.examCategory}?email=${email}')
     }
 
     return (

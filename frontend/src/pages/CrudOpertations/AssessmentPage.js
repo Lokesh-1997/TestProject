@@ -117,6 +117,25 @@ function AssessmentPage() {
                     }
                 }
 
+                else if (currentQuestion.questionType === 'MCQ' && currentQuestion.options.includes('Ja') && currentQuestion.options.includes('Nein')) {
+                    let selectedAnswer = answers[currentQuestion.questionID];
+
+                    const nextQuestionsArray = currentQuestion.nextQuestions.split(',').map(q => q.trim());
+                    console.log('selectedAnswer:', selectedAnswer);
+                    console.log('nextQuestionsArray:', nextQuestionsArray);
+
+                    if (selectedAnswer === 'Ja' && nextQuestionsArray.length >= 1) {
+                        newQuestionIDs.push(nextQuestionsArray[0]);
+                        console.log("Next question for Yes:", nextQuestionsArray[0]);
+                    } else if (selectedAnswer === 'Nein' && nextQuestionsArray.length >= 1) {
+                        newQuestionIDs.push(nextQuestionsArray[1]);
+                        console.log("Next question for No:", nextQuestionsArray[1]);
+                    }
+                    else {
+                        newQuestionIDs.push(...currentQuestion.nextQuestions.split(',').map(q => q.trim()));
+                    }
+                }
+
                 else if (currentQuestion.questionType === 'Numerical Value' && currentQuestion.options) {
                     let GivenAnswer = answers[currentQuestion.questionID];
 

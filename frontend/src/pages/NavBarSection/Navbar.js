@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LogoLight from "../../asset/logo_light.png";
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// import { faCircleUser, faEuroSign, faInfoCircle, faPerson, faUser } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleUser, faEuroSign, faInfoCircle, faPerson, faUser } from '@fortawesome/free-solid-svg-icons';
 import '../LandingPage.css';
 import './Navbar.css';
 
@@ -17,7 +17,6 @@ const LanguageSelector = ({ changeLanguage, currentLanguage }) => (
         </ul>
     </li>
 );
-
 
 const UserLinks = () => (
     <>
@@ -85,17 +84,15 @@ const NavSection = () => {
 
             if (user) {
                 setCurrentUser({ ...user, role: 'user' });
-                setUsername(user.name)
+                setUsername(user.name);
             } else if (admin) {
                 setCurrentUser({ ...admin, role: 'admin' });
-                setUsername(user.name)
+                setUsername(admin.name);
             }
         } else {
             navigate('/login');
         }
     }, [users, admins, navigate]);
-
-
 
     const handleLogout = () => {
         localStorage.removeItem('email');
@@ -135,24 +132,19 @@ const NavSection = () => {
                                     <a className="dropdown-item" href="/reports">{currentLanguage === 'english' ? 'Dashboard' : 'Armaturenbrett'}</a>
                                 </li>
                                 {!loading && currentUser?.role === 'admin' && <UserLinks />} {/* Show UserLinks only after loading */}
-
                                 <LanguageSelector changeLanguage={changeLanguage} currentLanguage={currentLanguage} />
                                 <li className="nav-item">
-                                    <a className="nav-link" href="/reports">{currentLanguage === 'english' ? 'Data Policy' : 'Armaturenbrett'}</a>
+                                    <a className="nav-link" href="/datapolicy">{currentLanguage === 'english' ? 'Data Policy' : 'Armaturenbrett'}</a>
                                 </li>
                                 <li className="nav-item">
-                                    <a className="nav-link" href="/reports">{currentLanguage === 'english' ? 'Another section' : 'Armaturenbrett'}</a>
+                                    <a className="nav-link" href="/landing">{currentLanguage === 'english' ? 'Another section' : 'Ein weiterer Abschnitt'}</a>
                                 </li>
                                 <li className="nav-item dropdown">
                                     <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         {`${username}`} </a>
-                                    {/* <FontAwesomeIcon className='circle-user' icon={faCircleUser} /> */}
                                     <ul className="dropdown-menu">
                                         <li className="nav-item">
-                                            <a className="dropdown-item"></a>
-                                        </li>
-                                        <li className="nav-item">
-                                            <a className="dropdown-item" href='profile'>Settings</a>
+                                            <a className="dropdown-item" href="/profile">Settings</a>
                                         </li>
                                         <li className="nav-item">
                                             <a className="dropdown-item logout-btn" onClick={handleLogout}>{currentLanguage === 'english' ? 'Logout' : 'Abmelden'}</a>
@@ -174,30 +166,23 @@ const NavSection = () => {
                             {!loading && currentUser?.role === 'admin' && <UserLinks />} {/* Show UserLinks only after loading */}
                             <LanguageSelector changeLanguage={changeLanguage} currentLanguage={currentLanguage} />
                             <li className="nav-item">
-                                <a className="nav-link" href="/reports">{currentLanguage === 'english' ? 'Data Policy' : 'Armaturenbrett'}</a>
+                                <a className="nav-link" href="/datapolicy">{currentLanguage === 'english' ? 'Data Policy' : 'Datenrichtlinie'}</a>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link" href="/reports">{currentLanguage === 'english' ? 'Another section' : 'Armaturenbrett'}</a>
+                                <a className="nav-link" href="/landing">{currentLanguage === 'english' ? 'Another section' : 'Ein weiterer Abschnitt'}</a>
                             </li>
                             <li className="nav-item dropdown">
                                 <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     {`${username}`} </a>
-                                {/* <FontAwesomeIcon className='circle-user' icon={faCircleUser} /> */}
                                 <ul className="dropdown-menu">
                                     <li className="nav-item">
-                                        <a className="dropdown-item"></a>
-                                    </li>
-                                    <li className="nav-item">
-                                        <a className="dropdown-item" href='profile'>Settings</a>
+                                        <a className="dropdown-item" href="/profile">Settings</a>
                                     </li>
                                     <li className="nav-item">
                                         <a className="dropdown-item logout-btn" onClick={handleLogout}>{currentLanguage === 'english' ? 'Logout' : 'Abmelden'}</a>
                                     </li>
                                 </ul>
                             </li>
-
-
-
                         </ul>
                     </div>
                 </div >

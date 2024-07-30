@@ -18,6 +18,7 @@ import Answers from './pages/Results/Answers';
 import Admin from './pages/LoginAndSignup/Admin';
 import AdminSignup from './pages/LoginAndSignup/AdminSignup';
 import ProfileSettings from './pages/Profile/ProfileSettings';
+import DataPolicy from './pages/DataPolicy/DataPolicy';
 
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
           <Route path='/results' element={<><NavSection /><ResultMain /> </>} />
           <Route path='/profile' element={<><NavSection /><ProfileSettings /> </>} />
           <Route path='/view-exams/:email' element={<><NavSection /><ViewExams /> </>} />
+          <Route path='/datapolicy' element={<><NavSection /><DataPolicy /> </>} />
           <Route path='/answers/:examName/:examCategory' element={<><NavSection /><Answers /> </>} />
         </Routes>
       </div>

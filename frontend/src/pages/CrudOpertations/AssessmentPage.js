@@ -439,7 +439,8 @@ function AssessmentPage() {
                 <div key={question.questionID} className='question text-start'>
                     <p className='mt-5' dangerouslySetInnerHTML={{ __html: question.question }}></p>
                     {renderQuestionInput(question)}
-                    <p className='mt-3'><i>{question.disclaimer}</i></p>
+                    <p className='mt-5' dangerouslySetInnerHTML={{ __html: question.disclaimer }}></p>
+                    {/* <p className='mt-3'><i>{question.disclaimer}</i></p> */}
                 </div>
             ))}
 

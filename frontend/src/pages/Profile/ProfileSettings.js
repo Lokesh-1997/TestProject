@@ -7,6 +7,7 @@ function ProfileSettings() {
     const [userName, setUserName] = useState('');
     const [companyName, setCompanyName] = useState('');
     const [email, setEmail] = useState('');
+    const [success, setSuccess] = useState(false);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -43,7 +44,7 @@ function ProfileSettings() {
         };
         try {
             const response = await fetch(`https://confess-data-tool-backend.vercel.app/api/users/${email}`, {
-                method: 'PUT', // 
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -52,7 +53,7 @@ function ProfileSettings() {
             if (response.ok) {
                 const updatedUser = await response.json();
                 setUsers([updatedUser]);
-                console.log('User updated successfully:', updatedUser);
+                setSuccess(true);
             } else {
                 console.error('Failed to update user');
             }
@@ -60,6 +61,13 @@ function ProfileSettings() {
             console.error('Error updating user:', error);
         }
     };
+
+    useEffect(() => {
+        if (success) {
+            alert('Updated successfully');
+            setSuccess(false); // Reset success state
+        }
+    }, [success]);
 
     return (
         <section className='mt-5'>

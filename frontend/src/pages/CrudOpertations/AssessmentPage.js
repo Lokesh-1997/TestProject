@@ -66,10 +66,10 @@ function AssessmentPage() {
                         (currentQuestion.questionType === 'Year' && !answer)
                     );
 
-                const shouldNotify = ['MCQ', 'Multiple Select', 'Short', 'Long Text', 'Numerical Value', 'Year'].includes(currentQuestion.questionType) &&
+                const shouldNotify = ['Multiple Select', 'Short', 'Long Text', 'Numerical Value', 'Year'].includes(currentQuestion.questionType) &&
                     currentQuestion.notifytext &&
                     (
-                        (currentQuestion.questionType === 'MCQ' && answer) ||
+                        // (currentQuestion.questionType === 'MCQ' && answer) ||
                         (currentQuestion.questionType === 'Multiple Select' && answer) ||
                         (currentQuestion.questionType === 'Short' && answer) ||
                         (currentQuestion.questionType === 'Long Text' && answer) ||
@@ -77,15 +77,15 @@ function AssessmentPage() {
                         (currentQuestion.questionType === 'Year' && answer)
                     );
 
-                const shouldNotifyNot = ['MCQ', 'Multiple Select', 'Short', 'Long Text', 'Numerical Value', 'Year'].includes(currentQuestion.questionType) &&
+                const shouldNotifyNot = ['Multiple Select', 'Short', 'Long Text', 'Numerical Value', 'Year'].includes(currentQuestion.questionType) &&
                     currentQuestion.notifynottext &&
                     (
-                        (currentQuestion.questionType === 'MCQ' && answer) ||
-                        (currentQuestion.questionType === 'Multiple Select' && answer) ||
-                        (currentQuestion.questionType === 'Short' && answer) ||
-                        (currentQuestion.questionType === 'Long Text' && answer) ||
-                        (currentQuestion.questionType === 'Numerical Value' && answer) ||
-                        (currentQuestion.questionType === 'Year' && answer)
+                        // (currentQuestion.questionType === 'MCQ' && !answer) ||
+                        (currentQuestion.questionType === 'Multiple Select' && !answer) ||
+                        (currentQuestion.questionType === 'Short' && !answer) ||
+                        (currentQuestion.questionType === 'Long Text' && !answer) ||
+                        (currentQuestion.questionType === 'Numerical Value' && !answer) ||
+                        (currentQuestion.questionType === 'Year' && !answer)
                     );
 
                 if (shouldAlert && !shownAlerts.has(currentQuestion.questionID)) {
@@ -124,15 +124,48 @@ function AssessmentPage() {
                     shownNotifications.add(currentQuestion.questionID);
                 }
 
+
+
                 if (currentQuestion.nextQuestions) {
                     const nextQuestionsArray = currentQuestion.nextQuestions.split(',').map(q => q.trim());
 
                     if (currentQuestion.questionType === 'MCQ' && currentQuestion.options.includes('Yes') && currentQuestion.options.includes('No')) {
                         const selectedAnswer = answers[currentQuestion.questionID];
+
                         if (selectedAnswer === 'Yes' && nextQuestionsArray.length >= 1) {
                             newQuestionIDs.push(nextQuestionsArray[0]);
+                            if (currentQuestion.notifytext) {
+                                toast.info(currentQuestion.notifytext, {
+                                    position: 'top-center',
+                                    autoClose: 3000,
+                                    theme: 'light',
+                                    hideProgressBar: true,
+                                    closeOnClick: true,
+                                    pauseOnHover: true,
+                                    draggable: false,
+                                    progress: undefined,
+                                });
+                            } else {
+                                return null
+                            }
+
+
                         } else if (selectedAnswer === 'No' && nextQuestionsArray.length >= 1) {
                             newQuestionIDs.push(nextQuestionsArray[1]);
+                            if (currentQuestion.notifynottext) {
+                                toast.info(currentQuestion.notifynottext, {
+                                    position: 'top-center',
+                                    autoClose: 3000,
+                                    theme: 'light',
+                                    hideProgressBar: true,
+                                    closeOnClick: true,
+                                    pauseOnHover: true,
+                                    draggable: false,
+                                    progress: undefined,
+                                });
+                            } else {
+                                return null
+                            }
                         } else {
                             newQuestionIDs.push(...nextQuestionsArray);
                         }
@@ -145,7 +178,18 @@ function AssessmentPage() {
                         } else {
                             newQuestionIDs.push(...nextQuestionsArray);
                         }
-                    } else if (currentQuestion.questionType === 'Input Validation' && currentQuestion.options) {
+                    } else if (currentQuestion.questionType === 'Short' || currentQuestion.questionType === 'Long Text') {
+                        const answered = answers[currentQuestion?.questionID] || '';
+                        if (answered && nextQuestionsArray.length >= 1) {
+                            newQuestionIDs.push(nextQuestionsArray[0]);
+                        } else if (!answered && nextQuestionsArray.length >= 1) {
+                            newQuestionIDs.push(nextQuestionsArray[1]);
+                        } else {
+                            newQuestionIDs.push(...nextQuestionsArray);
+                        }
+                    }
+
+                    else if (currentQuestion.questionType === 'Input Validation' && currentQuestion.options) {
                         let givenAnswer = Number(answers[currentQuestion.questionID] || 0);
                         const startLimit = Number(currentQuestion.options[0]);
                         const endLimit = Number(currentQuestion.options[1]);

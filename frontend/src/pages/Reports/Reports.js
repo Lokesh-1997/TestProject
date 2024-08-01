@@ -579,7 +579,79 @@ const DashActivity = ({ DashResult, currentLanguage, alignedValue, notAlignedBut
     };
 
     // Get filtered data based on the selected fiscal year
-    const filteredDashResult = getFilteredDashResult();
+
+    useEffect(() => {
+        const filteredResults = getFilteredDashResult();
+        const newNotEligible = [];
+        const newNotAlignedButEligibleValue = [];
+        const newAlignedValue = [];
+
+        filteredResults.forEach((value) => {
+            const filteredAnswers = Array.isArray(value?.answers) ? value.answers.filter(answer => answer.questionType !== "Blank") : [];
+            const SubstentialContribution = filteredAnswers.filter(answer => answer.questionCategory === 'Substantial Contribution');
+            const DNSHAdaption = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Adaptation');
+            const DNSHce = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - CE');
+            const DNSHwater = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Water');
+            const DNSHpollution = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Pollution');
+            const DNSHbiodibersity = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Biodiversity');
+            const Turnover = filteredAnswers.filter(answer => answer.questionCategory === 'Turnover');
+            const Capex = filteredAnswers.filter(answer => answer.questionCategory === 'Capex');
+            const OpEx = filteredAnswers.filter(answer => answer.questionCategory === 'OpEx');
+
+            const AllSubstential = SubstentialContribution.length > 0 && SubstentialContribution.every(answer =>
+                answer.answer.every(ans => ans.trim() !== "")
+            );
+            const AllDNSHAdaption = DNSHAdaption.length > 0 && DNSHAdaption.every(answer =>
+                answer.answer.every(ans => ans.trim() !== "")
+            );
+            const AllDNSHce = DNSHce.length > 0 && DNSHce.every(answer =>
+                answer.answer.every(ans => ans.trim() !== "")
+            );
+            const AllDNSHwater = DNSHwater.length > 0 && DNSHwater.every(answer =>
+                answer.answer.every(ans => ans.trim() !== "")
+            );
+            const AllDNSHpollution = DNSHpollution.length > 0 && DNSHpollution.every(answer =>
+                answer.answer.every(ans => ans.trim() !== "")
+            );
+            const AllDNSHbiodibersity = DNSHbiodibersity.length > 0 && DNSHbiodibersity.every(answer =>
+                answer.answer.every(ans => ans.trim() !== "")
+            );
+            const AllTurnover = Turnover.length > 0 && Turnover.every(answer =>
+                answer.answer.every(ans => ans.trim() !== "")
+            );
+            const AllCapex = Capex.length > 0 && Capex.every(answer =>
+                answer.answer.every(ans => ans.trim() !== "")
+            );
+            const AllOpEx = OpEx.length > 0 && OpEx.every(answer =>
+                answer.answer.every(ans => ans.trim() !== "")
+            );
+
+            const dotStatuses = [
+                DNSHAdaption.length > 0 ? (AllDNSHAdaption ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
+                DNSHwater.length > 0 ? (AllDNSHwater ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
+                DNSHce.length > 0 ? (AllDNSHce ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
+                DNSHpollution.length > 0 ? (AllDNSHpollution ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
+                DNSHbiodibersity.length > 0 ? (AllDNSHbiodibersity ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
+                Turnover.length > 0 ? (AllTurnover ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
+                Capex.length > 0 ? (AllCapex ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
+                OpEx.length > 0 ? (AllOpEx ? 'darkgrey-dot' : 'orange-dot') : 'white-dot',
+            ];
+
+            if (dotStatuses.every(status => status === 'white-dot')) {
+                newNotEligible.push(value);
+            } else if (dotStatuses.includes('orange-dot')) {
+                newNotAlignedButEligibleValue.push(value);
+            } else if (!dotStatuses.includes('orange-dot')) {
+                newAlignedValue.push(value);
+            }
+        });
+
+        // Clear the arrays and push new values
+        NotEligible.splice(0, NotEligible.length, ...newNotEligible);
+        notAlignedButEligibleValue.splice(0, notAlignedButEligibleValue.length, ...newNotAlignedButEligibleValue);
+        alignedValue.splice(0, alignedValue.length, ...newAlignedValue);
+    }, [selectedFiscalYear, DashResult]);
+
 
     return (
         <section>
@@ -594,7 +666,7 @@ const DashActivity = ({ DashResult, currentLanguage, alignedValue, notAlignedBut
                 </select>
             </div>
 
-            {filteredDashResult.map((value, index) => {
+            {getFilteredDashResult().map((value, index) => {
                 const filteredAnswers = Array.isArray(value?.answers) ? value.answers.filter(answer => answer.questionType !== "Blank") : [];
                 const SubstentialContribution = filteredAnswers.filter(answer => answer.questionCategory === 'Substantial Contribution');
                 const DNSHAdaption = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Adaptation');

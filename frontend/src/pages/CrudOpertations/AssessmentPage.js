@@ -77,6 +77,17 @@ function AssessmentPage() {
                         (currentQuestion.questionType === 'Year' && answer)
                     );
 
+                const shouldNotifyNot = ['MCQ', 'Multiple Select', 'Short', 'Long Text', 'Numerical Value', 'Year'].includes(currentQuestion.questionType) &&
+                    currentQuestion.notifynottext &&
+                    (
+                        (currentQuestion.questionType === 'MCQ' && answer) ||
+                        (currentQuestion.questionType === 'Multiple Select' && answer) ||
+                        (currentQuestion.questionType === 'Short' && answer) ||
+                        (currentQuestion.questionType === 'Long Text' && answer) ||
+                        (currentQuestion.questionType === 'Numerical Value' && answer) ||
+                        (currentQuestion.questionType === 'Year' && answer)
+                    );
+
                 if (shouldAlert && !shownAlerts.has(currentQuestion.questionID)) {
                     alert(currentQuestion.alertText);
                     shouldProceed = false;
@@ -86,6 +97,21 @@ function AssessmentPage() {
                 if (shouldNotify && !shownNotifications.has(currentQuestion.questionID)) {
                     console.log(currentQuestion.notifytext);
                     toast.info(currentQuestion.notifytext, {
+                        position: 'top-center',
+                        autoClose: 3000,
+                        theme: 'light',
+                        hideProgressBar: true,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: false,
+                        progress: undefined,
+                    });
+                    shownNotifications.add(currentQuestion.questionID);
+                }
+
+                if (shouldNotifyNot && !shownNotifications.has(currentQuestion.questionID)) {
+                    console.log(currentQuestion.notifytext);
+                    toast.info(currentQuestion.notifynottext, {
                         position: 'top-center',
                         autoClose: 3000,
                         theme: 'light',

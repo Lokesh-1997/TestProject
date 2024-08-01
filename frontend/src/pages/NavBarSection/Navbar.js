@@ -134,10 +134,10 @@ const NavSection = () => {
                                 {!loading && currentUser?.role === 'admin' && <UserLinks />} {/* Show UserLinks only after loading */}
                                 <LanguageSelector changeLanguage={changeLanguage} currentLanguage={currentLanguage} />
                                 <li className="nav-item">
-                                    <a className="nav-link" href="/datapolicy">{currentLanguage === 'english' ? 'Data Policy' : 'Armaturenbrett'}</a>
+                                    <a className="nav-link" href="/datapolicy">{currentLanguage === 'english' ? 'Data Policy' : 'Datenrichtlinie'}</a>
                                 </li>
                                 <li className="nav-item">
-                                    <a className="nav-link" href="/landing">{currentLanguage === 'english' ? 'Another section' : 'Ein weiterer Abschnitt'}</a>
+                                    <a className="nav-link" href="/landing">{currentLanguage === 'english' ? 'Imprint' : 'Imprint'}</a>
                                 </li>
                                 <li className="nav-item dropdown">
                                     <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -169,7 +169,7 @@ const NavSection = () => {
                                 <a className="nav-link" href="/datapolicy">{currentLanguage === 'english' ? 'Data Policy' : 'Datenrichtlinie'}</a>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link" href="/landing">{currentLanguage === 'english' ? 'Another section' : 'Ein weiterer Abschnitt'}</a>
+                                <a className="nav-link" href="/landing">{currentLanguage === 'english' ? 'Imprint' : 'Imprint'}</a>
                             </li>
                             <li className="nav-item dropdown">
                                 <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">

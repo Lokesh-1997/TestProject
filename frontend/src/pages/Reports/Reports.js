@@ -292,10 +292,11 @@ export default Reports;
 
 
 
-const DashboardPop = ({ setDashopop, users, TotalActivity, setResults, setreloaddash }) => {
+const DashboardPop = ({ setDashopop, users, setResults, setreloaddash }) => {
     const [turnover, setTurnover] = useState('');
     const [capex, setCapex] = useState('');
     const [opex, setOpex] = useState('');
+    const [activity, setactivity] = useState('');
     const [currentLanguage, setCurrentLanguage] = useState(localStorage.getItem('language') || 'english');
 
     const SaveLanguage = useCallback((language) => {
@@ -317,6 +318,7 @@ const DashboardPop = ({ setDashopop, users, TotalActivity, setResults, setreload
             setTurnover(users.totalTurnover);
             setCapex(users.totalCapex);
             setOpex(users.totalOpex);
+            setactivity(users.totalActivity);
         }
     }, [users]);
 
@@ -337,6 +339,7 @@ const DashboardPop = ({ setDashopop, users, TotalActivity, setResults, setreload
             totalTurnover: parseFloat(turnover),
             totalCapex: parseFloat(capex),
             totalOpex: parseFloat(opex),
+            totalActivity: parseFloat(activity),
         };
 
         const messages = content[currentLanguage].errorMessages;
@@ -370,6 +373,20 @@ const DashboardPop = ({ setDashopop, users, TotalActivity, setResults, setreload
         }
         if (updatedData.totalOpex < users.totalOpex) {
             toast.error(messages.opexError.replace('{currentValue}', users.totalOpex), {
+                position: 'top-center',
+                autoClose: 3000,
+                theme: 'light',
+                hideProgressBar: true,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: false,
+                progress: undefined,
+            });
+            hasError = true;
+        }
+
+        if (updatedData.totalActivity < users.totalActivity) {
+            toast.error(messages.opexError.replace('{currentValue}', users.totalActivity), {
                 position: 'top-center',
                 autoClose: 3000,
                 theme: 'light',
@@ -494,11 +511,12 @@ const DashboardPop = ({ setDashopop, users, TotalActivity, setResults, setreload
                             <label>{labels.opex} <span className='text-danger'>*</span></label>
                             <FontAwesomeIcon icon={faEuroSign} className='euro-signs' />
                         </div>
-                        <div className={`input-wraps-dash ${TotalActivity ? 'has-values' : ''}`}>
+                        <div className={`input-wraps-dash ${activity ? 'has-values' : ''}`}>
                             <input
                                 type='number'
                                 className='input-totalact'
-                                value={TotalActivity}
+                                value={activity}
+                                onChange={(e) => setactivity(parseFloat(e.target.value) || 0)}
                             />
                             <label>{labels.totalActivities} <span className='text-danger'>*</span></label>
                         </div>

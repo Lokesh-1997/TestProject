@@ -102,6 +102,7 @@ const Assessment = mongoose.model('Assessment', new mongoose.Schema({
             disclaimer: String,
             alertText: String,
             notifytext: String,
+            notifynottext: String,
             options: [String]
         }
     ]

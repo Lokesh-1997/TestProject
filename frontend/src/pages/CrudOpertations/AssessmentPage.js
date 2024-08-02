@@ -16,6 +16,7 @@ function AssessmentPage() {
     const [questionHistory, setQuestionHistory] = useState([]);
     const [savedOptions, setSavedOptions] = useState([]);
     const [allCurrentQuestions, setAllCurrentQuestions] = useState([]);
+    const [currentLanguage, setCurrentLanguage] = useState(localStorage.getItem('language') || 'english');
 
     useEffect(() => {
         const fetchQuestions = async () => {
@@ -372,6 +373,7 @@ function AssessmentPage() {
     };
 
 
+
     const renderQuestionInput = (question) => {
         const savedAnswer = answers[question.questionID];
         switch (question.questionType) {
@@ -499,6 +501,16 @@ function AssessmentPage() {
     const excludedCategories = ['Turnover', 'Capex', 'OpEx', 'Blank'];
     const currentCategory = currentQuestions[0]?.questionCategory;
 
+
+    const changeLanguage = (language) => {
+        if (currentLanguage !== language) {
+            localStorage.setItem('language', language);
+            setCurrentLanguage(language);
+            window.location.reload(); // Force reload to apply language changes
+        }
+    };
+
+
     return (
         <div className='assessment-page container mt-5 py-5'>
             <h4>{examName}</h4>
@@ -525,21 +537,22 @@ function AssessmentPage() {
                         }
                     }}
                 >
-                    {questionHistory.length <= 1 ? 'Cancel' : 'Previous'}
+                    {questionHistory.length <= 1 ? (currentLanguage === 'english' ? 'Cancel' : 'Abbrechen') : (currentLanguage === 'english' ? 'Previous' : 'Zurück')}
                 </button>
                 {isLastQuestion ? (
                     <button
                         className='btn-cancel'
                         onClick={saveResults}
                     >
-                        Submit
+                        {currentLanguage === 'english' ? 'Submit ' : 'Absenden'}
                     </button>
                 ) : (
                     <button
                         className='btn-cancel'
                         onClick={handleNextQuestion}
                     >
-                        Next
+                        {currentLanguage === 'english' ? 'Next' : 'Weiter'}
+
                     </button>
                 )}
             </div>

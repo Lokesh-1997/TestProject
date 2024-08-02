@@ -57,7 +57,7 @@ function Reports() {
     }, [reloaddash]);
 
 
-    console.log(users.totalCapex);
+
 
     useEffect(() => {
         const fetchResults = async () => {
@@ -84,28 +84,27 @@ function Reports() {
     const DashResult = result.results || [];
     const TotalActivity = DashResult.length;
 
+    const [alignedValue, setAlignedValue] = useState([]);
+    const [notAlignedButEligibleValue, setNotAlignedButEligibleValue] = useState([]);
+    const [NotEligible, setNotEligible] = useState([]);
 
     const prevAlignedValueRef = useRef([]);
     const prevNotAlignedButEligibleValueRef = useRef([]);
     const prevNotEligibleRef = useRef([]);
-
-    let alignedValue = []
-    let notAlignedButEligibleValue = []
-    let NotEligible = []
 
 
 
     useEffect(() => {
         prevAlignedValueRef.current = alignedValue;
         prevNotAlignedButEligibleValueRef.current = notAlignedButEligibleValue;
-        prevNotEligibleRef.current = NotEligible; // Store previous alignedValue
+        prevNotEligibleRef.current = NotEligible;
     }, [alignedValue, notAlignedButEligibleValue, NotEligible]);
 
     const FinalAligned = prevAlignedValueRef.current;
     const FinalNotAligned = prevNotAlignedButEligibleValueRef.current;
     const FineaNotEligible = prevNotEligibleRef.current;
 
-    console.log(FinalAligned);
+
 
     const AlignedturnoverAnswers = FinalAligned.map(item =>
         item.answers.find(answer => answer.questionCategory === 'Turnover')
@@ -223,7 +222,7 @@ function Reports() {
                         const notAlignedButEligiblePercentage = (value.notAlignedButEligibleValue / total) * 100;
                         const notEligiblePercentage = (value.notEligibleValue / total) * 100;
 
-                        console.log(value.alignedValue);
+
                         return (
                             <div key={index} className='card-main'>
                                 <div className="card card-stats mt-5">
@@ -536,39 +535,37 @@ const DashboardPop = ({ setDashopop, users, setResults, setreloaddash }) => {
 
 const DashActivity = ({ DashResult, currentLanguage, alignedValue, notAlignedButEligibleValue, NotEligible }) => {
     const [selectedFiscalYear, setSelectedFiscalYear] = useState('All');
-    // Handler for changing the fiscal year
+
     const handleFiscalYearChange = (event) => {
         setSelectedFiscalYear(event.target.value);
     };
 
-    // Function to get unique fiscal years from the data
     const getUniqueFiscalYears = () => {
         if (!Array.isArray(DashResult)) {
-            return []; // Return an empty array if DashResult is not an array
+            return [];
         }
 
         const fiscalYears = DashResult.flatMap(value => {
             if (!Array.isArray(value?.answers)) {
-                return []; // Return an empty array if value.answers is not an array
+                return [];
             }
 
             return value.answers
                 .filter(answer => answer.questionType !== "Blank")
                 .filter(answer => answer.questionCategory === 'Fiscal Year')
-                .flatMap(answer => answer.answer || []); // Default to empty array if answer.answer is undefined
+                .flatMap(answer => answer.answer || []);
         });
 
-        return Array.from(new Set(fiscalYears)); // Remove duplicates
+        return Array.from(new Set(fiscalYears));
     };
 
-    // Function to filter DashResult based on the selected fiscal year
     const getFilteredDashResult = () => {
         if (selectedFiscalYear === 'All') {
             return DashResult;
         }
 
         if (!Array.isArray(DashResult)) {
-            return []; // Ensure DashResult is an array
+            return [];
         }
 
         return DashResult.filter(value => {
@@ -578,15 +575,14 @@ const DashActivity = ({ DashResult, currentLanguage, alignedValue, notAlignedBut
         });
     };
 
-    // Get filtered data based on the selected fiscal year
+    const updateValues = () => {
+        alignedValue.length = 0;
+        notAlignedButEligibleValue.length = 0;
+        NotEligible.length = 0;
 
-    useEffect(() => {
         const filteredResults = getFilteredDashResult();
-        const newNotEligible = [];
-        const newNotAlignedButEligibleValue = [];
-        const newAlignedValue = [];
 
-        filteredResults.forEach((value) => {
+        filteredResults.forEach((value, index) => {
             const filteredAnswers = Array.isArray(value?.answers) ? value.answers.filter(answer => answer.questionType !== "Blank") : [];
             const SubstentialContribution = filteredAnswers.filter(answer => answer.questionCategory === 'Substantial Contribution');
             const DNSHAdaption = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Adaptation');
@@ -595,7 +591,7 @@ const DashActivity = ({ DashResult, currentLanguage, alignedValue, notAlignedBut
             const DNSHpollution = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Pollution');
             const DNSHbiodibersity = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Biodiversity');
             const Turnover = filteredAnswers.filter(answer => answer.questionCategory === 'Turnover');
-            const Capex = filteredAnswers.filter(answer => answer.questionCategory === 'Capex');
+            const Capex = filteredAnswers.filter(answer => answer.questionCategory === 'CapEx');
             const OpEx = filteredAnswers.filter(answer => answer.questionCategory === 'OpEx');
 
             const AllSubstential = SubstentialContribution.length > 0 && SubstentialContribution.every(answer =>
@@ -637,40 +633,35 @@ const DashActivity = ({ DashResult, currentLanguage, alignedValue, notAlignedBut
                 OpEx.length > 0 ? (AllOpEx ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
             ];
 
-
             if (dotStatuses.every(status => status === 'darkgrey-dot')) {
                 NotEligible.push(value);
             } else if (dotStatuses.includes('orange-dot')) {
                 notAlignedButEligibleValue.push(value);
             } else if (!dotStatuses.includes('orange-dot')) {
                 alignedValue.push(value);
-
             }
-
-
         });
 
-        // Clear the arrays and push new values
-        NotEligible.splice(0, NotEligible.length, ...newNotEligible);
-        notAlignedButEligibleValue.splice(0, notAlignedButEligibleValue.length, ...newNotAlignedButEligibleValue);
-        alignedValue.splice(0, alignedValue.length, ...newAlignedValue);
-    }, [selectedFiscalYear, DashResult]);
+        return filteredResults;
+    };
 
+    useEffect(() => {
+        updateValues();
+    }, [selectedFiscalYear]);
 
     return (
         <section>
-
             <div className='mt-5'>
                 <h5 className='text-start'>Filter with Fiscal year</h5>
                 <select className="form-select select-year" aria-label="Default select example" onChange={handleFiscalYearChange} value={selectedFiscalYear}>
-                    <option selected value="All">All</option>
+                    <option value="All">All</option>
                     {getUniqueFiscalYears().map((year, idx) => (
                         <option key={idx} value={year}>{year}</option>
                     ))}
                 </select>
             </div>
 
-            {getFilteredDashResult().map((value, index) => {
+            {updateValues().map((value, index) => {
                 const filteredAnswers = Array.isArray(value?.answers) ? value.answers.filter(answer => answer.questionType !== "Blank") : [];
                 const SubstentialContribution = filteredAnswers.filter(answer => answer.questionCategory === 'Substantial Contribution');
                 const DNSHAdaption = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Adaptation');
@@ -709,29 +700,6 @@ const DashActivity = ({ DashResult, currentLanguage, alignedValue, notAlignedBut
                 const AllOpEx = OpEx.length > 0 && OpEx.every(answer =>
                     answer.answer.every(ans => ans.trim() !== "")
                 );
-
-                const dotStatuses = [
-                    DNSHAdaption.length > 0 ? (AllDNSHAdaption ? 'darkgrey-dot' : 'orange-dot') : 'darkgrey-dot',
-                    DNSHwater.length > 0 ? (AllDNSHwater ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
-                    DNSHce.length > 0 ? (AllDNSHce ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
-                    DNSHpollution.length > 0 ? (AllDNSHpollution ? 'darkgreen-dot' : 'darkgreen-dot') : 'darkgrey-dot',
-                    DNSHbiodibersity.length > 0 ? (AllDNSHbiodibersity ? 'darkgreen-dot' : 'darkgreen-dot') : 'darkgrey-dot',
-                    Turnover.length > 0 ? (AllTurnover ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
-                    Capex.length > 0 ? (AllCapex ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
-                    OpEx.length > 0 ? (AllOpEx ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
-                ];
-
-                console.log(dotStatuses);
-
-                if (dotStatuses.every(status => status === 'darkgrey-dot')) {
-                    NotEligible.push(value);
-                } else if (dotStatuses.includes('orange-dot')) {
-                    notAlignedButEligibleValue.push(value);
-                } else if (!dotStatuses.includes('orange-dot')) {
-                    alignedValue.push(value);
-
-                }
-
 
                 return (
                     <div key={value._id} className="card card-reports mt-5 text-start">

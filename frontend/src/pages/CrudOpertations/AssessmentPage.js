@@ -135,7 +135,8 @@ function AssessmentPage() {
 
                         if (selectedAnswer === 'Yes' && nextQuestionsArray.length >= 1) {
                             newQuestionIDs.push(nextQuestionsArray[0]);
-                            if (currentQuestion.notifytext) {
+
+                            if (currentQuestion.notifytext && !shownNotifications.has(currentQuestion.questionID)) { // Check if notifytext has been shown
                                 toast.info(currentQuestion.notifytext, {
                                     position: 'top-center',
                                     autoClose: 3000,
@@ -146,14 +147,13 @@ function AssessmentPage() {
                                     draggable: false,
                                     progress: undefined,
                                 });
-                            } else {
-                                return null
+                                shownNotifications.add(currentQuestion.questionID); // Add to shownNotifications
                             }
-
-
                         } else if (selectedAnswer === 'No' && nextQuestionsArray.length >= 1) {
                             newQuestionIDs.push(nextQuestionsArray[1]);
-                            if (currentQuestion.notifynottext) {
+
+
+                            if (currentQuestion.notifynottext && !shownNotifications.has(currentQuestion.questionID)) { // Check if notifynottext has been shown
                                 toast.info(currentQuestion.notifynottext, {
                                     position: 'top-center',
                                     autoClose: 3000,
@@ -164,8 +164,7 @@ function AssessmentPage() {
                                     draggable: false,
                                     progress: undefined,
                                 });
-                            } else {
-                                return null
+                                shownNotifications.add(currentQuestion.questionID); // Add to shownNotifications
                             }
                         } else {
                             newQuestionIDs.push(...nextQuestionsArray);

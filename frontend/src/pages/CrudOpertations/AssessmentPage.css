@@ -33,3 +33,23 @@ abbr[title] {
     border-bottom: none;
     cursor: pointer;
 }
+
+.Finalresultpopup {
+    position: fixed;
+    background-color: rgba(62, 62, 62, 0.486);
+    width: 100vw;
+    height: 100vh;
+    top: 0px;
+    left: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.Finalresult {
+    height: 350px;
+    width: 1000px;
+}
+
+

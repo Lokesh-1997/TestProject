@@ -17,6 +17,7 @@ function AssessmentPage() {
     const [savedOptions, setSavedOptions] = useState([]);
     const [allCurrentQuestions, setAllCurrentQuestions] = useState([]);
     const [currentLanguage, setCurrentLanguage] = useState(localStorage.getItem('language') || 'english');
+    const [ResultPop, setResultPop] = useState(false)
 
     useEffect(() => {
         const fetchQuestions = async () => {
@@ -130,6 +131,11 @@ function AssessmentPage() {
                 if (currentQuestion.nextQuestions) {
                     const nextQuestionsArray = currentQuestion.nextQuestions.split(',').map(q => q.trim());
 
+                    const nextQuestionsIfAnswered = currentQuestion.nextQuestions.split('#').map(q => q.trim());
+
+
+
+
                     if (currentQuestion.questionType === 'MCQ' && currentQuestion.options.includes('Yes') && currentQuestion.options.includes('No')) {
                         const selectedAnswer = answers[currentQuestion.questionID];
 
@@ -178,15 +184,24 @@ function AssessmentPage() {
                         } else {
                             newQuestionIDs.push(...nextQuestionsArray);
                         }
-                    } else if (currentQuestion.questionType === 'Short' || currentQuestion.questionType === 'Long Text') {
+                    } else if (currentQuestion.questionType === 'Short' || currentQuestion.questionType === 'Long Text' || currentQuestion.nextQuestions.includes('#')) {
                         const answered = answers[currentQuestion?.questionID] || '';
-                        if (answered && nextQuestionsArray.length >= 1) {
-                            newQuestionIDs.push(nextQuestionsArray[0]);
-                        } else if (!answered && nextQuestionsArray.length >= 1) {
-                            newQuestionIDs.push(nextQuestionsArray[1]);
+                        if (answered && nextQuestionsIfAnswered.length >= 1) {
+                            newQuestionIDs.push(nextQuestionsIfAnswered[0]);
+                        } else if (!answered && nextQuestionsIfAnswered.length >= 1) {
+                            newQuestionIDs.push(nextQuestionsIfAnswered[1]);
                         } else {
                             newQuestionIDs.push(...nextQuestionsArray);
                         }
+                        // } else if (currentQuestion.questionType === 'Short' || currentQuestion.questionType === 'Long Text' || currentQuestion.nextQuestions.includes(',')) {
+                        //     const answered = answers[currentQuestion?.questionID] || '';
+                        //     if (answered && nextQuestionsArray.length >= 1) {
+                        //         newQuestionIDs.push(nextQuestionsArray[0]);
+                        //     } else if (!answered && nextQuestionsArray.length >= 1) {
+                        //         newQuestionIDs.push(nextQuestionsArray[1]);
+                        //     } else {
+                        //         newQuestionIDs.push(...nextQuestionsArray);
+                        //     }
                     }
 
                     else if (currentQuestion.questionType === 'Input Validation' && currentQuestion.options) {
@@ -250,9 +265,6 @@ function AssessmentPage() {
             }
         }
     };
-
-
-
 
 
     const handlePreviousQuestion = () => {
@@ -360,7 +372,8 @@ function AssessmentPage() {
 
             if (response.ok) {
                 alert("Your answers are submitted");
-                navigate('/landing');
+
+                setResultPop(true)
             } else {
                 const errorData = await response.json();
                 console.error('Failed to save results', errorData);
@@ -556,6 +569,7 @@ function AssessmentPage() {
                 )}
             </div>
             <ToastContainer />
+            {ResultPop && <AssessPopup setResultPop={setResultPop} />}
         </div>
     );
 }
@@ -577,3 +591,135 @@ const Tooltip = ({ text, tooltipText }) => {
         </span>
     );
 };
+
+
+const AssessPopup = () => {
+
+    const [dashresult, Setdashresult] = useState([]);
+    const [currentLanguage, setCurrentLanguage] = useState(localStorage.getItem('language') || 'english');
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (!localStorage.getItem('language')) {
+            localStorage.setItem('language', 'english');
+            setCurrentLanguage('english');
+        }
+    }, []);
+    useEffect(() => {
+        if (!localStorage.getItem('language')) {
+            localStorage.setItem('language', 'english');
+            setCurrentLanguage('english');
+        }
+    }, []);
+
+    useEffect(() => {
+        const fetchResults = async () => {
+            const email = localStorage.getItem('email');
+            if (!email) {
+                console.error('Email not found in localStorage');
+                return;
+            }
+            try {
+                const response = await fetch(`https://confess-data-tool-backend.vercel.app/api/dashboard?email=${email}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    Setdashresult(data)
+
+                } else {
+                    console.error('Failed to fetch results');
+                }
+            } catch (error) {
+                console.error('Error fetching results:', error);
+            }
+        };
+        fetchResults();
+    }, []);
+
+    const DashValue = dashresult.results || [];
+
+    const lastResult = DashValue.length > 0 ? DashValue[DashValue.length - 1] : null;
+
+
+
+    const filteredAnswers = Array.isArray(lastResult?.answers) ? lastResult.answers.filter(answer => answer.questionType !== "Blank") : [];
+    const SubstentialContribution = filteredAnswers.filter(answer => answer.questionCategory === 'Substantial Contribution');
+    const DNSHAdaption = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Adaptation');
+    const DNSHce = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - CE');
+    const DNSHwater = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Water');
+    const DNSHpollution = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Pollution');
+    const DNSHbiodibersity = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Biodiversity');
+    const Turnover = filteredAnswers.filter(answer => answer.questionCategory === 'Turnover');
+    const Capex = filteredAnswers.filter(answer => answer.questionCategory === 'CapEx');
+    const OpEx = filteredAnswers.filter(answer => answer.questionCategory === 'OpEx');
+
+    const AllSubstential = SubstentialContribution.length > 0 && SubstentialContribution.every(answer =>
+        answer.answer.every(ans => ans.trim() !== "")
+    );
+    const AllDNSHAdaption = DNSHAdaption.length > 0 && DNSHAdaption.every(answer =>
+        answer.answer.every(ans => ans.trim() !== "")
+    );
+    const AllDNSHce = DNSHce.length > 0 && DNSHce.every(answer =>
+        answer.answer.every(ans => ans.trim() !== "")
+    );
+    const AllDNSHwater = DNSHwater.length > 0 && DNSHwater.every(answer =>
+        answer.answer.every(ans => ans.trim() !== "")
+    );
+    const AllDNSHpollution = DNSHpollution.length > 0 && DNSHpollution.every(answer =>
+        answer.answer.every(ans => ans.trim() !== "")
+    );
+    const AllDNSHbiodibersity = DNSHbiodibersity.length > 0 && DNSHbiodibersity.every(answer =>
+        answer.answer.every(ans => ans.trim() !== "")
+    );
+    const AllTurnover = Turnover.length > 0 && Turnover.every(answer =>
+        answer.answer.every(ans => ans.trim() !== "")
+    );
+    const AllCapex = Capex.length > 0 && Capex.every(answer =>
+        answer.answer.every(ans => ans.trim() !== "")
+    );
+    const AllOpEx = OpEx.length > 0 && OpEx.every(answer =>
+        answer.answer.every(ans => ans.trim() !== "")
+    );
+
+    const HandleGotoLanding = () => {
+        navigate('/landing');
+    }
+
+
+    return <div className='Finalresultpopup'>
+        <div className="Finalresult card card-reports mt-5 text-start">
+            <div className="card-header">
+                <h3 className='fw-light'>
+                    {/* {currentLanguage === 'english' ? `${lastResult.examName}` : `${lastResult.examName}`} */}
+                </h3>
+            </div>
+            <div className='d-flex mx-3 mt-3 justify-content-between'>
+                <p>{currentLanguage === 'english' ? 'Substantial Contribution (Climate Change Mitigation)' : 'Substanzielle Beiträge (Klimaschutz)'}</p>
+                <span className={AllSubstential && AllOpEx && AllCapex & AllTurnover ? 'darkgreen-dot mx-4' : 'darkgrey-dot mx-4'}></span>
+            </div>
+            <p className="mx-3 mt-4">{currentLanguage === 'english' ? 'Do No Significant Harm' : 'Keine wesentlichen Schäden'}</p>
+            <div className='d-flex mx-3 mt-2 justify-content-between'>
+                <p>{currentLanguage === 'english' ? 'Climate Change Adaptation' : 'Klimawandel-Anpassung'}</p>
+                <span className={DNSHAdaption.length > 0 ? (AllDNSHAdaption ? 'darkgrey-dot mx-4' : 'darkgrey-dot mx-4') : 'darkgrey-dot mx-4'}></span>
+            </div>
+            <div className='d-flex mx-3 justify-content-between'>
+                <p>{currentLanguage === 'english' ? 'Water and Marine Protection' : 'Wasser- und Meeresschutz'}</p>
+                <span className={DNSHwater.length > 0 ? (AllDNSHwater ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'darkgrey-dot mx-4'}></span>
+            </div>
+            <div className='d-flex mx-3 justify-content-between'>
+                <p>{currentLanguage === 'english' ? 'Circular Economy' : 'Kreislaufwirtschaft'}</p>
+                <span className={DNSHce.length > 0 ? (AllDNSHce ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'darkgrey-dot mx-4'}></span>
+            </div>
+            <div className='d-flex mx-3 justify-content-between'>
+                <p>{currentLanguage === 'english' ? 'Pollution Prevention' : 'Verschmutzungsprävention'}</p>
+                <span className={DNSHpollution.length > 0 ? (AllDNSHpollution ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'darkgrey-dot mx-4'}></span>
+            </div>
+            <div className='d-flex mx-3 justify-content-between'>
+                <p>{currentLanguage === 'english' ? 'Biodiversity' : 'Biodiversität'}</p>
+                <span className={DNSHbiodibersity.length > 0 ? (AllDNSHbiodibersity ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'darkgrey-dot mx-4'}></span>
+            </div>
+
+            <button className='btn btn-primary' onClick={HandleGotoLanding}>X</button>
+        </div>
+
+
+    </div>
+}

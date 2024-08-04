@@ -623,14 +623,14 @@ const DashActivity = ({ DashResult, currentLanguage, alignedValue, notAlignedBut
             );
 
             const dotStatuses = [
-                DNSHAdaption.length > 0 ? (AllDNSHAdaption ? 'darkgrey-dot' : 'orange-dot') : 'darkgrey-dot',
+                DNSHAdaption.length > 0 ? (AllDNSHAdaption ? 'darkgrey-dot' : 'orange-dot') : 'darkgreen-dot',
                 DNSHwater.length > 0 ? (AllDNSHwater ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
-                DNSHce.length > 0 ? (AllDNSHce ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
-                DNSHpollution.length > 0 ? (AllDNSHpollution ? 'darkgreen-dot' : 'darkgreen-dot') : 'darkgrey-dot',
-                DNSHbiodibersity.length > 0 ? (AllDNSHbiodibersity ? 'darkgreen-dot' : 'darkgreen-dot') : 'darkgrey-dot',
-                Turnover.length > 0 ? (AllTurnover ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
-                Capex.length > 0 ? (AllCapex ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
-                OpEx.length > 0 ? (AllOpEx ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
+                DNSHce.length > 0 ? (AllDNSHce ? 'darkgreen-dot' : 'orange-dot') : 'darkgreen-dot',
+                DNSHpollution.length > 0 ? (AllDNSHpollution ? 'darkgreen-dot' : 'orange-dot') : 'darkgreen-dot',
+                DNSHbiodibersity.length > 0 ? (AllDNSHbiodibersity ? 'darkgreen-dot' : 'orange-dot') : 'darkgreen-dot',
+                Turnover.length > 0 ? (AllTurnover ? 'darkgreen-dot' : 'orange-dot') : 'darkgreen-dot',
+                Capex.length > 0 ? (AllCapex ? 'darkgreen-dot' : 'orange-dot') : 'darkgreen-dot',
+                OpEx.length > 0 ? (AllOpEx ? 'darkgreen-dot' : 'orange-dot') : 'darkgreen-dot',
             ];
 
             if (dotStatuses.every(status => status === 'darkgrey-dot')) {

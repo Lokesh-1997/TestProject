@@ -131,7 +131,7 @@ const NavSection = () => {
                             <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
                                 <li className="nav-item">
                                     <a className="dropdown-item" aria-current="page" href="/landing">
-                                        {currentLanguage === 'english' ? 'Home' : currentLanguage === 'german' ? 'Startseite' : currentLanguage === 'czech' ? 'Domov' : 'Home'}
+                                        {currentLanguage === 'english' ? 'Home' : currentLanguage === 'german' ? 'Startseite' : currentLanguage === 'czech' ? 'Domov' : 'Helooo'}
                                     </a>
                                 </li>
                                 <li className="nav-item">
@@ -171,7 +171,7 @@ const NavSection = () => {
                         <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                             <li className="nav-item">
                                 <a className="nav-link active" aria-current="page" href="/landing">
-                                    {currentLanguage === 'english' ? 'Home' : currentLanguage === 'german' ? 'Startseite' : currentLanguage === 'czech' ? 'Domov' : 'Home'}
+                                    {currentLanguage === 'english' ? 'Home' : currentLanguage === 'german' ? 'Startseite' : currentLanguage === 'czech' ? 'Domov' : 'Helooo'}
                                 </a>
                             </li>
                             <li className="nav-item">

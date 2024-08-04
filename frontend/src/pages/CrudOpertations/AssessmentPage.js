@@ -17,12 +17,13 @@ function AssessmentPage() {
     const [savedOptions, setSavedOptions] = useState([]);
     const [allCurrentQuestions, setAllCurrentQuestions] = useState([]);
     const [currentLanguage, setCurrentLanguage] = useState(localStorage.getItem('language') || 'english');
+    const [savedPreviousQuestions, setSavedPreviousQuestions] = useState([]);
     const [ResultPop, setResultPop] = useState(false)
 
     useEffect(() => {
         const fetchQuestions = async () => {
             try {
-                const response = await fetch(`https://confess-data-tool-backend.vercel.app/api/assessments/${examName}/questions`);
+                const response = await fetch(`https://confess-data-tool-backend-beta.vercel.app/api/assessments/${examName}/questions`);
                 if (response.ok) {
                     const data = await response.json();
                     setQuestions(data);
@@ -96,7 +97,8 @@ function AssessmentPage() {
                     shownAlerts.add(currentQuestion.questionID);
                 }
 
-                if (shouldNotify && !shownNotifications.has(currentQuestion.questionID)) {
+                // TODO: Add proper assessment logic.
+                /*if (shouldNotify && !shownNotifications.has(currentQuestion.questionID)) {
                     console.log(currentQuestion.notifytext);
                     toast.info(currentQuestion.notifytext, {
                         position: 'top-center',
@@ -124,17 +126,12 @@ function AssessmentPage() {
                         progress: undefined,
                     });
                     shownNotifications.add(currentQuestion.questionID);
-                }
+                }*/
 
 
 
                 if (currentQuestion.nextQuestions) {
                     const nextQuestionsArray = currentQuestion.nextQuestions.split(',').map(q => q.trim());
-
-                    const nextQuestionsIfAnswered = currentQuestion.nextQuestions.split('#').map(q => q.trim());
-
-
-
 
                     if (currentQuestion.questionType === 'MCQ' && currentQuestion.options.includes('Yes') && currentQuestion.options.includes('No')) {
                         const selectedAnswer = answers[currentQuestion.questionID];
@@ -142,7 +139,8 @@ function AssessmentPage() {
                         if (selectedAnswer === 'Yes' && nextQuestionsArray.length >= 1) {
                             newQuestionIDs.push(nextQuestionsArray[0]);
 
-                            if (currentQuestion.notifytext && !shownNotifications.has(currentQuestion.questionID)) { // Check if notifytext has been shown
+                            // TODO: Add proper assessment logic.
+                            /*if (currentQuestion.notifytext && !shownNotifications.has(currentQuestion.questionID)) { // Check if notifytext has been shown
                                 toast.info(currentQuestion.notifytext, {
                                     position: 'top-center',
                                     autoClose: 3000,
@@ -154,12 +152,11 @@ function AssessmentPage() {
                                     progress: undefined,
                                 });
                                 shownNotifications.add(currentQuestion.questionID); // Add to shownNotifications
-                            }
+                            }*/
                         } else if (selectedAnswer === 'No' && nextQuestionsArray.length >= 1) {
                             newQuestionIDs.push(nextQuestionsArray[1]);
-
-
-                            if (currentQuestion.notifynottext && !shownNotifications.has(currentQuestion.questionID)) { // Check if notifynottext has been shown
+                            // TODO: Add proper assessment logic.
+                            /*if (currentQuestion.notifynottext && !shownNotifications.has(currentQuestion.questionID)) { // Check if notifynottext has been shown
                                 toast.info(currentQuestion.notifynottext, {
                                     position: 'top-center',
                                     autoClose: 3000,
@@ -171,7 +168,7 @@ function AssessmentPage() {
                                     progress: undefined,
                                 });
                                 shownNotifications.add(currentQuestion.questionID); // Add to shownNotifications
-                            }
+                            }*/
                         } else {
                             newQuestionIDs.push(...nextQuestionsArray);
                         }
@@ -184,24 +181,15 @@ function AssessmentPage() {
                         } else {
                             newQuestionIDs.push(...nextQuestionsArray);
                         }
-                    } else if (currentQuestion.questionType === 'Short' || currentQuestion.questionType === 'Long Text' || currentQuestion.nextQuestions.includes('#')) {
+                    } else if (currentQuestion.questionType === 'Short' || currentQuestion.questionType === 'Long Text') {
                         const answered = answers[currentQuestion?.questionID] || '';
-                        if (answered && nextQuestionsIfAnswered.length >= 1) {
-                            newQuestionIDs.push(nextQuestionsIfAnswered[0]);
-                        } else if (!answered && nextQuestionsIfAnswered.length >= 1) {
-                            newQuestionIDs.push(nextQuestionsIfAnswered[1]);
+                        if (answered && nextQuestionsArray.length >= 1) {
+                            newQuestionIDs.push(nextQuestionsArray[0]);
+                        } else if (!answered && nextQuestionsArray.length >= 1) {
+                            newQuestionIDs.push(nextQuestionsArray[1]);
                         } else {
                             newQuestionIDs.push(...nextQuestionsArray);
                         }
-                        // } else if (currentQuestion.questionType === 'Short' || currentQuestion.questionType === 'Long Text' || currentQuestion.nextQuestions.includes(',')) {
-                        //     const answered = answers[currentQuestion?.questionID] || '';
-                        //     if (answered && nextQuestionsArray.length >= 1) {
-                        //         newQuestionIDs.push(nextQuestionsArray[0]);
-                        //     } else if (!answered && nextQuestionsArray.length >= 1) {
-                        //         newQuestionIDs.push(nextQuestionsArray[1]);
-                        //     } else {
-                        //         newQuestionIDs.push(...nextQuestionsArray);
-                        //     }
                     }
 
                     else if (currentQuestion.questionType === 'Input Validation' && currentQuestion.options) {
@@ -230,7 +218,6 @@ function AssessmentPage() {
                         newQuestionIDs.push(...nextQuestionsArray);
                     }
                 }
-
                 const prevQuestion = questions.find(q => q.questionID === id);
                 if (prevQuestion && prevQuestion.questionType === 'Multiple Select') {
                     addHello = true; // Set flag to true to add Hello to the next question
@@ -255,15 +242,20 @@ function AssessmentPage() {
 
                 if (nextQuestionIndex !== -1) {
                     const nextQuestion = questions[nextQuestionIndex];
-                    
-                    console.log(savedque);
-                    
+                    const savedPrevQuestion = savedPreviousQuestions.find(q => q.id === nextQuestionIndex);
+                    const saveThisIfUndefined = nextQuestion.question;
+                    if (savedPrevQuestion === undefined) {
+                        setSavedPreviousQuestions(prevQuestions => [...prevQuestions, { id: nextQuestionIndex, question: saveThisIfUndefined }]);
+                    }
                     const allValues = savedque.flatMap(item => item.split('¦').map(s => s.trim()));
                     const uniqueValues = Array.from(new Set(allValues));
                     const combinedSavedque = uniqueValues.map(item => `<li>${item}</li>`).join(' ');
-                    nextQuestion.question = `${nextQuestion.question} ${combinedSavedque}`;
+                    if (savedPrevQuestion === undefined) {
+                        nextQuestion.question = `${nextQuestion.question} ${combinedSavedque}`;
+                    } else {
+                        nextQuestion.question = `${savedPrevQuestion.question} ${combinedSavedque}`;
+                    }
                     setQuestions([...questions]);
-                    setSavedOptions('');
                 }
             }
         }
@@ -365,7 +357,7 @@ function AssessmentPage() {
             });
 
             // Send the data to the backend
-            const response = await fetch('https://confess-data-tool-backend.vercel.app/api/results/submitresults', {
+            const response = await fetch('https://confess-data-tool-backend-beta.vercel.app/api/results/submitresults', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -374,8 +366,7 @@ function AssessmentPage() {
             });
 
             if (response.ok) {
-                alert("Your answers are submitted");
-
+                alert(currentLanguage === 'english' ? 'Your answers are submitted' : 'Die Antworten wurden eingereicht');
                 setResultPop(true)
             } else {
                 const errorData = await response.json();
@@ -597,7 +588,6 @@ const Tooltip = ({ text, tooltipText }) => {
 
 
 const AssessPopup = () => {
-
     const [dashresult, Setdashresult] = useState([]);
     const [currentLanguage, setCurrentLanguage] = useState(localStorage.getItem('language') || 'english');
     const navigate = useNavigate();
@@ -687,7 +677,6 @@ const AssessPopup = () => {
     }
 
     const ExamName = lastResult ? lastResult.examName : [];
-    const ExamCategory = lastResult ? lastResult.examCategory : [];
 
 
     return <div className='Finalresultpopup'>

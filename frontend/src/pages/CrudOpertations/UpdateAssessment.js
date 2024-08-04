@@ -385,7 +385,6 @@ const AddQuestion = ({ setQuestionPop, addQuestion, updateQuestion, editingQuest
                             <option value="Turnover">Turnover</option>
                             <option value="CapEx">CapEx</option>
                             <option value="OpEx">OpEx</option>
-
                             <option value="Blank">Blank</option>
                         </select>
                         <label>Question Category <span className='text-danger'>*</span></label>

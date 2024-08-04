@@ -255,9 +255,9 @@ function AssessmentPage() {
 
                 if (nextQuestionIndex !== -1) {
                     const nextQuestion = questions[nextQuestionIndex];
-                    
+
                     console.log(savedque);
-                    
+
                     const allValues = savedque.flatMap(item => item.split('¦').map(s => s.trim()));
                     const uniqueValues = Array.from(new Set(allValues));
                     const combinedSavedque = uniqueValues.map(item => `<li>${item}</li>`).join(' ');
@@ -687,7 +687,6 @@ const AssessPopup = () => {
     }
 
     const ExamName = lastResult ? lastResult.examName : [];
-    const ExamCategory = lastResult ? lastResult.examCategory : [];
 
 
     return <div className='Finalresultpopup'>

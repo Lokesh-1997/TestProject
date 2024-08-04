@@ -585,7 +585,7 @@ const DashActivity = ({ DashResult, currentLanguage, alignedValue, notAlignedBut
         filteredResults.forEach((value, index) => {
             const filteredAnswers = Array.isArray(value?.answers) ? value.answers.filter(answer => answer.questionType !== "Blank") : [];
             const SubstentialContribution = filteredAnswers.filter(answer => answer.questionCategory === 'Substantial Contribution');
-            const DNSHAdaption = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Adaptation');
+            const DNSHAdaption = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH Climate Change Adaptation');
             const DNSHce = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - CE');
             const DNSHwater = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Water');
             const DNSHpollution = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Pollution');
@@ -664,7 +664,7 @@ const DashActivity = ({ DashResult, currentLanguage, alignedValue, notAlignedBut
             {updateValues().map((value, index) => {
                 const filteredAnswers = Array.isArray(value?.answers) ? value.answers.filter(answer => answer.questionType !== "Blank") : [];
                 const SubstentialContribution = filteredAnswers.filter(answer => answer.questionCategory === 'Substantial Contribution');
-                const DNSHAdaption = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Adaptation');
+                const DNSHAdaption = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH Climate Change Adaptation');
                 const DNSHce = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - CE');
                 const DNSHwater = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Water');
                 const DNSHpollution = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Pollution');

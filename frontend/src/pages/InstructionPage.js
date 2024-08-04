@@ -22,6 +22,26 @@ const translations = {
         instruction4: "Das Bewertungs-Dashboard wird erstellt, nachdem Sie die Bewertung durch Klicken auf die jeweilige Schaltfläche aktiv abgeschlossen haben",
         cancelButton: "Abbrechen",
         startButton: "Assessment starten"
+    },
+    czech: {
+        welcome: "Vítejte v hodnocení",
+        instructionsTitle: "Pokyny pro hodnocení",
+        instruction1: "Nereflešujte stránku.",
+        instruction2: "Můžete použít tlačítka <strong>\"Předchozí\"</strong> a <strong>\"Další\"</strong> k navigaci mezi otázkami.",
+        instruction3: "Při hodnocení můžete kdykoli přecházet mezi různými otázkami",
+        instruction4: "Hodnotící panel bude vytvořen po aktivním dokončení hodnocení kliknutím na příslušné tlačítko",
+        cancelButton: "Zrušit",
+        startButton: "Začít hodnocení"
+    },
+    italian: {
+        welcome: "Benvenuto all'esame",
+        instructionsTitle: "Istruzioni per la valutazione",
+        instruction1: "Non aggiornare la pagina.",
+        instruction2: "Puoi usare i pulsanti <strong>\"Precedente\"</strong> e <strong>\"Successivo\"</strong> per navigare tra le domande.",
+        instruction3: "Durante la valutazione puoi tornare indietro e avanti tra le diverse domande in qualsiasi momento",
+        instruction4: "Il cruscotto di valutazione sarà creato dopo che avrai terminato attivamente la valutazione facendo clic sul pulsante corrispondente",
+        cancelButton: "Annulla",
+        startButton: "Inizia la valutazione"
     }
 };
 

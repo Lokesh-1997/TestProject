@@ -2,12 +2,66 @@ import React, { useEffect, useState } from 'react';
 import LogoLight from "../../asset/logo_light.png";
 import './ProfileSettings.css';
 
+const translations = {
+    english: {
+        editProfile: "Edit Profile",
+        personalInfo: "Personal info",
+        userName: "User Name:",
+        companyName: "Company Name:",
+        email: "Email:",
+        submitButton: "Submit",
+        updateSuccess: "Updated successfully",
+        fetchError: "Failed to fetch users",
+        updateError: "Failed to update user",
+        noUserFound: "No matching user found",
+    },
+    german: {
+        editProfile: "Profil bearbeiten",
+        personalInfo: "Persönliche Informationen",
+        userName: "Benutzername:",
+        companyName: "Firmenname:",
+        email: "E-Mail:",
+        submitButton: "Einreichen",
+        updateSuccess: "Erfolgreich aktualisiert",
+        fetchError: "Benutzer konnten nicht abgerufen werden",
+        updateError: "Benutzer konnte nicht aktualisiert werden",
+        noUserFound: "Kein passender Benutzer gefunden",
+    },
+    czech: {
+        editProfile: "Upravit profil",
+        personalInfo: "Osobní údaje",
+        userName: "Uživatelské jméno:",
+        companyName: "Název společnosti:",
+        email: "E-mail:",
+        submitButton: "Odeslat",
+        updateSuccess: "Úspěšně aktualizováno",
+        fetchError: "Nepodařilo se načíst uživatele",
+        updateError: "Nepodařilo se aktualizovat uživatele",
+        noUserFound: "Nenalezen žádný odpovídající uživatel",
+    },
+    italian: {
+        editProfile: "Modifica Profilo",
+        personalInfo: "Informazioni personali",
+        userName: "Nome utente:",
+        companyName: "Nome dell'azienda:",
+        email: "Email:",
+        submitButton: "Invia",
+        updateSuccess: "Aggiornato con successo",
+        fetchError: "Impossibile recuperare gli utenti",
+        updateError: "Impossibile aggiornare l'utente",
+        noUserFound: "Nessun utente corrispondente trovato",
+    }
+};
+
 function ProfileSettings() {
     const [users, setUsers] = useState([]);
     const [userName, setUserName] = useState('');
     const [companyName, setCompanyName] = useState('');
     const [email, setEmail] = useState('');
     const [success, setSuccess] = useState(false);
+
+    const currentLanguage = localStorage.getItem('language') || 'english';
+    const lang = translations[currentLanguage];
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -23,17 +77,17 @@ function ProfileSettings() {
                         setUserName(matchedUser.name);
                         setCompanyName(matchedUser.companyName);
                     } else {
-                        console.error('No matching user found');
+                        console.error(lang.noUserFound);
                     }
                 } else {
-                    console.error('Failed to fetch users');
+                    console.error(lang.fetchError);
                 }
             } catch (error) {
-                console.error('Error fetching users:', error);
+                console.error(lang.fetchError, error);
             }
         };
         fetchUsers();
-    }, []);
+    }, [lang.noUserFound, lang.fetchError]);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -55,19 +109,19 @@ function ProfileSettings() {
                 setUsers([updatedUser]);
                 setSuccess(true);
             } else {
-                console.error('Failed to update user');
+                console.error(lang.updateError);
             }
         } catch (error) {
-            console.error('Error updating user:', error);
+            console.error(lang.updateError, error);
         }
     };
 
     useEffect(() => {
         if (success) {
-            alert('Updated successfully');
+            alert(lang.updateSuccess);
             setSuccess(false); // Reset success state
         }
-    }, [success]);
+    }, [success, lang.updateSuccess]);
 
     return (
         <section className='mt-5'>
@@ -75,14 +129,14 @@ function ProfileSettings() {
                 <div key={index}>
                     <div className="container">
                         <img src={LogoLight} alt='logo' width={300} />
-                        <h1 className="text-secondary mt-5">Edit Profile</h1>
+                        <h1 className="text-secondary mt-5">{lang.editProfile}</h1>
                         <hr />
                         <div className="row">
                             <div className="personal-info my-5">
-                                <h3>Personal info</h3>
+                                <h3>{lang.personalInfo}</h3>
                                 <form className="form-horizontal text-start" role="form" onSubmit={handleSubmit}>
                                     <div className="form-group">
-                                        <label className="col-lg-3 control-label">User Name:</label>
+                                        <label className="col-lg-3 control-label">{lang.userName}</label>
                                         <div className="col-lg-8 mt-2">
                                             <input
                                                 className="form-control"
@@ -93,7 +147,7 @@ function ProfileSettings() {
                                         </div>
                                     </div>
                                     <div className="form-group mt-3">
-                                        <label className="col-lg-3 control-label">Company Name:</label>
+                                        <label className="col-lg-3 control-label">{lang.companyName}</label>
                                         <div className="col-lg-8 mt-2">
                                             <input
                                                 className="form-control"
@@ -104,14 +158,14 @@ function ProfileSettings() {
                                         </div>
                                     </div>
                                     <div className="form-group mt-3">
-                                        <label className="col-lg-3 control-label">Email:</label>
+                                        <label className="col-lg-3 control-label">{lang.email}</label>
                                         <div className="col-lg-8 mt-2">
                                             <input className="form-control" disabled type="text" value={email} />
                                         </div>
                                     </div>
                                     <div className="form-group mt-5">
                                         <div className="col mt-2">
-                                            <input className="form-control bg-primary text-white" type="submit" value="Submit" />
+                                            <input className="form-control bg-primary text-white" type="submit" value={lang.submitButton} />
                                         </div>
                                     </div>
                                 </form>

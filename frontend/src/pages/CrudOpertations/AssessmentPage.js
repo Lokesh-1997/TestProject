@@ -1,735 +1,589 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
-import './Reports.css';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import './AssessmentPage.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEuroSign } from '@fortawesome/free-solid-svg-icons';
+import { faEuroSign, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-function Reports() {
-    const [results, setResults] = useState([]);
-    const [result, setResult] = useState([]);
-    const [totalTurnover, setTotalTurnover] = useState(0);
-    const [totalCapex, setTotalCapex] = useState(0);
-    const [totalOpex, setTotalOpex] = useState(0);
-    const [Dashopop, setDashopop] = useState(true);
-    const [users, setUsers] = useState([]);
-    const [currentLanguage, setCurrentLanguage] = useState(localStorage.getItem('language') || 'english');
+function AssessmentPage() {
+    const { state } = useLocation();
+    const { examName, examCategory } = state || {};
+    const [questions, setQuestions] = useState([]);
+    const [answers, setAnswers] = useState({});
     const navigate = useNavigate();
-
-    const [reloaddash, setreloaddash] = useState(false);
-
-    const SaveLanguage = useCallback((language) => {
-        if (currentLanguage !== language) {
-            localStorage.setItem('language', language);
-            setCurrentLanguage(language); // Update the state
-        }
-    }, [currentLanguage]);
+    const [currentQuestionIDs, setCurrentQuestionIDs] = useState([]);
+    const [questionHistory, setQuestionHistory] = useState([]);
+    const [savedOptions, setSavedOptions] = useState([]);
+    const [allCurrentQuestions, setAllCurrentQuestions] = useState([]);
+    const [currentLanguage, setCurrentLanguage] = useState(localStorage.getItem('language') || 'english');
+    const [savedPreviousQuestions, setSavedPreviousQuestions] = useState([]);
 
     useEffect(() => {
-        if (!localStorage.getItem('language')) {
-            localStorage.setItem('language', 'english');
-            setCurrentLanguage('english');
-        }
-    }, []);
-
-    useEffect(() => {
-        const fetchUsers = async () => {
-            const email = localStorage.getItem('email');
+        const fetchQuestions = async () => {
             try {
-                const response = await fetch(`https://confess-data-tool-backend-beta.vercel.app/api/users`);
+                const response = await fetch(`https://confess-data-tool-backend-beta.vercel.app/api/assessments/${examName}/questions`);
                 if (response.ok) {
                     const data = await response.json();
-                    const matchedUser = data.find(user => user.email === email);
-                    if (matchedUser) {
-                        setUsers(matchedUser);
-                    } else {
-                        console.error('No matching user found');
+                    setQuestions(data);
+                    if (data.length > 0) {
+                        setCurrentQuestionIDs([data[0].questionID]);
+                        setQuestionHistory([[data[0].questionID]]);
+                        setAllCurrentQuestions([data[0]]);
                     }
                 } else {
-                    console.error('Failed to fetch users');
+                    console.error('Failed to fetch questions');
                 }
             } catch (error) {
-                console.error('Error fetching users:', error);
+                console.error('Error fetching questions:', error);
             }
         };
-        fetchUsers();
-    }, [reloaddash]);
+
+        fetchQuestions();
+    }, [examName]);
 
 
 
+    const handleNextQuestion = () => {
+        const newQuestionIDs = [];
+        let addHello = false;
+        let savedque = [];
+        let shouldProceed = true;
+        const shownAlerts = new Set();
+        const shownNotifications = new Set();
 
-    useEffect(() => {
-        const fetchResults = async () => {
-            const email = localStorage.getItem('email');
-            if (!email) {
-                console.error('Email not found in localStorage');
-                return;
-            }
-            try {
-                const response = await fetch(`https://confess-data-tool-backend-beta.vercel.app/api/dashboard?email=${email}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setResults(data);
-                    setResult(data);
-                } else {
-                    console.error('Failed to fetch results');
+        currentQuestionIDs.forEach(id => {
+            const currentQuestion = questions.find(q => q.questionID === id);
+            const answer = answers[currentQuestion?.questionID] || '';
+
+            if (currentQuestion) {
+                const shouldAlert = ['MCQ', 'Multiple Select', 'Short', 'Long Text', 'Numerical Value', 'Year'].includes(currentQuestion.questionType) &&
+                    currentQuestion.alertText &&
+                    (
+                        (currentQuestion.questionType === 'MCQ' && !answer) ||
+                        (currentQuestion.questionType === 'Multiple Select' && (!answer || answer.length === 0)) ||
+                        (currentQuestion.questionType === 'Short' && !answer) ||
+                        (currentQuestion.questionType === 'Long Text' && !answer) ||
+                        (currentQuestion.questionType === 'Numerical Value' && !answer) ||
+                        (currentQuestion.questionType === 'Year' && !answer)
+                    );
+
+                const shouldNotify = ['Multiple Select', 'Short', 'Long Text', 'Numerical Value', 'Year'].includes(currentQuestion.questionType) &&
+                    currentQuestion.notifytext &&
+                    (
+                        // (currentQuestion.questionType === 'MCQ' && answer) ||
+                        (currentQuestion.questionType === 'Multiple Select' && answer) ||
+                        (currentQuestion.questionType === 'Short' && answer) ||
+                        (currentQuestion.questionType === 'Long Text' && answer) ||
+                        (currentQuestion.questionType === 'Numerical Value' && answer) ||
+                        (currentQuestion.questionType === 'Year' && answer)
+                    );
+
+                const shouldNotifyNot = ['Multiple Select', 'Short', 'Long Text', 'Numerical Value', 'Year'].includes(currentQuestion.questionType) &&
+                    currentQuestion.notifynottext &&
+                    (
+                        // (currentQuestion.questionType === 'MCQ' && !answer) ||
+                        (currentQuestion.questionType === 'Multiple Select' && !answer) ||
+                        (currentQuestion.questionType === 'Short' && !answer) ||
+                        (currentQuestion.questionType === 'Long Text' && !answer) ||
+                        (currentQuestion.questionType === 'Numerical Value' && !answer) ||
+                        (currentQuestion.questionType === 'Year' && !answer)
+                    );
+
+                if (shouldAlert && !shownAlerts.has(currentQuestion.questionID)) {
+                    alert(currentQuestion.alertText);
+                    shouldProceed = false;
+                    shownAlerts.add(currentQuestion.questionID);
                 }
-            } catch (error) {
-                console.error('Error fetching results:', error);
+
+                // TODO: Add proper assessment logic.
+                /*if (shouldNotify && !shownNotifications.has(currentQuestion.questionID)) {
+                    console.log(currentQuestion.notifytext);
+                    toast.info(currentQuestion.notifytext, {
+                        position: 'top-center',
+                        autoClose: 3000,
+                        theme: 'light',
+                        hideProgressBar: true,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: false,
+                        progress: undefined,
+                    });
+                    shownNotifications.add(currentQuestion.questionID);
+                }
+
+                if (shouldNotifyNot && !shownNotifications.has(currentQuestion.questionID)) {
+                    console.log(currentQuestion.notifytext);
+                    toast.info(currentQuestion.notifynottext, {
+                        position: 'top-center',
+                        autoClose: 3000,
+                        theme: 'light',
+                        hideProgressBar: true,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: false,
+                        progress: undefined,
+                    });
+                    shownNotifications.add(currentQuestion.questionID);
+                }*/
+
+
+
+                if (currentQuestion.nextQuestions) {
+                    const nextQuestionsArray = currentQuestion.nextQuestions.split(',').map(q => q.trim());
+
+                    if (currentQuestion.questionType === 'MCQ' && currentQuestion.options.includes('Yes') && currentQuestion.options.includes('No')) {
+                        const selectedAnswer = answers[currentQuestion.questionID];
+
+                        if (selectedAnswer === 'Yes' && nextQuestionsArray.length >= 1) {
+                            newQuestionIDs.push(nextQuestionsArray[0]);
+
+                            // TODO: Add proper assessment logic.
+                            /*if (currentQuestion.notifytext && !shownNotifications.has(currentQuestion.questionID)) { // Check if notifytext has been shown
+                                toast.info(currentQuestion.notifytext, {
+                                    position: 'top-center',
+                                    autoClose: 3000,
+                                    theme: 'light',
+                                    hideProgressBar: true,
+                                    closeOnClick: true,
+                                    pauseOnHover: true,
+                                    draggable: false,
+                                    progress: undefined,
+                                });
+                                shownNotifications.add(currentQuestion.questionID); // Add to shownNotifications
+                            }*/
+                        } else if (selectedAnswer === 'No' && nextQuestionsArray.length >= 1) {
+                            newQuestionIDs.push(nextQuestionsArray[1]);
+                            // TODO: Add proper assessment logic.
+                            /*if (currentQuestion.notifynottext && !shownNotifications.has(currentQuestion.questionID)) { // Check if notifynottext has been shown
+                                toast.info(currentQuestion.notifynottext, {
+                                    position: 'top-center',
+                                    autoClose: 3000,
+                                    theme: 'light',
+                                    hideProgressBar: true,
+                                    closeOnClick: true,
+                                    pauseOnHover: true,
+                                    draggable: false,
+                                    progress: undefined,
+                                });
+                                shownNotifications.add(currentQuestion.questionID); // Add to shownNotifications
+                            }*/
+                        } else {
+                            newQuestionIDs.push(...nextQuestionsArray);
+                        }
+                    } else if (currentQuestion.questionType === 'MCQ' && currentQuestion.options.includes('Ja') && currentQuestion.options.includes('Nein')) {
+                        const selectedAnswer = answers[currentQuestion.questionID];
+                        if (selectedAnswer === 'Ja' && nextQuestionsArray.length >= 1) {
+                            newQuestionIDs.push(nextQuestionsArray[0]);
+                        } else if (selectedAnswer === 'Nein' && nextQuestionsArray.length >= 1) {
+                            newQuestionIDs.push(nextQuestionsArray[1]);
+                        } else {
+                            newQuestionIDs.push(...nextQuestionsArray);
+                        }
+                    } else if (currentQuestion.questionType === 'Short' || currentQuestion.questionType === 'Long Text') {
+                        const answered = answers[currentQuestion?.questionID] || '';
+                        if (answered && nextQuestionsArray.length >= 1) {
+                            newQuestionIDs.push(nextQuestionsArray[0]);
+                        } else if (!answered && nextQuestionsArray.length >= 1) {
+                            newQuestionIDs.push(nextQuestionsArray[1]);
+                        } else {
+                            newQuestionIDs.push(...nextQuestionsArray);
+                        }
+                    }
+
+                    else if (currentQuestion.questionType === 'Input Validation' && currentQuestion.options) {
+                        let givenAnswer = Number(answers[currentQuestion.questionID] || 0);
+                        const startLimit = Number(currentQuestion.options[0]);
+                        const endLimit = Number(currentQuestion.options[1]);
+
+                        if (givenAnswer >= startLimit && givenAnswer < endLimit && nextQuestionsArray.length >= 1) {
+                            newQuestionIDs.push(nextQuestionsArray[0]);
+                        } else if (givenAnswer >= endLimit && nextQuestionsArray.length >= 1) {
+                            newQuestionIDs.push(nextQuestionsArray[1]);
+                        } else {
+                            shouldProceed = false;
+                            toast.info(`The entered value is invalid! Enter value between ${startLimit} - ${endLimit}`, {
+                                position: 'top-center',
+                                autoClose: 3000,
+                                theme: 'light',
+                                hideProgressBar: true,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: false,
+                                progress: undefined,
+                            });
+                        }
+                    } else {
+                        newQuestionIDs.push(...nextQuestionsArray);
+                    }
+                }
+
+                const prevQuestion = questions.find(q => q.questionID === id);
+                if (prevQuestion && prevQuestion.questionType === 'Multiple Select') {
+                    addHello = true; // Set flag to true to add Hello to the next question
+                    const savedOptionsForCurrentQuestion = savedOptions[prevQuestion.questionID];
+
+                    if (savedOptionsForCurrentQuestion && savedOptionsForCurrentQuestion.length > 0) {
+                        savedque = savedOptionsForCurrentQuestion.map(opt => opt.value1 || opt.value0);
+                    }
+                }
             }
-        };
-        fetchResults();
-    }, []);
-    const DashResult = result.results || [];
-    const TotalActivity = DashResult.length;
+        });
 
-    const [alignedValue, setAlignedValue] = useState([]);
-    const [notAlignedButEligibleValue, setNotAlignedButEligibleValue] = useState([]);
-    const [NotEligible, setNotEligible] = useState([]);
+        if (shouldProceed) { // Only proceed if no alert was shown
+            const nextQuestions = newQuestionIDs.map(id => questions.find(q => q.questionID === id));
+            setAllCurrentQuestions(prev => [...prev, ...nextQuestions.filter(Boolean)]);
+            setCurrentQuestionIDs(newQuestionIDs);
+            setQuestionHistory(prevHistory => [...prevHistory, newQuestionIDs]);
 
-    const prevAlignedValueRef = useRef([]);
-    const prevNotAlignedButEligibleValueRef = useRef([]);
-    const prevNotEligibleRef = useRef([]);
+            if (addHello && newQuestionIDs.length > 0) {
+                const nextQuestionID = newQuestionIDs[0];
+                const nextQuestionIndex = questions.findIndex(q => q.questionID === nextQuestionID);
 
-
-
-    useEffect(() => {
-        prevAlignedValueRef.current = alignedValue;
-        prevNotAlignedButEligibleValueRef.current = notAlignedButEligibleValue;
-        prevNotEligibleRef.current = NotEligible;
-    }, [alignedValue, notAlignedButEligibleValue, NotEligible]);
-
-    const FinalAligned = prevAlignedValueRef.current;
-    const FinalNotAligned = prevNotAlignedButEligibleValueRef.current;
-    const FineaNotEligible = prevNotEligibleRef.current;
-
-
-
-    const AlignedturnoverAnswers = FinalAligned.map(item =>
-        item.answers.find(answer => answer.questionCategory === 'Turnover')
-    ).map(answer => answer ? parseFloat(answer.answer[0]) : 0);
-    const AlignedTurnover = AlignedturnoverAnswers.reduce((acc, val) => acc + val, 0);
-
-
-    const NotAlignedturnoverAnswers = FinalNotAligned.map(item =>
-        item.answers.find(answer => answer.questionCategory === 'Turnover')
-    ).map(answer => answer ? parseFloat(answer.answer[0]) : 0);
-    const NotAlignedTurnover = NotAlignedturnoverAnswers.reduce((acc, val) => acc + val, 0);
-
-
-    const NotEligibleturnoverAnswers = FineaNotEligible.map(item =>
-        item.answers.find(answer => answer.questionCategory === 'Turnover')
-    ).map(answer => answer ? parseFloat(answer.answer[0]) : 0);
-    const NotEligibleTurnover = users.totalTurnover - AlignedTurnover - NotAlignedTurnover;
-
-
-    const AlignedcapexAnswers = FinalAligned.map(item =>
-        item.answers.find(answer => answer.questionCategory === 'CapEx')
-    ).map(answer => answer ? parseFloat(answer.answer[0]) : 0);
-    const AlignedCapEx = AlignedcapexAnswers.reduce((acc, val) => acc + val, 0);
-
-
-    const NotAlignedcapexAnswers = FinalNotAligned.map(item =>
-        item.answers.find(answer => answer.questionCategory === 'CapEx')
-    ).map(answer => answer ? parseFloat(answer.answer[0]) : 0);
-    const NotAlignedCapEx = NotAlignedcapexAnswers.reduce((acc, val) => acc + val, 0);
-
-
-    const NotEligiblecapexAnswers = FineaNotEligible.map(item =>
-        item.answers.find(answer => answer.questionCategory === 'CapEx')
-    ).map(answer => answer ? parseFloat(answer.answer[0]) : 0);
-    const NotEligibleCapEx = users.totalCapex - AlignedCapEx - NotAlignedCapEx;
-
-
-    const AlignedopexAnswers = FinalAligned.map(item =>
-        item.answers.find(answer => answer.questionCategory === 'OpEx')
-    ).map(answer => answer ? parseFloat(answer.answer[0]) : 0);
-    const AlignedOpEx = AlignedopexAnswers.reduce((acc, val) => acc + val, 0);
-
-    const NotAlignedopexAnswers = FinalNotAligned.map(item =>
-        item.answers.find(answer => answer.questionCategory === 'OpEx')
-    ).map(answer => answer ? parseFloat(answer.answer[0]) : 0);
-    const NotAlignedOpEx = NotAlignedopexAnswers.reduce((acc, val) => acc + val, 0);
-
-
-    const NotEligibleopexAnswers = FineaNotEligible.map(item =>
-        item.answers.find(answer => answer.questionCategory === 'OpEx')
-    ).map(answer => answer ? parseFloat(answer.answer[0]) : 0);
-    const NotEligibleOpEx = users.totalOpex - AlignedOpEx - NotAlignedOpEx;
-
-
-    const ChartDetails = [
-        {
-            title: currentLanguage === 'english' ? "Turnover" : "Umsatz",
-            topic: currentLanguage === 'english' ? "EU Taxonomy alignment for Clean Energy Activities" : "EU-Taxonomie-Ausrichtung für saubere Energieaktivitäten",
-            alignedValue: AlignedTurnover,
-            notAlignedButEligibleValue: NotAlignedTurnover,
-            notEligibleValue: NotEligibleTurnover,
-            showCurrency: true,
-        },
-        {
-            title: currentLanguage === 'english' ? "CapEx" : "CapEx (Investitionskosten)",
-            topic: currentLanguage === 'english' ? "EU Taxonomy alignment for Clean Energy Activities" : "EU-Taxonomie-Ausrichtung für saubere Energieaktivitäten",
-            alignedValue: AlignedCapEx,
-            notAlignedButEligibleValue: NotAlignedCapEx,
-            notEligibleValue: NotEligibleCapEx,
-            showCurrency: true,
-        },
-        {
-            title: currentLanguage === 'english' ? "OpEx" : "OpEx (Betriebskosten)",
-            topic: currentLanguage === 'english' ? "EU Taxonomy alignment for Clean Energy Activities" : "EU-Taxonomie-Ausrichtung für saubere Energieaktivitäten",
-            alignedValue: AlignedOpEx,
-            notAlignedButEligibleValue: NotAlignedOpEx,
-            notEligibleValue: NotEligibleOpEx,
-            showCurrency: true,
-        },
-        {
-            title: currentLanguage === 'english' ? "# of Activities" : "# der Aktivitäten",
-            topic: currentLanguage === 'english' ? "EU Taxonomy alignment for Clean Energy Activities" : "EU-Taxonomie-Ausrichtung für saubere Energieaktivitäten",
-            alignedValue: FinalAligned.length,
-            notAlignedButEligibleValue: FinalNotAligned.length,
-            notEligibleValue: users.totalActivity - FinalAligned.length - FinalNotAligned.length,
-            showCurrency: false,
+                if (nextQuestionIndex !== -1) {
+                    const nextQuestion = questions[nextQuestionIndex];
+                    const savedPrevQuestion = savedPreviousQuestions.find(q => q.id === nextQuestionIndex);
+                    const saveThisIfUndefined = nextQuestion.question;
+                    if (savedPrevQuestion === undefined) {
+                        setSavedPreviousQuestions(prevQuestions => [...prevQuestions, { id: nextQuestionIndex, question: saveThisIfUndefined }]);
+                    }
+                    const allValues = savedque.flatMap(item => item.split('¦').map(s => s.trim()));
+                    const uniqueValues = Array.from(new Set(allValues));
+                    const combinedSavedque = uniqueValues.map(item => `<li>${item}</li>`).join(' ');
+                    if (savedPrevQuestion === undefined) {
+                        nextQuestion.question = `${nextQuestion.question} ${combinedSavedque}`;
+                    } else {
+                        nextQuestion.question = `${savedPrevQuestion.question} ${combinedSavedque}`;
+                    }
+                    setQuestions([...questions]);
+                }
+            }
         }
-    ];
+    };
+
+
+
+
+
+    const handlePreviousQuestion = () => {
+        if (questionHistory.length > 1) {
+            const newHistory = [...questionHistory];
+            newHistory.pop();
+            const previousQuestionIDs = newHistory[newHistory.length - 1];
+            setCurrentQuestionIDs(previousQuestionIDs);
+            setQuestionHistory(newHistory);
+        }
+    };
+
+    const currentQuestions = questions.filter(q => currentQuestionIDs.includes(q.questionID));
+
+    if (!currentQuestions.length) {
+        return <div>Loading...</div>;
+    }
+
+    const handleAnswerChange = (questionID, answer) => {
+        setAnswers(prevAnswers => ({
+            ...prevAnswers,
+            [questionID]: answer,
+        }));
+    };
+
+    const handleMultipleSelectChange = (questionID, optionValue0, optionValue1, isChecked) => {
+        setAnswers(prevAnswers => {
+            const prevAnswer = prevAnswers[questionID] || [];
+            let updatedAnswer;
+            if (isChecked) {
+                updatedAnswer = [...prevAnswer, { value0: optionValue0, value1: optionValue1 }];
+            } else {
+                updatedAnswer = prevAnswer.filter(ans => ans.value0 !== optionValue0);
+            }
+            return {
+                ...prevAnswers,
+                [questionID]: updatedAnswer,
+            };
+        });
+
+        if (optionValue1) {
+            setSavedOptions(prevSavedOptions => {
+                const prevOptions = prevSavedOptions[questionID] || [];
+                let updatedOptions;
+                if (isChecked) {
+                    updatedOptions = [...prevOptions, { value0: optionValue0, value1: optionValue1 }];
+                } else {
+                    updatedOptions = prevOptions.filter(opt => opt.value0 !== optionValue0);
+                }
+                return {
+                    ...prevSavedOptions,
+                    [questionID]: updatedOptions,
+                };
+            });
+        }
+    };
+
+
+
+    const saveResults = async () => {
+        const userEmail = localStorage.getItem('email');
+        try {
+            // Accumulate all question IDs in allCurrentQuestions
+            const questionIDs = allCurrentQuestions.map(question => question.questionID);
+            // Filter out duplicate question IDs
+            const uniqueQuestionsMap = new Map();
+            allCurrentQuestions.forEach(question => {
+                if (!uniqueQuestionsMap.has(question.questionID)) {
+                    uniqueQuestionsMap.set(question.questionID, question);
+                }
+            });
+            const uniqueQuestions = Array.from(uniqueQuestionsMap.values());
+            const uniqueQuestionIDs = Array.from(uniqueQuestionsMap.keys());
+
+            // Loop through each unique question and format the answers
+            const formattedAnswers = uniqueQuestions.map(question => {
+                const currentAnswer = answers[question.questionID];
+                const questionCategory = question.questionCategory;
+                const questionType = question.questionType;
+                // Format the answer appropriately
+                if (Array.isArray(currentAnswer)) {
+                    return {
+                        questionID: question.questionID,
+                        questionCategory,
+                        answer: currentAnswer.length > 0 ? currentAnswer.map(a => `${a.value0},${a.value1}`).join(';') : ''
+                    };
+                } else {
+                    return {
+                        questionID: question.questionID,
+                        questionCategory,
+                        questionType,
+                        answer: currentAnswer || ''
+                    };
+                }
+            });
+
+            // Send the data to the backend
+            const response = await fetch('https://confess-data-tool-backend-beta.vercel.app/api/results/submitresults', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ examName, examCategory, userEmail, answers: formattedAnswers, questionIDs: uniqueQuestionIDs })
+            });
+
+            if (response.ok) {
+                alert(currentLanguage === 'english' ? 'Your answers are submitted' : 'Die Antworten wurden eingereicht');
+                navigate('/landing');
+            } else {
+                const errorData = await response.json();
+                console.error('Failed to save results', errorData);
+                alert(`Failed to save results: ${errorData.message}`);
+            }
+        } catch (error) {
+            console.error('Error saving results:', error);
+        }
+    };
+
+
+
+    const renderQuestionInput = (question) => {
+        const savedAnswer = answers[question.questionID];
+        switch (question.questionType) {
+            case 'MCQ':
+                return (
+                    <>
+                        {question.options.filter(option => option).map((option, index) => (
+                            <div key={index} className='fs-6'>
+                                <input
+                                    type="radio"
+                                    className='m-1 form-check-input'
+                                    name={`question-${question.questionID}`}
+                                    value={option}
+                                    checked={savedAnswer === option}
+                                    onChange={() => handleAnswerChange(question.questionID, option)}
+                                />
+                                {option}
+                            </div>
+                        ))}
+                    </>
+                );
+            case 'Multiple Select':
+                return (
+                    <>
+                        {question.options.filter(option => option).map((option, index) => {
+                            const optionValue = option.split('#');
+
+                            return (
+                                <div key={index} className='fs-6'>
+                                    <input
+                                        type="checkbox"
+                                        className='m-1 form-check-input'
+                                        name={`question-${question.questionID}`}
+                                        value={optionValue[0]}
+                                        checked={savedAnswer && savedAnswer.some(ans => ans.value0 === optionValue[0])}
+                                        onChange={(e) => {
+                                            const isChecked = e.target.checked;
+                                            handleMultipleSelectChange(question.questionID, optionValue[0], optionValue[1], isChecked);
+                                        }}
+                                    />
+                                    {optionValue[0]}
+                                </div>
+                            );
+                        })}
+                    </>
+                );
+
+            case 'Short':
+                return (
+                    <textarea
+                        className='input-4 border-secondary text-secondary w-100'
+                        name={`question-${question.questionID}`}
+                        value={savedAnswer || ''}
+                        onChange={(e) => handleAnswerChange(question.questionID, e.target.value)}
+                    />
+                );
+
+            case 'Long Text':
+                return (
+                    <textarea
+                        className='input-4 border-secondary text-secondary w-100'
+                        name={`question-${question.questionID}`}
+                        value={savedAnswer || ''}
+                        onChange={(e) => handleAnswerChange(question.questionID, e.target.value)}
+                    />
+                );
+            case 'Numerical Value':
+                return (
+                    <div className='numerical'>
+                        <input
+                            type="number"
+                            className='input-4 border-secondary text-secondary w-100'
+                            name={`question-${question.questionID}`}
+                            value={savedAnswer || ''}
+                            onChange={(e) => handleAnswerChange(question.questionID, e.target.value)}
+                        />
+                        <FontAwesomeIcon
+                            icon={faEuroSign}
+                            className='euro-sign'
+                        />
+                    </div>
+                );
+
+            case 'Input Validation':
+                return (
+                    <div className='numerical'>
+                        <input
+                            type="number"
+                            className='input-4 border-secondary text-secondary w-100'
+                            name={`question-${question.questionID}`}
+                            value={savedAnswer || ''}
+                            onChange={(e) => handleAnswerChange(question.questionID, e.target.value)}
+                        />
+                        {/* <FontAwesomeIcon
+                            icon={faEuroSign}
+                            className='euro-sign'
+                        /> */}
+                    </div>
+                );
+            case 'Year':
+                return (
+                    <div className='numerical'>
+                        <input
+                            type="number"
+                            className='input-4 border-secondary text-secondary w-100'
+                            name={`question-${question.questionID}`}
+                            value={savedAnswer || ''}
+                            max="9999" // Ensure maximum year value is set
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                if (/^\d{0,4}$/.test(value)) { // Only allow up to 4 digits
+                                    handleAnswerChange(question.questionID, value);
+                                }
+                            }}
+                        />
+                    </div>
+                );
+
+            default:
+                return null;
+        }
+    };
+
+    const isLastQuestion = currentQuestions.some(question => question.nextQuestions === 'end');
+    const excludedCategories = ['Turnover', 'Capex', 'OpEx', 'Blank'];
+    const currentCategory = currentQuestions[0]?.questionCategory;
+
+
+    const changeLanguage = (language) => {
+        if (currentLanguage !== language) {
+            localStorage.setItem('language', language);
+            setCurrentLanguage(language);
+            window.location.reload(); // Force reload to apply language changes
+        }
+    };
+
 
     return (
-        <div className='d-flex justify-content-center mt-5'>
-            <section className='reports-main'>
+        <div className='assessment-page container mt-5 py-5'>
+            <h4>{examName}</h4>
+            {excludedCategories.includes(currentCategory) ? '' : <h4 className='container bg-secondary text-white p-2' style={{ borderRadius: "10px 10px 0px 0px" }}>{currentCategory}</h4>}
 
-                <div className="card card-reports">
-                    <div className="card-header text-start">
-                        <h3 className='fw-light'>{currentLanguage === 'english' ? 'Report: CONFESS' : 'Bericht: CONFESS'}</h3>
-                        <p>{currentLanguage === 'english' ? `For ${users.companyName}` : `Für ${users.companyName}`}</p>
-                    </div>
-                    <div className="card-body text-start">
-                        <p className="card-title">
-                            <i>{currentLanguage === 'english' ? 'Disclaimer: The evaluation is based on the information provided in the tool. No verifications were conducted.' : 'Haftungsausschluss: Die Bewertung basiert auf den im Tool bereitgestellten Informationen. Es wurden keine Überprüfungen durchgeführt.'}</i>
-                        </p>
-                        <p className="card-title mt-3">{currentLanguage === 'english' ? 'Total Number of Activities:' : 'Anzahl aller Unternehmensaktivitäten:'} <span>{users.totalActivity}</span></p>
-                        <p className="mt-3">
-                            {currentLanguage === 'english' ? 'Total Turnover: ' : 'Umsatz (gesamt): '}{users.totalTurnover} € <br />
-                            {currentLanguage === 'english' ? 'Total CapEx: ' : 'CapEx (gesamt): '}{users.totalCapex} € <br />
-                            {currentLanguage === 'english' ? 'Total OpEx: ' : 'OpEx (gesamt): '}{users.totalOpex} €
-                        </p>
-                    </div>
+
+            {currentQuestions.map(question => (
+                <div key={question.questionID} className='question text-start'>
+                    <p className='mt-5' dangerouslySetInnerHTML={{ __html: question.question }}></p>
+                    {renderQuestionInput(question)}
+                    <p className='mt-5' dangerouslySetInnerHTML={{ __html: question.disclaimer }}></p>
+                    {/* <p className='mt-3'><i>{question.disclaimer}</i></p> */}
                 </div>
+            ))}
 
-                <section className='section-card'>
-                    {ChartDetails.map((value, index) => {
+            <div className='navigation-buttons d-flex justify-content-between mt-5'>
+                <button
+                    className='btn-cancel'
+                    onClick={() => {
+                        if (questionHistory.length <= 1) {
+                            navigate('/instructions', { state: { examName, examCategory } });
+                        } else {
+                            handlePreviousQuestion();
+                        }
+                    }}
+                >
+                    {questionHistory.length <= 1 ? (currentLanguage === 'english' ? 'Cancel' : 'Abbrechen') : (currentLanguage === 'english' ? 'Previous' : 'Zurück')}
+                </button>
+                {isLastQuestion ? (
+                    <button
+                        className='btn-cancel'
+                        onClick={saveResults}
+                    >
+                        {currentLanguage === 'english' ? 'Submit ' : 'Absenden'}
+                    </button>
+                ) : (
+                    <button
+                        className='btn-cancel'
+                        onClick={handleNextQuestion}
+                    >
+                        {currentLanguage === 'english' ? 'Next' : 'Weiter'}
 
-
-                        // Calculate percentages
-                        const total = value.alignedValue + value.notAlignedButEligibleValue + value.notEligibleValue;
-                        const alignedPercentage = (value.alignedValue / total) * 100;
-                        const notAlignedButEligiblePercentage = (value.notAlignedButEligibleValue / total) * 100;
-                        const notEligiblePercentage = (value.notEligibleValue / total) * 100;
-
-
-                        return (
-                            <div key={index} className='card-main'>
-                                <div className="card card-stats">
-                                    <div className="card-body text-start">
-                                        <h4>{value.title}</h4>
-                                        <p className="card-title">{value.topic}</p>
-
-                                        <div className="circle m-4">
-                                            <div className="circle-progress"
-                                                style={{
-                                                    background: `conic-gradient(#6CC784 0% ${alignedPercentage}%,  #394D2C ${alignedPercentage}% ${alignedPercentage + notAlignedButEligiblePercentage}%, #C4C4C4 ${alignedPercentage + notAlignedButEligiblePercentage}% 100%)`
-                                                }}>
-                                            </div>
-                                        </div>
-
-                                        <div className='row d-flex flex-column justify-content-between align-items-center'>
-                                            <div className='col d-flex justify-content-between'>
-                                                <p><span className='green-dot'></span>{currentLanguage === 'english' ? 'Aligned' : 'Taxonomiekonform'}</p>
-                                                <p>{value.alignedValue} {value.showCurrency ? '€' : ''} ({alignedPercentage.toFixed(1)}%)</p>
-                                            </div>
-                                            <div className='col d-flex justify-content-between'>
-                                                <p><span className='grey-dot'></span>{currentLanguage === 'english' ? 'Not aligned but eligible' : 'Taxonomiefähig'}</p>
-                                                <p>{value.notAlignedButEligibleValue} {value.showCurrency ? '€' : ''} ({notAlignedButEligiblePercentage.toFixed(1)}%)</p>
-                                            </div>
-                                            <div className='col d-flex justify-content-between'>
-                                                <p><span className='dark-dot'></span>{currentLanguage === 'english' ? 'Not eligible' : 'Nicht Taxonomiefähig'}</p>
-                                                <p>{value.notEligibleValue} {value.showCurrency ? '€' : ''} ({notEligiblePercentage.toFixed(1)}%)</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </section>
-
-                <div className="card card-reports mt-5">
-                    <div className="card-header text-start">
-                        <h3 className='fw-light'>{currentLanguage === 'english' ? 'Activities in Detail' : 'Detaillierte Auswertung der Aktivitäten'}</h3>
-                    </div>
-                    <div className="card-body text-start">
-                        <p className="card-title">
-                            <i>{currentLanguage === 'english' ? 'Disclaimer: The evaluation is based on the information provided in the tool. No verifications were conducted.' : 'Haftungsausschluss: Die Bewertung basiert auf den im Tool bereitgestellten Informationen. Es wurden keine Überprüfungen durchgeführt.'}</i>
-                        </p>
-                        <p>{currentLanguage === 'english' ? 'Legend' : 'Legende'}</p>
-                        <div className='col'>
-                            <p className="mt-3 d-flex align-items-center"><span className='darkgreen-dot'></span>{currentLanguage === 'english' ? 'Criteria met' : 'Kriterium erfüllt'}</p>
-                            <p className="mt-3 d-flex align-items-center"><span className='orange-dot'></span>{currentLanguage === 'english' ? 'Criteria not met' : 'Kriterium nicht erfüllt'}</p>
-                            <p className="mt-3 d-flex align-items-center"><span className='darkgrey-dot'></span>{currentLanguage === 'english' ? 'Criteria not assessable' : 'Kriterien nicht beurteilbar'}</p>
-                        </div>
-                    </div>
-                </div>
-
-                {<DashActivity currentLanguage={currentLanguage} DashResult={DashResult} alignedValue={alignedValue} notAlignedButEligibleValue={notAlignedButEligibleValue} NotEligible={NotEligible} />}
-
-                {Dashopop && <DashboardPop setreloaddash={setreloaddash} setResults={setResults} totalTurnover={totalTurnover} totalCapex={totalCapex} totalOpex={totalOpex} TotalActivity={TotalActivity} setDashopop={setDashopop} users={users} />}
-
-            </section>
+                    </button>
+                )}
+            </div>
+            <ToastContainer />
         </div>
     );
 }
 
-
-export default Reports;
-
+export default AssessmentPage;
 
 
-
-const DashboardPop = ({ setDashopop, users, setResults, setreloaddash }) => {
-    const [turnover, setTurnover] = useState('');
-    const [capex, setCapex] = useState('');
-    const [opex, setOpex] = useState('');
-    const [activity, setactivity] = useState('');
-    const [currentLanguage, setCurrentLanguage] = useState(localStorage.getItem('language') || 'english');
-
-    const SaveLanguage = useCallback((language) => {
-        if (currentLanguage !== language) {
-            localStorage.setItem('language', language);
-            setCurrentLanguage(language);
-        }
-    }, [currentLanguage]);
-
-    useEffect(() => {
-        if (!localStorage.getItem('language')) {
-            localStorage.setItem('language', 'english');
-            setCurrentLanguage('english');
-        }
-    }, []);
-
-    useEffect(() => {
-        if (users) {
-            setTurnover(users.totalTurnover);
-            setCapex(users.totalCapex);
-            setOpex(users.totalOpex);
-            setactivity(users.totalActivity);
-        }
-    }, [users]);
-
-    const navigate = useNavigate();
-
-    const closeThePop = () => {
-        setDashopop(false);
-    };
-
-    const GoHome = () => {
-        navigate('/landing');
-    };
-
-    const handleFormSubmit = async (e) => {
-        e.preventDefault();
-
-        const updatedData = {
-            totalTurnover: parseFloat(turnover),
-            totalCapex: parseFloat(capex),
-            totalOpex: parseFloat(opex),
-            totalActivity: parseFloat(activity),
-        };
-
-        const messages = content[currentLanguage].errorMessages;
-        let hasError = false;
-
-        if (updatedData.totalTurnover < users.totalTurnover) {
-            toast.error(messages.turnoverError.replace('{currentValue}', users.totalTurnover), {
-                position: 'top-center',
-                autoClose: 3000,
-                theme: 'light',
-                hideProgressBar: true,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: false,
-                progress: undefined,
-            });
-            hasError = true;
-        }
-        if (updatedData.totalCapex < users.totalCapex) {
-            toast.error(messages.capexError.replace('{currentValue}', users.totalCapex), {
-                position: 'top-center',
-                autoClose: 3000,
-                theme: 'light',
-                hideProgressBar: true,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: false,
-                progress: undefined,
-            });
-            hasError = true;
-        }
-        if (updatedData.totalOpex < users.totalOpex) {
-            toast.error(messages.opexError.replace('{currentValue}', users.totalOpex), {
-                position: 'top-center',
-                autoClose: 3000,
-                theme: 'light',
-                hideProgressBar: true,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: false,
-                progress: undefined,
-            });
-            hasError = true;
-        }
-
-        if (updatedData.totalActivity < users.totalActivity) {
-            toast.error(messages.opexError.replace('{currentValue}', users.totalActivity), {
-                position: 'top-center',
-                autoClose: 3000,
-                theme: 'light',
-                hideProgressBar: true,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: false,
-                progress: undefined,
-            });
-            hasError = true;
-        }
-
-        if (hasError) {
-            return; // Prevent form submission
-        }
-
-        try {
-            const response = await fetch(`https://confess-data-tool-backend-beta.vercel.app/api/users/${users._id}/financial-data`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updatedData),
-            });
-
-            if (response.ok) {
-                const updatedUser = await response.json();
-                setResults(updatedUser);
-                setDashopop(false);
-                setreloaddash(true)
-
-            } else {
-                console.error('Failed to update data');
-            }
-        } catch (error) {
-            console.error('Error updating data:', error);
-        }
-    };
-
-    const content = {
-        english: {
-            heading: 'Update Total Turnover, CapEx, OpEx',
-            paragraphs: [
-                'Reporting in accordance with the EU taxonomy indicates the proportion of taxonomy eligible and taxonomy aligned economic activities.',
-                'In order to determine their monetary value, the share of taxonomy eligible and taxonomy-aligned activities in turnover, CapEx and OpEx is calculated and reported. To calculate this, we need to know your total turnover, CapEx and OpEx of the last fiscal year. We also need to know the total number of economic activities your company performs.',
-                'If you do not know and cannot collect the exact total financials of the last year, please estimate:',
-            ],
-            labels: {
-                turnover: 'Total Turnover',
-                capex: 'Total Capex',
-                opex: 'Total OpEx',
-                totalActivities: 'Total Activities',
-                cancel: 'Cancel',
-                submit: 'Submit',
-            },
-            errorMessages: {
-                turnoverError: 'The entered turnover amount is lower than the current value of Total Turnover: {currentValue}.',
-                capexError: 'The entered Capex amount is lower than the current value of Total Capex: {currentValue}.',
-                opexError: 'The entered OpEx amount is lower than the current value of Total OpEx: {currentValue}.',
-            }
-        },
-        german: {
-            heading: 'Gesamtumsatz, CapEx, OpEx aktualisieren',
-            paragraphs: [
-                'Die Berichterstattung gemäß der EU-Taxonomie gibt den Anteil der taxonomie-eligiblen und taxonomie-konformen Wirtschaftstätigkeiten an.',
-                'Um deren monetären Wert zu bestimmen, wird der Anteil der taxonomie-eligiblen und taxonomie-konformen Aktivitäten an Umsatz, CapEx und OpEx berechnet und berichtet. Um dies zu berechnen, müssen wir Ihren Gesamtumsatz, CapEx und OpEx des letzten Geschäftsjahres kennen. Wir müssen auch die Gesamtzahl der von Ihrem Unternehmen ausgeführten Wirtschaftstätigkeiten kennen.',
-                'Wenn Sie die genauen Gesamtdaten des letzten Jahres nicht kennen und nicht sammeln können, schätzen Sie bitte:',
-            ],
-            labels: {
-                turnover: 'Gesamtumsatz',
-                capex: 'Gesamt Capex',
-                opex: 'Gesamt OpEx',
-                totalActivities: 'Gesamtaktivitäten',
-                cancel: 'Abbrechen',
-                submit: 'Einreichen',
-            },
-            errorMessages: {
-                turnoverError: 'Der eingegebene Umsatzbetrag liegt unter dem aktuellen Wert des Gesamtumsatzes: {currentValue}.',
-                capexError: 'Der eingegebene CapEx-Betrag liegt unter dem aktuellen Wert des Gesamt-CapEx: {currentValue}.',
-                opexError: 'Der eingegebene OpEx-Betrag liegt unter dem aktuellen Wert des Gesamt-OpEx: {currentValue}.',
-            }
-        }
-    };
-
-    const { heading, paragraphs, labels } = content[currentLanguage];
-    const { errorMessages } = content[currentLanguage];
+const Tooltip = ({ text, tooltipText }) => {
+    const [hover, setHover] = useState(false);
 
     return (
-        <div className='Dash-pop'>
-            <section>
-                <h4>{heading}</h4>
-                {paragraphs.map((p, index) => <p key={index}>{p}</p>)}
-                <form onSubmit={handleFormSubmit}>
-                    <div>
-                        <div className={`input-wraps-dash ${turnover ? 'has-values' : ''}`}>
-                            <input
-                                type='number'
-                                className='input-turnover'
-                                value={turnover}
-                                onChange={(e) => setTurnover(parseFloat(e.target.value) || 0)}
-                            />
-                            <label>{labels.turnover} <span className='text-danger'>*</span></label>
-                            <FontAwesomeIcon icon={faEuroSign} className='euro-signs' />
-                        </div>
-                        <div className={`input-wraps-dash ${capex ? 'has-values' : ''}`}>
-                            <input
-                                type='number'
-                                className='input-capex'
-                                value={capex}
-                                onChange={(e) => setCapex(parseFloat(e.target.value) || 0)}
-                            />
-                            <label>{labels.capex} <span className='text-danger'>*</span></label>
-                            <FontAwesomeIcon icon={faEuroSign} className='euro-signs' />
-                        </div>
-                        <div className={`input-wraps-dash ${opex ? 'has-values' : ''}`}>
-                            <input
-                                type='number'
-                                className='input-opex'
-                                value={opex}
-                                onChange={(e) => setOpex(parseFloat(e.target.value) || 0)}
-                            />
-                            <label>{labels.opex} <span className='text-danger'>*</span></label>
-                            <FontAwesomeIcon icon={faEuroSign} className='euro-signs' />
-                        </div>
-                        <div className={`input-wraps-dash ${activity ? 'has-values' : ''}`}>
-                            <input
-                                type='number'
-                                className='input-totalact'
-                                value={activity}
-                                onChange={(e) => setactivity(parseFloat(e.target.value) || 0)}
-                            />
-                            <label>{labels.totalActivities} <span className='text-danger'>*</span></label>
-                        </div>
-                    </div>
-                    <div className='Dash-submit-buttons'>
-                        <button type="button" onClick={GoHome} className='btn btn-secondary'>{labels.cancel}</button>
-                        <button type="submit" className='btn btn-primary'>{labels.submit}</button>
-                    </div>
-                </form>
-                <ToastContainer />
-            </section>
-        </div>
-    );
-};
-
-
-
-const DashActivity = ({ DashResult, currentLanguage, alignedValue, notAlignedButEligibleValue, NotEligible }) => {
-    const [selectedFiscalYear, setSelectedFiscalYear] = useState('All');
-
-    const handleFiscalYearChange = (event) => {
-        setSelectedFiscalYear(event.target.value);
-    };
-
-    const getUniqueFiscalYears = () => {
-        if (!Array.isArray(DashResult)) {
-            return [];
-        }
-
-        const fiscalYears = DashResult.flatMap(value => {
-            if (!Array.isArray(value?.answers)) {
-                return [];
-            }
-
-            return value.answers
-                .filter(answer => answer.questionType !== "Blank")
-                .filter(answer => answer.questionCategory === 'Fiscal Year')
-                .flatMap(answer => answer.answer || []);
-        });
-
-        return Array.from(new Set(fiscalYears));
-    };
-
-    const getFilteredDashResult = () => {
-        if (selectedFiscalYear === 'All') {
-            return DashResult;
-        }
-
-        if (!Array.isArray(DashResult)) {
-            return [];
-        }
-
-        return DashResult.filter(value => {
-            const filteredAnswers = Array.isArray(value?.answers) ? value.answers.filter(answer => answer.questionType !== "Blank") : [];
-            const FiscalYear = filteredAnswers.filter(answer => answer.questionCategory === 'Fiscal Year');
-            return FiscalYear.some(answer => answer.answer.includes(selectedFiscalYear));
-        });
-    };
-
-    const updateValues = () => {
-        alignedValue.length = 0;
-        notAlignedButEligibleValue.length = 0;
-        NotEligible.length = 0;
-
-        const filteredResults = getFilteredDashResult();
-
-        filteredResults.forEach((value, index) => {
-            const filteredAnswers = Array.isArray(value?.answers) ? value.answers.filter(answer => answer.questionType !== "Blank") : [];
-            const SubstentialContribution = filteredAnswers.filter(answer => answer.questionCategory === 'Substantial Contribution');
-            const DNSHAdaption = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Adaptation');
-            const DNSHce = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - CE');
-            const DNSHwater = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Water');
-            const DNSHpollution = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Pollution');
-            const DNSHbiodibersity = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Biodiversity');
-            const Turnover = filteredAnswers.filter(answer => answer.questionCategory === 'Turnover');
-            const Capex = filteredAnswers.filter(answer => answer.questionCategory === 'CapEx');
-            const OpEx = filteredAnswers.filter(answer => answer.questionCategory === 'OpEx');
-
-            const AllSubstential = SubstentialContribution.length > 0 && SubstentialContribution.every(answer =>
-                answer.answer.every(ans => ans.trim() !== "")
-            );
-            const AllDNSHAdaption = DNSHAdaption.length > 0 && DNSHAdaption.every(answer =>
-                answer.answer.every(ans => ans.trim() !== "")
-            );
-            const AllDNSHce = DNSHce.length > 0 && DNSHce.every(answer =>
-                answer.answer.every(ans => ans.trim() !== "")
-            );
-            const AllDNSHwater = DNSHwater.length > 0 && DNSHwater.every(answer =>
-                answer.answer.every(ans => ans.trim() !== "")
-            );
-            const AllDNSHpollution = DNSHpollution.length > 0 && DNSHpollution.every(answer =>
-                answer.answer.every(ans => ans.trim() !== "")
-            );
-            const AllDNSHbiodibersity = DNSHbiodibersity.length > 0 && DNSHbiodibersity.every(answer =>
-                answer.answer.every(ans => ans.trim() !== "")
-            );
-            const AllTurnover = Turnover.length > 0 && Turnover.every(answer =>
-                answer.answer.every(ans => ans.trim() !== "")
-            );
-            const AllCapex = Capex.length > 0 && Capex.every(answer =>
-                answer.answer.every(ans => ans.trim() !== "")
-            );
-            const AllOpEx = OpEx.length > 0 && OpEx.every(answer =>
-                answer.answer.every(ans => ans.trim() !== "")
-            );
-
-            const dotStatuses = [
-                DNSHAdaption.length > 0 ? (AllDNSHAdaption ? 'darkgrey-dot' : 'orange-dot') : 'darkgrey-dot',
-                DNSHwater.length > 0 ? (AllDNSHwater ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
-                DNSHce.length > 0 ? (AllDNSHce ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
-                DNSHpollution.length > 0 ? (AllDNSHpollution ? 'darkgreen-dot' : 'darkgreen-dot') : 'darkgrey-dot',
-                DNSHbiodibersity.length > 0 ? (AllDNSHbiodibersity ? 'darkgreen-dot' : 'darkgreen-dot') : 'darkgrey-dot',
-                Turnover.length > 0 ? (AllTurnover ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
-                Capex.length > 0 ? (AllCapex ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
-                OpEx.length > 0 ? (AllOpEx ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
-            ];
-
-            if (dotStatuses.every(status => status === 'darkgrey-dot')) {
-                NotEligible.push(value);
-            } else if (dotStatuses.includes('orange-dot')) {
-                notAlignedButEligibleValue.push(value);
-            } else if (!dotStatuses.includes('orange-dot')) {
-                alignedValue.push(value);
-            }
-        });
-
-        return filteredResults;
-    };
-
-    useEffect(() => {
-        updateValues();
-    }, [selectedFiscalYear]);
-
-    return (
-        <section>
-            {updateValues().map((value, index) => {
-                const filteredAnswers = Array.isArray(value?.answers) ? value.answers.filter(answer => answer.questionType !== "Blank") : [];
-                const SubstentialContribution = filteredAnswers.filter(answer => answer.questionCategory === 'Substantial Contribution');
-                const DNSHAdaption = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Adaptation');
-                const DNSHce = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - CE');
-                const DNSHwater = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Water');
-                const DNSHpollution = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Pollution');
-                const DNSHbiodibersity = filteredAnswers.filter(answer => answer.questionCategory === 'DNSH - Biodiversity');
-                const Turnover = filteredAnswers.filter(answer => answer.questionCategory === 'Turnover');
-                const Capex = filteredAnswers.filter(answer => answer.questionCategory === 'CapEx');
-                const OpEx = filteredAnswers.filter(answer => answer.questionCategory === 'OpEx');
-
-                const AllSubstential = SubstentialContribution.length > 0 && SubstentialContribution.every(answer =>
-                    answer.answer.every(ans => ans.trim() !== "")
-                );
-                const AllDNSHAdaption = DNSHAdaption.length > 0 && DNSHAdaption.every(answer =>
-                    answer.answer.every(ans => ans.trim() !== "")
-                );
-                const AllDNSHce = DNSHce.length > 0 && DNSHce.every(answer =>
-                    answer.answer.every(ans => ans.trim() !== "")
-                );
-                const AllDNSHwater = DNSHwater.length > 0 && DNSHwater.every(answer =>
-                    answer.answer.every(ans => ans.trim() !== "")
-                );
-                const AllDNSHpollution = DNSHpollution.length > 0 && DNSHpollution.every(answer =>
-                    answer.answer.every(ans => ans.trim() !== "")
-                );
-                const AllDNSHbiodibersity = DNSHbiodibersity.length > 0 && DNSHbiodibersity.every(answer =>
-                    answer.answer.every(ans => ans.trim() !== "")
-                );
-                const AllTurnover = Turnover.length > 0 && Turnover.every(answer =>
-                    answer.answer.every(ans => ans.trim() !== "")
-                );
-                const AllCapex = Capex.length > 0 && Capex.every(answer =>
-                    answer.answer.every(ans => ans.trim() !== "")
-                );
-                const AllOpEx = OpEx.length > 0 && OpEx.every(answer =>
-                    answer.answer.every(ans => ans.trim() !== "")
-                );
-
-                return (
-                    <div key={value._id} className="card card-reports mt-5 text-start">
-                        <div className="card-header">
-                            <h3 className='fw-light'>
-                                {currentLanguage === 'english' ? `Activity ${index + 1} - ${value.examName}` : `Aktivität ${index + 1} - ${value.examName}`}
-                            </h3>
-                        </div>
-                        <div className='d-flex mx-3 mt-3 justify-content-between'>
-                            <p>{currentLanguage === 'english' ? 'Substantial Contribution (Climate Change Mitigation)' : 'Substanzielle Beiträge (Klimaschutz)'}</p>
-                            <span className={AllSubstential && AllOpEx && AllCapex & AllTurnover ? 'darkgreen-dot mx-4' : 'darkgrey-dot mx-4'}></span>
-                        </div>
-                        <p className="mx-3 mt-4">{currentLanguage === 'english' ? 'Do No Significant Harm' : 'Keine wesentlichen Schäden'}</p>
-                        <div className='d-flex mx-3 mt-2 justify-content-between'>
-                            <p>{currentLanguage === 'english' ? 'Climate Change Adaptation' : 'Klimawandel-Anpassung'}</p>
-                            <span className={DNSHAdaption.length > 0 ? (AllDNSHAdaption ? 'darkgrey-dot mx-4' : 'darkgrey-dot mx-4') : 'darkgreen-dot mx-4'}></span>
-                        </div>
-                        <div className='d-flex mx-3 justify-content-between'>
-                            <p>{currentLanguage === 'english' ? 'Water and Marine Protection' : 'Wasser- und Meeresschutz'}</p>
-                            <span className={DNSHwater.length > 0 ? (AllDNSHwater ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'darkgreen-dot mx-4'}></span>
-                        </div>
-                        <div className='d-flex mx-3 justify-content-between'>
-                            <p>{currentLanguage === 'english' ? 'Circular Economy' : 'Kreislaufwirtschaft'}</p>
-                            <span className={DNSHce.length > 0 ? (AllDNSHce ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'darkgreen-dot mx-4'}></span>
-                        </div>
-                        <div className='d-flex mx-3 justify-content-between'>
-                            <p>{currentLanguage === 'english' ? 'Pollution Prevention' : 'Verschmutzungsprävention'}</p>
-                            <span className={DNSHpollution.length > 0 ? (AllDNSHpollution ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'darkgreen-dot mx-4'}></span>
-                        </div>
-                        <div className='d-flex mx-3 justify-content-between'>
-                            <p>{currentLanguage === 'english' ? 'Biodiversity' : 'Biodiversität'}</p>
-                            <span className={DNSHbiodibersity.length > 0 ? (AllDNSHbiodibersity ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'darkgreen-dot mx-4'}></span>
-                        </div>
-                    </div>
-                );
-            })}
-        </section>
+        <span
+            className="tooltip-container"
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+        >
+            {text}
+            {hover && <span className="tooltip">{tooltipText}</span>}
+        </span>
     );
 };

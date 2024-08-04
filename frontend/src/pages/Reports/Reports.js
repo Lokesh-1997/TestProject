@@ -37,7 +37,7 @@ function Reports() {
         const fetchUsers = async () => {
             const email = localStorage.getItem('email');
             try {
-                const response = await fetch(`https://confess-data-tool-backend.vercel.app/api/users`);
+                const response = await fetch(`https://confess-data-tool-backend-beta.vercel.app/api/users`);
                 if (response.ok) {
                     const data = await response.json();
                     const matchedUser = data.find(user => user.email === email);
@@ -67,7 +67,7 @@ function Reports() {
                 return;
             }
             try {
-                const response = await fetch(`https://confess-data-tool-backend.vercel.app/api/dashboard?email=${email}`);
+                const response = await fetch(`https://confess-data-tool-backend-beta.vercel.app/api/dashboard?email=${email}`);
                 if (response.ok) {
                     const data = await response.json();
                     setResults(data);
@@ -121,7 +121,7 @@ function Reports() {
     const NotEligibleturnoverAnswers = FineaNotEligible.map(item =>
         item.answers.find(answer => answer.questionCategory === 'Turnover')
     ).map(answer => answer ? parseFloat(answer.answer[0]) : 0);
-    const NotEligibleTurnover = NotEligibleturnoverAnswers.reduce((acc, val) => acc + val, 0);
+    const NotEligibleTurnover = users.totalTurnover - AlignedTurnover - NotAlignedTurnover;
 
 
     const AlignedcapexAnswers = FinalAligned.map(item =>
@@ -139,7 +139,7 @@ function Reports() {
     const NotEligiblecapexAnswers = FineaNotEligible.map(item =>
         item.answers.find(answer => answer.questionCategory === 'CapEx')
     ).map(answer => answer ? parseFloat(answer.answer[0]) : 0);
-    const NotEligibleCapEx = NotEligiblecapexAnswers.reduce((acc, val) => acc + val, 0);
+    const NotEligibleCapEx = users.totalCapex - AlignedCapEx - NotAlignedCapEx;
 
 
     const AlignedopexAnswers = FinalAligned.map(item =>
@@ -156,39 +156,60 @@ function Reports() {
     const NotEligibleopexAnswers = FineaNotEligible.map(item =>
         item.answers.find(answer => answer.questionCategory === 'OpEx')
     ).map(answer => answer ? parseFloat(answer.answer[0]) : 0);
-    const NotEligibleOpEx = NotEligibleopexAnswers.reduce((acc, val) => acc + val, 0);
+    const NotEligibleOpEx = users.totalOpex - AlignedOpEx - NotAlignedOpEx;
 
 
     const ChartDetails = [
         {
-            title: currentLanguage === 'english' ? "Turnover" : "Umsatz",
-            topic: currentLanguage === 'english' ? "EU Taxonomy alignment for Clean Energy Activities" : "EU-Taxonomie-Ausrichtung für saubere Energieaktivitäten",
+            title: currentLanguage === 'english' ? "Turnover" :
+                currentLanguage === 'czech' ? "Obrat" :
+                    currentLanguage === 'italian' ? "Fatturato" : "Umsatz",
+            topic: currentLanguage === 'english' ? "EU Taxonomy alignment for Clean Energy Activities" :
+                currentLanguage === 'czech' ? "Soulad s taxonomií EU pro činnosti čisté energie" :
+                    currentLanguage === 'italian' ? "Allineamento alla tassonomia UE per le attività di energia pulita" : "EU-Taxonomie-Ausrichtung für saubere Energieaktivitäten",
             alignedValue: AlignedTurnover,
             notAlignedButEligibleValue: NotAlignedTurnover,
-            notEligibleValue: NotEligibleTurnover
+            notEligibleValue: NotEligibleTurnover,
+            showCurrency: true,
         },
         {
-            title: currentLanguage === 'english' ? "CapEx" : "KapEx",
-            topic: currentLanguage === 'english' ? "EU Taxonomy alignment for Clean Energy Activities" : "EU-Taxonomie-Ausrichtung für saubere Energieaktivitäten",
+            title: currentLanguage === 'english' ? "CapEx" :
+                currentLanguage === 'czech' ? "CapEx (Investiční náklady)" :
+                    currentLanguage === 'italian' ? "CapEx (Costi di investimento)" : "CapEx (Investitionskosten)",
+            topic: currentLanguage === 'english' ? "EU Taxonomy alignment for Clean Energy Activities" :
+                currentLanguage === 'czech' ? "Soulad s taxonomií EU pro činnosti čisté energie" :
+                    currentLanguage === 'italian' ? "Allineamento alla tassonomia UE per le attività di energia pulita" : "EU-Taxonomie-Ausrichtung für saubere Energieaktivitäten",
             alignedValue: AlignedCapEx,
             notAlignedButEligibleValue: NotAlignedCapEx,
-            notEligibleValue: NotEligibleCapEx
+            notEligibleValue: NotEligibleCapEx,
+            showCurrency: true,
         },
         {
-            title: currentLanguage === 'english' ? "OpEx" : "OpEx",
-            topic: currentLanguage === 'english' ? "EU Taxonomy alignment for Clean Energy Activities" : "EU-Taxonomie-Ausrichtung für saubere Energieaktivitäten",
+            title: currentLanguage === 'english' ? "OpEx" :
+                currentLanguage === 'czech' ? "OpEx (Provozní náklady)" :
+                    currentLanguage === 'italian' ? "OpEx (Costi operativi)" : "OpEx (Betriebskosten)",
+            topic: currentLanguage === 'english' ? "EU Taxonomy alignment for Clean Energy Activities" :
+                currentLanguage === 'czech' ? "Soulad s taxonomií EU pro činnosti čisté energie" :
+                    currentLanguage === 'italian' ? "Allineamento alla tassonomia UE per le attività di energia pulita" : "EU-Taxonomie-Ausrichtung für saubere Energieaktivitäten",
             alignedValue: AlignedOpEx,
             notAlignedButEligibleValue: NotAlignedOpEx,
-            notEligibleValue: NotEligibleOpEx
+            notEligibleValue: NotEligibleOpEx,
+            showCurrency: true,
         },
         {
-            title: currentLanguage === 'english' ? "# of Activities" : "# der Aktivitäten",
-            topic: currentLanguage === 'english' ? "EU Taxonomy alignment for Clean Energy Activities" : "EU-Taxonomie-Ausrichtung für saubere Energieaktivitäten",
+            title: currentLanguage === 'english' ? "# of Activities" :
+                currentLanguage === 'czech' ? "# aktivit" :
+                    currentLanguage === 'italian' ? "# di Attività" : "# der Aktivitäten",
+            topic: currentLanguage === 'english' ? "EU Taxonomy alignment for Clean Energy Activities" :
+                currentLanguage === 'czech' ? "Soulad s taxonomií EU pro činnosti čisté energie" :
+                    currentLanguage === 'italian' ? "Allineamento alla tassonomia UE per le attività di energia pulita" : "EU-Taxonomie-Ausrichtung für saubere Energieaktivitäten",
             alignedValue: FinalAligned.length,
             notAlignedButEligibleValue: FinalNotAligned.length,
-            notEligibleValue: FineaNotEligible.length
+            notEligibleValue: users.totalActivity - FinalAligned.length - FinalNotAligned.length,
+            showCurrency: false,
         }
     ];
+
 
     return (
         <div className='d-flex justify-content-center mt-5'>
@@ -203,11 +224,11 @@ function Reports() {
                         <p className="card-title">
                             <i>{currentLanguage === 'english' ? 'Disclaimer: The evaluation is based on the information provided in the tool. No verifications were conducted.' : 'Haftungsausschluss: Die Bewertung basiert auf den im Tool bereitgestellten Informationen. Es wurden keine Überprüfungen durchgeführt.'}</i>
                         </p>
-                        <p className="card-title mt-3">{currentLanguage === 'english' ? 'Total Number of Activities:' : 'Gesamtanzahl der Aktivitäten:'} <span>{users.totalActivity}</span></p>
+                        <p className="card-title mt-3">{currentLanguage === 'english' ? 'Total Number of Activities:' : 'Anzahl aller Unternehmensaktivitäten:'} <span>{users.totalActivity}</span></p>
                         <p className="mt-3">
-                            {currentLanguage === 'english' ? 'Total Turnover: ' : 'Gesamtumsatz: '}{users.totalTurnover} € <br />
-                            {currentLanguage === 'english' ? 'Total CapEx: ' : 'Gesamt-KapEx: '}{users.totalCapex} € <br />
-                            {currentLanguage === 'english' ? 'Total OpEx: ' : 'Gesamt-OpEx: '}{users.totalOpex} €
+                            {currentLanguage === 'english' ? 'Total Turnover: ' : 'Umsatz (gesamt): '}{users.totalTurnover} € <br />
+                            {currentLanguage === 'english' ? 'Total CapEx: ' : 'CapEx (gesamt): '}{users.totalCapex} € <br />
+                            {currentLanguage === 'english' ? 'Total OpEx: ' : 'OpEx (gesamt): '}{users.totalOpex} €
                         </p>
                     </div>
                 </div>
@@ -225,9 +246,9 @@ function Reports() {
 
                         return (
                             <div key={index} className='card-main'>
-                                <div className="card card-stats mt-5">
+                                <div className="card card-stats">
                                     <div className="card-body text-start">
-                                        <h3>{value.title}</h3>
+                                        <h4>{value.title}</h4>
                                         <p className="card-title">{value.topic}</p>
 
                                         <div className="circle m-4">
@@ -240,16 +261,16 @@ function Reports() {
 
                                         <div className='row d-flex flex-column justify-content-between align-items-center'>
                                             <div className='col d-flex justify-content-between'>
-                                                <p> <span className='green-dot'></span>{currentLanguage === 'english' ? 'Aligned' : 'Ausrichtung'}</p>
-                                                <p>{value.alignedValue} € ({alignedPercentage.toFixed(1)}%)</p>
+                                                <p><span className='green-dot'></span>{currentLanguage === 'english' ? 'Aligned' : 'Taxonomiekonform'}</p>
+                                                <p>{value.alignedValue} {value.showCurrency ? '€' : ''} ({alignedPercentage.toFixed(1)}%)</p>
                                             </div>
                                             <div className='col d-flex justify-content-between'>
-                                                <p><span className='grey-dot'></span> {currentLanguage === 'english' ? 'Not aligned but eligible' : 'Nicht ausgerichtet, aber berechtigt'}</p>
-                                                <p>{value.notAlignedButEligibleValue} € ({notAlignedButEligiblePercentage.toFixed(1)}%)</p>
+                                                <p><span className='grey-dot'></span>{currentLanguage === 'english' ? 'Not aligned but eligible' : 'Taxonomiefähig'}</p>
+                                                <p>{value.notAlignedButEligibleValue} {value.showCurrency ? '€' : ''} ({notAlignedButEligiblePercentage.toFixed(1)}%)</p>
                                             </div>
                                             <div className='col d-flex justify-content-between'>
-                                                <p><span className='dark-dot'></span>{currentLanguage === 'english' ? 'Not eligible' : 'Nicht berechtigt'}</p>
-                                                <p>{value.notEligibleValue} € ({notEligiblePercentage.toFixed(1)}%)</p>
+                                                <p><span className='dark-dot'></span>{currentLanguage === 'english' ? 'Not eligible' : 'Nicht Taxonomiefähig'}</p>
+                                                <p>{value.notEligibleValue} {value.showCurrency ? '€' : ''} ({notEligiblePercentage.toFixed(1)}%)</p>
                                             </div>
                                         </div>
                                     </div>
@@ -261,7 +282,7 @@ function Reports() {
 
                 <div className="card card-reports mt-5">
                     <div className="card-header text-start">
-                        <h3 className='fw-light'>{currentLanguage === 'english' ? 'Activities in Detail' : 'Aktivitäten im Detail'}</h3>
+                        <h3 className='fw-light'>{currentLanguage === 'english' ? 'Activities in Detail' : 'Detaillierte Auswertung der Aktivitäten'}</h3>
                     </div>
                     <div className="card-body text-start">
                         <p className="card-title">
@@ -269,8 +290,8 @@ function Reports() {
                         </p>
                         <p>{currentLanguage === 'english' ? 'Legend' : 'Legende'}</p>
                         <div className='col'>
-                            <p className="mt-3 d-flex align-items-center"><span className='darkgreen-dot'></span>{currentLanguage === 'english' ? 'Criteria met' : 'Kriterien erfüllt'}</p>
-                            <p className="mt-3 d-flex align-items-center"><span className='orange-dot'></span>{currentLanguage === 'english' ? 'Criteria not met' : 'Kriterien nicht erfüllt'}</p>
+                            <p className="mt-3 d-flex align-items-center"><span className='darkgreen-dot'></span>{currentLanguage === 'english' ? 'Criteria met' : 'Kriterium erfüllt'}</p>
+                            <p className="mt-3 d-flex align-items-center"><span className='orange-dot'></span>{currentLanguage === 'english' ? 'Criteria not met' : 'Kriterium nicht erfüllt'}</p>
                             <p className="mt-3 d-flex align-items-center"><span className='darkgrey-dot'></span>{currentLanguage === 'english' ? 'Criteria not assessable' : 'Kriterien nicht beurteilbar'}</p>
                         </div>
                     </div>
@@ -403,7 +424,7 @@ const DashboardPop = ({ setDashopop, users, setResults, setreloaddash }) => {
         }
 
         try {
-            const response = await fetch(`https://confess-data-tool-backend.vercel.app/api/users/${users._id}/financial-data`, {
+            const response = await fetch(`https://confess-data-tool-backend-beta.vercel.app/api/users/${users._id}/financial-data`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -623,14 +644,14 @@ const DashActivity = ({ DashResult, currentLanguage, alignedValue, notAlignedBut
             );
 
             const dotStatuses = [
-                DNSHAdaption.length > 0 ? (AllDNSHAdaption ? 'darkgrey-dot' : 'orange-dot') : 'darkgreen-dot',
+                DNSHAdaption.length > 0 ? (AllDNSHAdaption ? 'darkgrey-dot' : 'orange-dot') : 'darkgrey-dot',
                 DNSHwater.length > 0 ? (AllDNSHwater ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
-                DNSHce.length > 0 ? (AllDNSHce ? 'darkgreen-dot' : 'orange-dot') : 'darkgreen-dot',
-                DNSHpollution.length > 0 ? (AllDNSHpollution ? 'darkgreen-dot' : 'orange-dot') : 'darkgreen-dot',
-                DNSHbiodibersity.length > 0 ? (AllDNSHbiodibersity ? 'darkgreen-dot' : 'orange-dot') : 'darkgreen-dot',
-                Turnover.length > 0 ? (AllTurnover ? 'darkgreen-dot' : 'orange-dot') : 'darkgreen-dot',
-                Capex.length > 0 ? (AllCapex ? 'darkgreen-dot' : 'orange-dot') : 'darkgreen-dot',
-                OpEx.length > 0 ? (AllOpEx ? 'darkgreen-dot' : 'orange-dot') : 'darkgreen-dot',
+                DNSHce.length > 0 ? (AllDNSHce ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
+                DNSHpollution.length > 0 ? (AllDNSHpollution ? 'darkgreen-dot' : 'darkgreen-dot') : 'darkgrey-dot',
+                DNSHbiodibersity.length > 0 ? (AllDNSHbiodibersity ? 'darkgreen-dot' : 'darkgreen-dot') : 'darkgrey-dot',
+                Turnover.length > 0 ? (AllTurnover ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
+                Capex.length > 0 ? (AllCapex ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
+                OpEx.length > 0 ? (AllOpEx ? 'darkgreen-dot' : 'orange-dot') : 'darkgrey-dot',
             ];
 
             if (dotStatuses.every(status => status === 'darkgrey-dot')) {
@@ -651,16 +672,6 @@ const DashActivity = ({ DashResult, currentLanguage, alignedValue, notAlignedBut
 
     return (
         <section>
-            <div className='mt-5'>
-                <h5 className='text-start'>Filter with Fiscal year</h5>
-                <select className="form-select select-year" aria-label="Default select example" onChange={handleFiscalYearChange} value={selectedFiscalYear}>
-                    <option value="All">All</option>
-                    {getUniqueFiscalYears().map((year, idx) => (
-                        <option key={idx} value={year}>{year}</option>
-                    ))}
-                </select>
-            </div>
-
             {updateValues().map((value, index) => {
                 const filteredAnswers = Array.isArray(value?.answers) ? value.answers.filter(answer => answer.questionType !== "Blank") : [];
                 const SubstentialContribution = filteredAnswers.filter(answer => answer.questionCategory === 'Substantial Contribution');
@@ -715,7 +726,7 @@ const DashActivity = ({ DashResult, currentLanguage, alignedValue, notAlignedBut
                         <p className="mx-3 mt-4">{currentLanguage === 'english' ? 'Do No Significant Harm' : 'Keine wesentlichen Schäden'}</p>
                         <div className='d-flex mx-3 mt-2 justify-content-between'>
                             <p>{currentLanguage === 'english' ? 'Climate Change Adaptation' : 'Klimawandel-Anpassung'}</p>
-                            <span className={DNSHAdaption.length > 0 ? (AllDNSHAdaption ? 'darkgrey-dot mx-4' : 'darkgrey-dot mx-4') : 'darkgrey-dot mx-4'}></span>
+                            <span className={DNSHAdaption.length > 0 ? (AllDNSHAdaption ? 'darkgrey-dot mx-4' : 'darkgrey-dot mx-4') : 'darkgreen-dot mx-4'}></span>
                         </div>
                         <div className='d-flex mx-3 justify-content-between'>
                             <p>{currentLanguage === 'english' ? 'Water and Marine Protection' : 'Wasser- und Meeresschutz'}</p>
@@ -739,17 +750,3 @@ const DashActivity = ({ DashResult, currentLanguage, alignedValue, notAlignedBut
         </section>
     );
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-

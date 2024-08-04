@@ -375,7 +375,6 @@ function AssessmentPage() {
 
             if (response.ok) {
                 alert("Your answers are submitted");
-
                 setResultPop(true)
             } else {
                 const errorData = await response.json();
@@ -496,10 +495,10 @@ function AssessmentPage() {
                             className='input-4 border-secondary text-secondary w-100'
                             name={`question-${question.questionID}`}
                             value={savedAnswer || ''}
-                            max="9999" // Ensure maximum year value is set
+                            max="9999"
                             onChange={(e) => {
                                 const value = e.target.value;
-                                if (/^\d{0,4}$/.test(value)) { // Only allow up to 4 digits
+                                if (/^\d{0,4}$/.test(value)) {
                                     handleAnswerChange(question.questionID, value);
                                 }
                             }}
@@ -521,7 +520,7 @@ function AssessmentPage() {
         if (currentLanguage !== language) {
             localStorage.setItem('language', language);
             setCurrentLanguage(language);
-            window.location.reload(); // Force reload to apply language changes
+            window.location.reload();
         }
     };
 
@@ -530,14 +529,11 @@ function AssessmentPage() {
         <div className='assessment-page container mt-5 py-5'>
             <h4>{examName}</h4>
             {excludedCategories.includes(currentCategory) ? '' : <h4 className='container bg-secondary text-white p-2' style={{ borderRadius: "10px 10px 0px 0px" }}>{currentCategory}</h4>}
-
-
             {currentQuestions.map(question => (
                 <div key={question.questionID} className='question text-start'>
                     <p className='mt-5' dangerouslySetInnerHTML={{ __html: question.question }}></p>
                     {renderQuestionInput(question)}
                     <p className='mt-5' dangerouslySetInnerHTML={{ __html: question.disclaimer }}></p>
-                    {/* <p className='mt-3'><i>{question.disclaimer}</i></p> */}
                 </div>
             ))}
 

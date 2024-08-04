@@ -88,6 +88,8 @@ function CreateAssessment() {
                             <option className='d-none text-secondary' value=""></option>
                             <option value="english">English</option>
                             <option value="german">German</option>
+                            <option value="czech">Czech</option>
+                            <option value="italian">Italian</option>
                         </select>
                         <label className='text-secondary'>Language <span className='text-danger'>*</span></label>
                     </div>

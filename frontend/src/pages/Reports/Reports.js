@@ -719,19 +719,19 @@ const DashActivity = ({ DashResult, currentLanguage, alignedValue, notAlignedBut
                         </div>
                         <div className='d-flex mx-3 justify-content-between'>
                             <p>{currentLanguage === 'english' ? 'Water and Marine Protection' : 'Wasser- und Meeresschutz'}</p>
-                            <span className={DNSHwater.length > 0 ? (AllDNSHwater ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'darkgrey-dot mx-4'}></span>
+                            <span className={DNSHwater.length > 0 ? (AllDNSHwater ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'darkgreen-dot mx-4'}></span>
                         </div>
                         <div className='d-flex mx-3 justify-content-between'>
                             <p>{currentLanguage === 'english' ? 'Circular Economy' : 'Kreislaufwirtschaft'}</p>
-                            <span className={DNSHce.length > 0 ? (AllDNSHce ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'darkgrey-dot mx-4'}></span>
+                            <span className={DNSHce.length > 0 ? (AllDNSHce ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'darkgreen-dot mx-4'}></span>
                         </div>
                         <div className='d-flex mx-3 justify-content-between'>
                             <p>{currentLanguage === 'english' ? 'Pollution Prevention' : 'Verschmutzungsprävention'}</p>
-                            <span className={DNSHpollution.length > 0 ? (AllDNSHpollution ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'darkgrey-dot mx-4'}></span>
+                            <span className={DNSHpollution.length > 0 ? (AllDNSHpollution ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'darkgreen-dot mx-4'}></span>
                         </div>
                         <div className='d-flex mx-3 justify-content-between'>
                             <p>{currentLanguage === 'english' ? 'Biodiversity' : 'Biodiversität'}</p>
-                            <span className={DNSHbiodibersity.length > 0 ? (AllDNSHbiodibersity ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'darkgrey-dot mx-4'}></span>
+                            <span className={DNSHbiodibersity.length > 0 ? (AllDNSHbiodibersity ? 'darkgreen-dot mx-4' : 'orange-dot mx-4') : 'darkgreen-dot mx-4'}></span>
                         </div>
                     </div>
                 );

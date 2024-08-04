@@ -16,6 +16,18 @@ const translations = {
         description: "Wählen Sie aus dieser Liste von Aktivitätstypen den Typ der Aktivität aus, den Sie auf Taxonomieübereinstimmung überprüfen möchten. Nachdem Sie eine Aktivitätseinschätzung abgeschlossen haben, werden Sie zu dieser Seite zurückgebracht, damit Sie anschließend andere Aktivitäten desselben oder eines anderen Typs abschließen können. Die Bewertung der Taxonomieübereinstimmung Ihrer Aktivitäten finden Sie im Dashboard-Bereich. Sobald Sie die Bewertung für eine neue Aktivität abgeschlossen haben, wird das Dashboard automatisch aktualisiert.",
         startButton: "Bewertung starten",
         category: "Kategorie:"
+    },
+    czech: {
+        title: "Výběr činností",
+        description: "Z tohoto seznamu typů činností prosím vyberte typ činnosti, který chcete zkontrolovat z hlediska souladu s taxonomií. Po dokončení hodnocení činnosti budete přesměrováni zpět na tuto stránku, abyste mohli následně dokončit další činnosti stejného nebo jiného typu. Hodnocení souladu vašich činností s taxonomií naleznete v sekci Dashboard. Jakmile dokončíte hodnocení nové činnosti, dashboard se automaticky aktualizuje.",
+        startButton: "Zahájit hodnocení",
+        category: "Kategorie:"
+    },
+    italian: {
+        title: "Selezione delle Attività",
+        description: "Da questo elenco di tipi di attività, selezionare il tipo di attività a cui si desidera verificare l'allineamento con la tassonomia. Una volta completata la valutazione di un'attività, verrai riportato a questa pagina per poter completare successivamente altre attività dello stesso o di diverso tipo. La valutazione dell'allineamento delle tue attività con la tassonomia può essere trovata nella sezione Dashboard. Non appena completi la valutazione di una nuova attività, il dashboard viene aggiornato automaticamente.",
+        startButton: "Inizia la valutazione",
+        category: "Categoria:"
     }
 };
 

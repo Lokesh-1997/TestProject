@@ -7,11 +7,13 @@ const LanguageSelector = ({ SaveLanguage, currentLanguage }) => (
     <ul className="navbar-nav me-auto mb-2 mb-lg-0">
       <li className="nav-item dropdown">
         <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-          {currentLanguage === 'english' ? 'Select Language' : 'Sprache auswählen'}
+          {currentLanguage === 'english' ? 'Select Language' : currentLanguage === 'german' ? 'Sprache auswählen' : currentLanguage === 'czech' ? 'Vyberte jazyk' : 'Seleziona la lingua'}
         </a>
         <ul className="dropdown-menu">
           <li><a className="dropdown-item" href="#" onClick={() => SaveLanguage('english')}>English</a></li>
           <li><a className="dropdown-item" href="#" onClick={() => SaveLanguage('german')}>German</a></li>
+          <li><a className="dropdown-item" href="#" onClick={() => SaveLanguage('czech')}>Czech</a></li>
+          <li><a className="dropdown-item" href="#" onClick={() => SaveLanguage('italian')}>Italian</a></li>
         </ul>
       </li>
     </ul>
@@ -46,6 +48,34 @@ const Content = ({ currentLanguage }) => {
         { title: 'Selbsteinschätzung', text: 'Nutzen Sie das Self-Assessment, um sich mit den Anforderungen der EU-Taxonomie für Ihre Wirtschaftsaktivitäten vertraut zu machen und sich einen ersten Überblick über die mögliche Taxonomieausrichtung Ihrer Aktivitäten zu verschaffen.', btnClass: 'btn-1', link: '/login' },
         { title: 'Expertencheck', text: 'Unsere Experten prüfen Ihre Aussagen im Self-Assessment und verifizieren die Taxonomie-Ausrichtung Ihrer Aktivitäten anhand zusätzlicher Dokumente, die Sie als Nachweis Ihrer Aussagen hochladen.', btnClass: 'btn-5', link: '#' },
         { title: 'Verifizierung durch Dritte', text: 'Ein unabhängiger Dritter prüft Ihre Aussagen im Self-Assessment und verifiziert die Taxonomie-Ausrichtung Ihrer Aktivitäten anhand zusätzlicher Dokumente, die Sie als Nachweis Ihrer Aussagen hochladen.', btnClass: 'btn-5', link: '#' }
+      ]
+    },
+    czech: {
+      heading: 'Vítejte v nástroji EU Data Tool',
+      paragraphs: [
+        'Naším cílem je podpořit (zejména menší) společnosti v jejich reportingu udržitelnosti na základě taxonomie EU.',
+        'Taxonomie EU poskytuje standardizovaný rámec pro klasifikaci environmentálně udržitelných hospodářských činností a má za cíl pomoci směrovat kapitálové toky do takových udržitelných hospodářských činností.',
+        'Náš nástroj vám nabízí možnost získat úvodní přehled o souladu vašich aktivit s taxonomií, a zároveň se seznámit s požadavky taxonomie EU. Kromě toho nástroj nabízí podrobnou analýzu vašich dat a na přání také přezkoumání našimi odborníky nebo nezávislými třetími stranami.',
+        'Pokud s reportováním taxonomie teprve začínáte, doporučujeme začít se sebehodnocením. Kdykoli můžete přejít na další možnosti.'
+      ],
+      cards: [
+        { title: 'Sebehodnocení', text: 'Použijte sebehodnocení k seznámení se s požadavky taxonomie EU pro vaše hospodářské činnosti a získání úvodního přehledu o možné souladu vašich aktivit s taxonomií.', btnClass: 'btn-1', link: '/login' },
+        { title: 'Odborná kontrola', text: 'Naši odborníci prověří vaše výroky v sebehodnocení a ověří soulad vašich aktivit s taxonomií na základě dalších dokumentů, které nahrajete jako důkaz vašich tvrzení.', btnClass: 'btn-5', link: '#' },
+        { title: 'Ověření třetí stranou', text: 'Nezávislá třetí strana prověří vaše výroky v sebehodnocení a ověří soulad vašich aktivit s taxonomií na základě dalších dokumentů, které nahrajete jako důkaz vašich tvrzení.', btnClass: 'btn-5', link: '#' }
+      ]
+    },
+    italian: {
+      heading: 'Benvenuti allo Strumento Dati UE',
+      paragraphs: [
+        'Il nostro obiettivo è supportare (in particolare le piccole) imprese nella loro rendicontazione della sostenibilità basata sulla Tassonomia UE.',
+        'La Tassonomia UE fornisce un quadro standardizzato per la classificazione delle attività economiche ambientalmente sostenibili ed è intesa ad aiutare a indirizzare i flussi di capitale verso tali attività economiche sostenibili.',
+        "Il nostro strumento vi offre l'opportunità di ottenere una panoramica iniziale della conformità delle vostre attività alla tassonomia, familiarizzandovi allo stesso tempo con i requisiti della tassonomia UE.Inoltre, lo strumento offre una valutazione dettagliata dei vostri dati e, se lo desiderate, una revisione da parte dei nostri esperti o di terzi indipendenti.",
+        "Se siete nuovi alla rendicontazione della tassonomia, vi consigliamo di iniziare con l'autovalutazione.Potete passare alle altre opzioni in qualsiasi momento."
+      ],
+      cards: [
+        { title: 'Autovalutazione', text: 'Utilizzate l\'autovalutazione per familiarizzarvi con i requisiti della tassonomia UE per le vostre attività economiche e per ottenere una panoramica iniziale della possibile conformità delle vostre attività alla tassonomia.', btnClass: 'btn-1', link: '/login' },
+        { title: 'Controllo Esperto', text: 'I nostri esperti controllano le vostre dichiarazioni nell\'autovalutazione e verificano la conformità delle vostre attività alla tassonomia sulla base di ulteriori documenti che caricate come prova delle vostre dichiarazioni.', btnClass: 'btn-5', link: '#' },
+        { title: 'Verifica di terzi', text: 'Una terza parte indipendente controlla le vostre dichiarazioni nell\'autovalutazione e verifica la conformità delle vostre attività alla tassonomia sulla base di ulteriori documenti che caricate come prova delle vostre dichiarazioni.', btnClass: 'btn-5', link: '#' }
       ]
     }
   };

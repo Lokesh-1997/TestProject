@@ -9,22 +9,24 @@ import './Navbar.css';
 const LanguageSelector = ({ changeLanguage, currentLanguage }) => (
     <li className="nav-item dropdown">
         <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            {currentLanguage === 'english' ? 'Language' : 'Sprache'}
+            {currentLanguage === 'english' ? 'Language' : currentLanguage === 'german' ? 'Sprache' : currentLanguage === 'czech' ? 'Jazyk' : 'Lingua'}
         </a>
         <ul className="dropdown-menu">
             <li><a className="dropdown-item" href="#" onClick={() => changeLanguage('english')}>English</a></li>
             <li><a className="dropdown-item" href="#" onClick={() => changeLanguage('german')}>German</a></li>
+            <li><a className="dropdown-item" href="#" onClick={() => changeLanguage('czech')}>Czech</a></li>
+            <li><a className="dropdown-item" href="#" onClick={() => changeLanguage('italian')}>Italian</a></li>
         </ul>
     </li>
 );
 
-const UserLinks = () => (
+const UserLinks = ({ currentLanguage }) => (
     <>
         <li className="nav-item">
-            <a className="nav-link" href="/assessment">Assessments</a>
+            <a className="nav-link" href="/assessment">{currentLanguage === 'english' ? 'Assessments' : currentLanguage === 'german' ? 'Bewertungen' : currentLanguage === 'czech' ? 'Hodnocení' : 'Valutazioni'}</a>
         </li>
         <li className="nav-item">
-            <a className="nav-link" href="/results">Reports</a>
+            <a className="nav-link" href="/results">{currentLanguage === 'english' ? 'Reports' : currentLanguage === 'german' ? 'Berichte' : currentLanguage === 'czech' ? 'Zprávy' : 'Rapporti'}</a>
         </li>
     </>
 );
@@ -120,34 +122,44 @@ const NavSection = () => {
                     {/* Toggle menu */}
                     <div className="offcanvas offcanvas-end" tabIndex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
                         <div className="offcanvas-header">
-                            <h5 className="offcanvas-title" id="offcanvasNavbarLabel">{currentLanguage === 'english' ? 'Confess-data-tool-Menu' : 'Confess-Daten-Tool-Menü'}</h5>
+                            <h5 className="offcanvas-title" id="offcanvasNavbarLabel">
+                                {currentLanguage === 'english' ? 'Confess-data-tool-Menu' : currentLanguage === 'german' ? 'Confess-Daten-Tool-Menü' : currentLanguage === 'czech' ? 'Menu nástroje pro přiznání dat' : 'Menu Strumento Dati UE'}
+                            </h5>
                             <button type="button" className="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                         </div>
                         <div className="offcanvas-body">
                             <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
                                 <li className="nav-item">
-                                    <a className="dropdown-item" aria-current="page" href="/landing">{currentLanguage === 'english' ? 'Home' : 'Startseite'}</a>
+                                    <a className="dropdown-item" aria-current="page" href="/landing">
+                                        {currentLanguage === 'english' ? 'Home' : currentLanguage === 'german' ? 'Startseite' : currentLanguage === 'czech' ? 'Domov' : 'Home'}
+                                    </a>
                                 </li>
                                 <li className="nav-item">
-                                    <a className="dropdown-item" href="/reports">{currentLanguage === 'english' ? 'Dashboard' : 'Dashboard'}</a>
+                                    <a className="dropdown-item" href="/reports">
+                                        {currentLanguage === 'english' ? 'Dashboard' : currentLanguage === 'german' ? 'Dashboard' : currentLanguage === 'czech' ? 'Dashboard' : 'Dashboard'}
+                                    </a>
                                 </li>
-                                {!loading && currentUser?.role === 'admin' && <UserLinks />} {/* Show UserLinks only after loading */}
+                                {!loading && currentUser?.role === 'admin' && <UserLinks currentLanguage={currentLanguage} />} {/* Show UserLinks only after loading */}
                                 <LanguageSelector changeLanguage={changeLanguage} currentLanguage={currentLanguage} />
                                 <li className="nav-item">
-                                    <a className="nav-link" href="/datapolicy">{currentLanguage === 'english' ? 'Data Policy' : 'Datenrichtlinie'}</a>
+                                    <a className="nav-link" href="/datapolicy">
+                                        {currentLanguage === 'english' ? 'Data Policy' : currentLanguage === 'german' ? 'Datenrichtlinie' : currentLanguage === 'czech' ? 'Zásady ochrany osobních údajů' : 'Politica sui dati'}
+                                    </a>
                                 </li>
                                 <li className="nav-item">
-                                    <a className="nav-link" href="/landing">{currentLanguage === 'english' ? 'Imprint' : 'Imprint'}</a>
+                                    <a className="nav-link" href="/landing">
+                                        {currentLanguage === 'english' ? 'Imprint' : currentLanguage === 'german' ? 'Impressum' : currentLanguage === 'czech' ? 'Tiráž' : 'Impressum'}
+                                    </a>
                                 </li>
                                 <li className="nav-item dropdown">
                                     <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         {`${username}`} </a>
                                     <ul className="dropdown-menu">
                                         <li className="nav-item">
-                                            <a className="dropdown-item" href="/profile">Settings</a>
+                                            <a className="dropdown-item" href="/profile">{currentLanguage === 'english' ? 'Settings' : currentLanguage === 'german' ? 'Einstellungen' : currentLanguage === 'czech' ? 'Nastavení' : 'Impostazioni'}</a>
                                         </li>
                                         <li className="nav-item">
-                                            <a className="dropdown-item logout-btn" onClick={handleLogout}>{currentLanguage === 'english' ? 'Logout' : 'Abmelden'}</a>
+                                            <a className="dropdown-item logout-btn" onClick={handleLogout}>{currentLanguage === 'english' ? 'Logout' : currentLanguage === 'german' ? 'Abmelden' : currentLanguage === 'czech' ? 'Odhlásit se' : 'Logout'}</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -158,28 +170,36 @@ const NavSection = () => {
                     <div className="d-none d-lg-block">
                         <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                             <li className="nav-item">
-                                <a className="nav-link active" aria-current="page" href="/landing">{currentLanguage === 'english' ? 'Home' : 'Startseite'}</a>
+                                <a className="nav-link active" aria-current="page" href="/landing">
+                                    {currentLanguage === 'english' ? 'Home' : currentLanguage === 'german' ? 'Startseite' : currentLanguage === 'czech' ? 'Domov' : 'Home'}
+                                </a>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link" href="/reports">{currentLanguage === 'english' ? 'Dashboard' : 'Dashboard'}</a>
+                                <a className="nav-link" href="/reports">
+                                    {currentLanguage === 'english' ? 'Dashboard' : currentLanguage === 'german' ? 'Dashboard' : currentLanguage === 'czech' ? 'Dashboard' : 'Dashboard'}
+                                </a>
                             </li>
-                            {!loading && currentUser?.role === 'admin' && <UserLinks />} {/* Show UserLinks only after loading */}
+                            {!loading && currentUser?.role === 'admin' && <UserLinks currentLanguage={currentLanguage} />} {/* Show UserLinks only after loading */}
                             <LanguageSelector changeLanguage={changeLanguage} currentLanguage={currentLanguage} />
                             <li className="nav-item">
-                                <a className="nav-link" href="/datapolicy">{currentLanguage === 'english' ? 'Data Policy' : 'Datenrichtlinie'}</a>
+                                <a className="nav-link" href="/datapolicy">
+                                    {currentLanguage === 'english' ? 'Data Policy' : currentLanguage === 'german' ? 'Datenrichtlinie' : currentLanguage === 'czech' ? 'Zásady ochrany osobních údajů' : 'Politica sui dati'}
+                                </a>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link" href="/landing">{currentLanguage === 'english' ? 'Imprint' : 'Imprint'}</a>
+                                <a className="nav-link" href="/landing">
+                                    {currentLanguage === 'english' ? 'Imprint' : currentLanguage === 'german' ? 'Impressum' : currentLanguage === 'czech' ? 'Tiráž' : 'Impressum'}
+                                </a>
                             </li>
                             <li className="nav-item dropdown">
                                 <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     {`${username}`} </a>
                                 <ul className="dropdown-menu">
                                     <li className="nav-item">
-                                        <a className="dropdown-item" href="/profile">Settings</a>
+                                        <a className="dropdown-item" href="/profile">{currentLanguage === 'english' ? 'Settings' : currentLanguage === 'german' ? 'Einstellungen' : currentLanguage === 'czech' ? 'Nastavení' : 'Impostazioni'}</a>
                                     </li>
                                     <li className="nav-item">
-                                        <a className="dropdown-item logout-btn" onClick={handleLogout}>{currentLanguage === 'english' ? 'Logout' : 'Abmelden'}</a>
+                                        <a className="dropdown-item logout-btn" onClick={handleLogout}>{currentLanguage === 'english' ? 'Logout' : currentLanguage === 'german' ? 'Abmelden' : currentLanguage === 'czech' ? 'Odhlásit se' : 'Logout'}</a>
                                     </li>
                                 </ul>
                             </li>

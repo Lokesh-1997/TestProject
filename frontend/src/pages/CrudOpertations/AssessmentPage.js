@@ -22,7 +22,7 @@ function AssessmentPage() {
     useEffect(() => {
         const fetchQuestions = async () => {
             try {
-                const response = await fetch(`https://confess-data-tool-backend-beta.vercel.app/api/assessments/${examName}/questions`);
+                const response = await fetch(`https://confess-data-tool-backend.vercel.app/api/assessments/${examName}/questions`);
                 if (response.ok) {
                     const data = await response.json();
                     setQuestions(data);
@@ -131,12 +131,16 @@ function AssessmentPage() {
 
                 if (currentQuestion.nextQuestions) {
                     const nextQuestionsArray = currentQuestion.nextQuestions.split(',').map(q => q.trim());
+                    const nextOptionQuestionsArray = currentQuestion.nextQuestions.split('+').map(q => q.trim());
 
                     if (currentQuestion.questionType === 'MCQ' && currentQuestion.options.includes('Yes') && currentQuestion.options.includes('No')) {
                         const selectedAnswer = answers[currentQuestion.questionID];
 
                         if (selectedAnswer === 'Yes' && nextQuestionsArray.length >= 1) {
                             newQuestionIDs.push(nextQuestionsArray[0]);
+
+                            console.log(nextQuestionsArray);
+
 
                             // TODO: Add proper assessment logic.
                             /*if (currentQuestion.notifytext && !shownNotifications.has(currentQuestion.questionID)) { // Check if notifytext has been shown
@@ -180,11 +184,22 @@ function AssessmentPage() {
                         } else {
                             newQuestionIDs.push(...nextQuestionsArray);
                         }
-                    } else if (currentQuestion.questionType === 'Short' || currentQuestion.questionType === 'Long Text') {
+                    }
+                    else if (currentQuestion.questionType === 'MCQ-AfterMultiple' && currentQuestion.options.includes('Yes') && currentQuestion.options.includes('No')) {
+                        const selectedAnswer = answers[currentQuestion.questionID];
+                        if (selectedAnswer === 'Yes' && nextQuestionsArray.length >= 1) {
+                            newQuestionIDs.push(...nextOptionQuestionsArray[0]);
+                        } else if (selectedAnswer === 'No' && nextQuestionsArray.length >= 1) {
+                            newQuestionIDs.push(...nextOptionQuestionsArray[1]);
+                        } else {
+                            newQuestionIDs.push(...nextQuestionsArray);
+                        }
+                    }
+                    else if (currentQuestion.questionType === 'Short' || currentQuestion.questionType === 'Long Text') {
                         const answered = answers[currentQuestion?.questionID] || '';
                         if (answered && nextQuestionsArray.length >= 1) {
                             newQuestionIDs.push(nextQuestionsArray[0]);
-                        } else if (!answered && nextQuestionsArray.length >= 1) {
+                        } else if (!answered && nextQuestionsArray.length > 1) {
                             newQuestionIDs.push(nextQuestionsArray[1]);
                         } else {
                             newQuestionIDs.push(...nextQuestionsArray);
@@ -230,6 +245,7 @@ function AssessmentPage() {
             }
         });
 
+        console.log(shouldProceed);
         if (shouldProceed) { // Only proceed if no alert was shown
             const nextQuestions = newQuestionIDs.map(id => questions.find(q => q.questionID === id));
             setAllCurrentQuestions(prev => [...prev, ...nextQuestions.filter(Boolean)]);
@@ -387,6 +403,24 @@ function AssessmentPage() {
         const savedAnswer = answers[question.questionID];
         switch (question.questionType) {
             case 'MCQ':
+                return (
+                    <>
+                        {question.options.filter(option => option).map((option, index) => (
+                            <div key={index} className='fs-6'>
+                                <input
+                                    type="radio"
+                                    className='m-1 form-check-input'
+                                    name={`question-${question.questionID}`}
+                                    value={option}
+                                    checked={savedAnswer === option}
+                                    onChange={() => handleAnswerChange(question.questionID, option)}
+                                />
+                                {option}
+                            </div>
+                        ))}
+                    </>
+                );
+            case 'MCQ-AfterMultiple':
                 return (
                     <>
                         {question.options.filter(option => option).map((option, index) => (
